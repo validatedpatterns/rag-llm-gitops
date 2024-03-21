@@ -4,6 +4,7 @@ metadata:
   name: rec
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   serviceAccountName: rec
   redisEnterpriseNodeResources:
@@ -20,7 +21,7 @@ spec:
     repository: registry.connect.redhat.com/redislabs/redis-enterprise-operator
     versionTag: ''
   clusterCredentialSecretName: rec
-  nodes: 1
+  nodes: 3
   persistentSpec:
     enabled: true
     volumeSize: 20Gi

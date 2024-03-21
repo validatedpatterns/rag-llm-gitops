@@ -3,11 +3,11 @@ apiVersion: route.openshift.io/v1
 metadata:
   name: llm-ui
   labels:
-    app: gradio-hftgi-rag-redis
+    app: ui-multiprovider-rag-redis
 spec:
   to:
     kind: Service
-    name: gradio-hftgi-rag-redis-model1
+    name: ui-multiprovider-rag-redis
     weight: 100
   port:
     targetPort: http
