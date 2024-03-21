@@ -1,0 +1,23 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: gradio-hftgi-rag-redis-model1
+  labels:
+    app: gradio-hftgi-rag-redis-model1
+spec:
+  clusterIP: None
+  ipFamilies:
+    - IPv4
+  ports:
+    - name: http
+      protocol: TCP
+      port: 7860
+      targetPort: http
+    - name: metrics
+      protocol: TCP
+      port: 8000
+      targetPort: 8000
+  internalTrafficPolicy: Cluster
+  type: ClusterIP
+  selector:
+    app: gradio-hftgi-rag-redis-model1

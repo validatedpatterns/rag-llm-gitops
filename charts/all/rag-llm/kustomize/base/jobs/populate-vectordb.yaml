@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: populate-vectordb
+spec:
+  completions: 1
+  activeDeadlineSeconds: 1800
+  backoffLimit: 1
+  template:
+    metadata:
+      name: populate-vectordb
+    spec:
+      initContainers:
+        - name: wait-for-redis
+          image: goodsmileduck/redis-cli
+          imagePullPolicy: IfNotPresent
+          args: [ 'sh', '-c', 'until redis-cli -h my-doc-headless.$(NAMESPACE).svc.cluster.local -p 10225  get hello; do echo "Sleeping a bit"; sleep 1; done; echo "ready!"; ' ]
+      containers:
+        - name: embeddingjob
+          image: quay.io/ecosystem-appeng/embeddingjob:latest
+          command: ["python3.11",  "./Langchain-Redis-Ingest.py"]
+          env:
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: redb-my-doc
+                  key: password
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: REDIS_URL
+              value: redis://default:$(DB_PASS)@my-doc-headless.$(NAMESPACE).svc.cluster.local:10225
+            - name: SENTENCE_TRANSFORMERS_HOME
+              value: '/cache/.cache'
+          volumeMounts:
+            - mountPath: /cache/
+              name: cache-volume
+      volumes:
+        - name: cache-volume
+          emptyDir:
+            sizeLimit: 500Mi
+      restartPolicy: Never

@@ -5,18 +5,16 @@ clusterGroup:
     - open-cluster-management
     - vault
     - golang-external-secrets
-    - config-demo
-    - hello-world
+    - my-doc
   subscriptions:
-    acm:
-      name: advanced-cluster-management
-      namespace: open-cluster-management
-      channel: release-2.9
-      #csv: advanced-cluster-management.v2.6.1
+    # acm:
+    #   name: advanced-cluster-management
+    #   namespace: open-cluster-management
+    #   channel: release-2.9
+    #   csv: advanced-cluster-management.v2.6.1
   projects:
     - hub
-    - config-demo
-    - hello-world
+    - rag-llm
   # Explicitly mention the cluster-state based overrides we plan to use for this pattern.
   # We can use self-referential variables because the chart calls the tpl function with these variables defined
   sharedValueFiles:
@@ -38,16 +36,16 @@ clusterGroup:
   #   - '/overrides/values-{{ $.Values.global.hubClusterDomain }}.yaml'
   #   - '/overrides/values-{{ $.Values.global.localClusterDomain }}.yaml'
   applications:
-    acm:
-      name: acm
-      namespace: open-cluster-management
-      project: hub
-      path: common/acm
-      ignoreDifferences:
-        - group: internal.open-cluster-management.io
-          kind: ManagedClusterInfo
-          jsonPointers:
-            - /spec/loggingCA
+    # acm:
+    #   name: acm
+    #   namespace: open-cluster-management
+    #   project: hub
+    #   path: common/acm
+    #   ignoreDifferences:
+    #     - group: internal.open-cluster-management.io
+    #       kind: ManagedClusterInfo
+    #       jsonPointers:
+    #         - /spec/loggingCA
     vault:
       name: vault
       namespace: vault
@@ -58,16 +56,12 @@ clusterGroup:
       namespace: golang-external-secrets
       project: hub
       path: common/golang-external-secrets
-    config-demo:
-      name: config-demo
-      namespace: config-demo
-      project: config-demo
-      path: charts/all/config-demo
-    hello-world:
-      name: hello-world
-      namespace: hello-world
-      project: hello-world
-      path: charts/all/hello-world
+    rag-llm:
+      name: rag-llm
+      namespace: rag-llm
+      project: rag-llm
+      kustomize: true
+      path: charts/all/rag-llm/kustomize/overlays/dev
   imperative:
     # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm
     # The default schedule is every 10 minutes: imperative.schedule

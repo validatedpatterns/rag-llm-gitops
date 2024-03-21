@@ -1,0 +1,120 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: hf-text-generation-inference-server-model1
+  labels:
+    app: hf-text-generation-inference-server-model1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hf-text-generation-inference-server-model1
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: hf-text-generation-inference-server-model1
+    spec:
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nvidia.com/gpu.present
+                    operator: In
+                    values:
+                      - "true"
+      terminationGracePeriodSeconds: 120
+      securityContext: {}
+      containers:
+        - resources:
+            limits:
+              cpu: '3'
+              memory: 24Gi
+              nvidia.com/gpu: '1'
+            requests:
+              cpu: '3'
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            timeoutSeconds: 5
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: server
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            timeoutSeconds: 8
+            periodSeconds: 100
+            successThreshold: 1
+            failureThreshold: 3
+          env:
+            - name: MODEL_ID
+              value: meta-llama/Llama-2-7b-chat-hf
+            - name: MAX_INPUT_LENGTH
+              value: '1024'
+            - name: MAX_TOTAL_TOKENS
+              value: '2048'
+            - name: HUGGINGFACE_HUB_CACHE
+              value: /models-cache
+            - name: PORT
+              value: '3000'
+            - name: HOST
+              value: 0.0.0.0
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: huggingface-hub-token
+                  key: token
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          imagePullPolicy: IfNotPresent
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            timeoutSeconds: 1
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 24
+          volumeMounts:
+            - name: models-cache
+              mountPath: /models-cache
+            - name: shm
+              mountPath: /dev/shm
+          terminationMessagePolicy: File
+          image: 'ghcr.io/huggingface/text-generation-inference:1.3.3'
+      volumes:
+        - name: models-cache
+          persistentVolumeClaim:
+            claimName: models-cache-model1
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+      dnsPolicy: ClusterFirst
+      tolerations:
+        - key: odh-notebook
+          value: 'true'
+          effect: NoSchedule
+  strategy:
+    type: Recreate

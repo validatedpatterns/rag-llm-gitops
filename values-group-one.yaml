@@ -9,12 +9,14 @@ clusterGroup:
   namespaces:
     - config-demo
     - hello-world
+    - rag-llm
     - golang-external-secrets
   subscriptions:
   projects:
     - eso
     - config-demo
     - hello-world
+    - rag-llm
   applications:
     golang-external-secrets:
       name: golang-external-secrets
@@ -31,6 +33,12 @@ clusterGroup:
       namespace: hello-world
       project: hello-world
       path: charts/all/hello-world
+    rag-llm:
+      name: rag-llm
+      namespace: rag-llm
+      project: rag-llm
+      kustomize: true
+      path: charts/all/rag-llm/kustomize/overlays/dev
   imperative:
     # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm
     # The default schedule is every 10 minutes: imperative.schedule
