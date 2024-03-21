@@ -38,7 +38,8 @@ else
     MYNAME=$(id -n -u)
     MYUID=$(id -u)
     MYGID=$(id -g)
-    PODMAN_ARGS="--passwd-entry ${MYNAME}:x:${MYUID}:${MYGID}:/pattern-home:/bin/bash --user ${MYUID}:${MYGID} --userns keep-id:uid=${MYUID},gid=${MYGID}"
+	PODMAN_ARGS="-v ${HOME}:/root"
+   	PODMAN_ARGS="--passwd-entry ${MYNAME}:x:${MYUID}:${MYGID}:/pattern-home:/bin/bash --user ${MYUID}:${MYGID} --userns keep-id:uid=${MYUID},gid=${MYGID}"
 fi
 
 if [ -n "$KUBECONFIG" ]; then
@@ -52,7 +53,7 @@ fi
 # $HOME is mounted as itself for any files that are referenced with absolute paths
 # $HOME is mounted to /root because the UID in the container is 0 and that's where SSH looks for credentials
 
-podman run -it --rm --pull=newer \
+podman run --platform linux/amd64 -it --rm --pull=newer \
 	--security-opt label=disable \
 	-e EXTRA_HELM_OPTS \
 	-e KUBECONFIG \

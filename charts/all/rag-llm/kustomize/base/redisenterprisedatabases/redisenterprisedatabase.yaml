@@ -1,0 +1,17 @@
+apiVersion: app.redislabs.com/v1alpha1
+kind: RedisEnterpriseDatabase
+metadata:
+  name: my-doc
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  databasePort: 10225
+  memorySize: 3GB
+  modulesList:
+    - name: search
+      version: 2.8.9
+  persistence: snapshotEvery12Hour
+  replication: true
+  tlsMode: disabled
+  type: redis

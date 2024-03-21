@@ -11,3 +11,4 @@ pattern-vault.init.bak
 super-linter.log
 golang-external-secrets/Chart.lock
 hashicorp-vault/Chart.lock
+.vscode

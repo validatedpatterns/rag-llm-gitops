@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: populate-vectordb
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  completions: 1
+  activeDeadlineSeconds: 1800
+  backoffLimit: 1
+  template:
+    metadata:
+      name: populate-vectordb
+    spec:
+      containers:
+        - name: embeddingjob
+          image: quay.io/ecosystem-appeng/embeddingjob:latest
+          command: ["python3.11",  "./Langchain-Redis-Ingest.py"]
+          env:
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: redb-my-doc
+                  key: password
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: REDIS_URL
+              value: redis://default:$(DB_PASS)@my-doc-headless.$(NAMESPACE).svc.cluster.local:10225
+            - name: SENTENCE_TRANSFORMERS_HOME
+              value: '/cache/.cache'
+          volumeMounts:
+            - mountPath: /cache/
+              name: cache-volume
+      volumes:
+        - name: cache-volume
+          emptyDir:
+            sizeLimit: 500Mi
+      restartPolicy: Never
