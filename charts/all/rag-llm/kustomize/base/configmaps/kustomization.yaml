@@ -3,8 +3,11 @@ kind: Kustomization
 generatorOptions:
   disableNameSuffixHash: true
 configMapGenerator:
-  - files:
+  - name: redis-schema
+    files:
       - files/redis_schema.yaml
-    name: redis-schema
+  - name: providerconfig
+    files:
+      - files/config.yaml
 commonAnnotations:
   kustomize.config.k8s.io/behavior: replace

@@ -1,13 +1,11 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
-  name: models-cache-model1
+  name: db-redis-stack-server
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 30Gi
+      storage: 20Gi
   volumeMode: Filesystem

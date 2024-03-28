@@ -2,6 +2,8 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: populate-vectordb
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   completions: 1
   activeDeadlineSeconds: 1800
@@ -10,11 +12,6 @@ spec:
     metadata:
       name: populate-vectordb
     spec:
-      initContainers:
-        - name: wait-for-redis
-          image: goodsmileduck/redis-cli
-          imagePullPolicy: IfNotPresent
-          args: [ 'sh', '-c', 'until redis-cli -h my-doc-headless.$(NAMESPACE).svc.cluster.local -p 10225  get hello; do echo "Sleeping a bit"; sleep 1; done; echo "ready!"; ' ]
       containers:
         - name: embeddingjob
           image: quay.io/ecosystem-appeng/embeddingjob:latest

@@ -1,0 +1,43 @@
+llm_providers:
+  - name: "Hugging Face"
+    enabled: True
+    models:
+      - name: meta-llama/Llama-2-7b-chat-hf
+        weight: 1
+        url: http://hf-text-generation-inference-server-model1:3000
+        params:
+          - name: max_new_tokens
+            value: 1024
+          - name: temperature
+            value: 0.01
+          - name: top_k
+            value: 10
+          - name: top_p
+            value: 0.95
+          - name: repetition_penalty
+            value: 1.03
+          - name: verbose
+            value: False
+          - name: typical_p
+            value: 0.95
+  - name: OpenAI
+    url: "https://api.openai.com/v1"
+    credentials_path: /app-root/config/openai/openai_api_key.txt
+    enabled: False
+    models:
+      - name: gpt-3.5-turbo
+        weight: 1
+        enabled: True
+        params:
+          - name: max_tokens
+            value: 1024
+          - name: temperature
+            value: 0.01
+          # - name: top_p
+          #   value: 0.95
+          - name: verbose
+            value: False
+default_provider: "Nemo"
+default_model: "llama-2-7b-chat"
+# type values=(default, round_robin,  all)
+type: all

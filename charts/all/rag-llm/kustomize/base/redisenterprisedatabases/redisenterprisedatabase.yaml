@@ -4,6 +4,7 @@ metadata:
   name: my-doc
   annotations:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   databasePort: 10225
   memorySize: 3GB
@@ -12,6 +13,5 @@ spec:
       version: 2.8.9
   persistence: snapshotEvery12Hour
   replication: true
-  shardCount: 1
   tlsMode: disabled
   type: redis
