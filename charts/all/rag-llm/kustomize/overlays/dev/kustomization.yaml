@@ -47,6 +47,7 @@ patches:
       - op: remove
         path: /metadata/annotations/argocd.argoproj.io~1sync-wave
 resources:
+  - ../../base/pvc
   - ../../base/deployments
   - ../../base/services
   - ../../base/configmaps
@@ -54,9 +55,7 @@ resources:
   - ../../base/routes
   - ../../base/jobs
 # Overriding default RedisEnterprise installation
-  - deployments/redis-stack-server.yaml
-  - pvc/redis-stack-server.yaml
-  - services/redis-stack-server.yaml
+  
   - namespaces
 secretGenerator:
   - name: huggingface-hub-token

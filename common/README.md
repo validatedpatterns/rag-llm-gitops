@@ -6,7 +6,7 @@
 
 This repository is never used as standalone. It is usually imported in each pattern as a subtree.
 In order to import the common/ the very first time you can use
-`https://github.com/validatedpatterns/multicloud-gitops/blob/main/common/scripts/make_common_subtree.sh`
+`https://github.com/validatedpatterns/rag-llm-gitops/blob/main/common/scripts/make_common_subtree.sh`
 
 In order to update your common subtree inside your pattern repository you can either use
 `https://github.com/validatedpatterns/utilities/blob/main/scripts/update-common-everywhere.sh` or

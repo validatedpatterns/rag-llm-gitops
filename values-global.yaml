@@ -1,6 +1,6 @@
 ---
 global:
-  pattern: multicloud-gitops
+  pattern: rag-llm-gitops
   options:
     useCSV: false
     syncPolicy: Automatic
