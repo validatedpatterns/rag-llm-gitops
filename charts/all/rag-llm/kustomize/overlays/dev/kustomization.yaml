@@ -55,7 +55,6 @@ resources:
   - ../../base/routes
   - ../../base/jobs
 # Overriding default RedisEnterprise installation
-  
   - namespaces
 secretGenerator:
   - name: huggingface-hub-token
