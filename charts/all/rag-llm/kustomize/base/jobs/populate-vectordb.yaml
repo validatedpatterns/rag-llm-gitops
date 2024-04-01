@@ -37,5 +37,5 @@ spec:
       volumes:
         - name: cache-volume
           emptyDir:
-            sizeLimit: 500Mi
+            sizeLimit: 2Gi
       restartPolicy: Never

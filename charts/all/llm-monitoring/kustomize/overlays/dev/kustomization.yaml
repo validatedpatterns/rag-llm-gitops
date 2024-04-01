@@ -19,7 +19,7 @@ patchesJSON6902:
     patch: |-
       - op: replace
         path: /spec/namespaceSelector/matchNames/0
-        value: tgis-llm-demo
+        value: rag-llm
   - target:
       group: monitoring.coreos.com
       version: v1
@@ -28,7 +28,7 @@ patchesJSON6902:
     patch: |-
       - op: replace
         path: /spec/namespaceSelector/matchNames/0
-        value: tgis-llm-demo
+        value: rag-llm
   - target:
       group: rbac.authorization.k8s.io
       version: v1
