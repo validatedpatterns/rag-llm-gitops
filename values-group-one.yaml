@@ -7,38 +7,31 @@ clusterGroup:
   name: group-one
   isHubCluster: false
   namespaces:
-    - config-demo
-    - hello-world
     - rag-llm
     - golang-external-secrets
   subscriptions:
   projects:
     - eso
-    - config-demo
-    - hello-world
     - rag-llm
+    - llm-monitoring
   applications:
     golang-external-secrets:
       name: golang-external-secrets
       namespace: golang-external-secrets
       project: eso
       path: common/golang-external-secrets
-    config-demo:
-      name: config-demo
-      namespace: config-demo
-      project: config-demo
-      path: charts/all/config-demo
-    hello-world:
-      name: hello-world
-      namespace: hello-world
-      project: hello-world
-      path: charts/all/hello-world
     rag-llm:
       name: rag-llm
       namespace: rag-llm
       project: rag-llm
       kustomize: true
       path: charts/all/rag-llm/kustomize/overlays/dev
+    llm-monitoring:
+      name: llm-monitoring
+      namespace: llm-monitoring
+      project: llm-monitoring
+      kustomize: true
+      path: charts/all/llm-monitoring/kustomize/overlays/dev
   imperative:
     # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm
     # The default schedule is every 10 minutes: imperative.schedule

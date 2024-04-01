@@ -1,0 +1,16 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: llm-ui
+  labels:
+    app: gradio-hftgi-rag-redis
+spec:
+  to:
+    kind: Service
+    name: gradio-hftgi-rag-redis-mistral
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+  wildcardPolicy: None

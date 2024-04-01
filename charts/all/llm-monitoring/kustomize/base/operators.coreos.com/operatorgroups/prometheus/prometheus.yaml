@@ -1,0 +1,8 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: prometheus-og
+spec:
+  targetNamespaces:
+    - ai-llm-prometheus
+  upgradeStrategy: Default
