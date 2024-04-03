@@ -1,5 +1,5 @@
 # This is only needed for RHPDS
-- name: MultiCloud-GitOps RHPDS bootstrap
+- name: RAG-LLM-GitOps RHPDS bootstrap
   hosts: localhost
   connection: local
   tasks:

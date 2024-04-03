@@ -17,7 +17,7 @@ logger = logging.getLogger(__loggername__)
 oc = os.environ["HOME"] + "/oc_client/oc"
 
 """
-Validate following multicloud-gitops components pods and endpoints on edge site (line server):
+Validate following rag-llm-gitops components pods and endpoints on edge site (line server):
 
 1) argocd
 2) ACM agents

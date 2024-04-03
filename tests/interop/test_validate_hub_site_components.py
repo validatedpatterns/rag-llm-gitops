@@ -18,7 +18,7 @@ logger = logging.getLogger(__loggername__)
 oc = os.environ["HOME"] + "/oc_client/oc"
 
 """
-Validate following multicloud-gitops components pods and endpoints on hub site (central server):
+Validate following rag-llm-gitops components pods and endpoints on hub site (central server):
 
 1) ACM (Advanced Cluster Manager) and self-registration
 2) argocd
@@ -296,7 +296,7 @@ def test_validate_argocd_reachable_hub_site(openshift_dyn_client):
 def test_validate_argocd_applications_health_hub_site(openshift_dyn_client):
     unhealthy_apps = []
     logger.info("Get all applications deployed by argocd on hub site")
-    projects = ["openshift-gitops", "multicloud-gitops-hub"]
+    projects = ["openshift-gitops", "rag-llm-gitops-hub"]
     for project in projects:
         for app in ArgoCD.get(dyn_client=openshift_dyn_client, namespace=project):
             app_name = app.instance.metadata.name

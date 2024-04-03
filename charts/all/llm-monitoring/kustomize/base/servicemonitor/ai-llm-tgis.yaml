@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: frontend
+  name: ai-llm-tgis-sm
+spec:
+  endpoints:
+    - port: http
+  namespaceSelector:
+    matchNames:
+      - tgis-llm-demo
+  selector:
+    matchExpressions:
+      - {key: app, operator: In, values: [hf-text-generation-inference-server-model1,hf-text-generation-inference-server-model2]}

@@ -1,0 +1,19 @@
+apiVersion: integreatly.org/v1alpha1
+kind: GrafanaDataSource
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  name: prometheus-datasource
+spec:
+  datasources:
+    - access: proxy
+      editable: true
+      secureJsonData: {}
+      name: Prometheus
+      url: 'prometheus-operated:9090'
+      jsonData:
+        timeInterval: 5s
+      isDefault: true
+      version: 1
+      type: prometheus
+  name: prometheus.yaml
