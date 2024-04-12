@@ -2,7 +2,7 @@ llm_providers:
   - name: "Hugging Face"
     enabled: True
     models:
-      - name: meta-llama/Llama-2-7b-chat-hf
+      - name: mistralai/Mistral-7B-Instruct-v0.1
         weight: 1
         url: http://hf-text-generation-inference-server-model1:3000
         params:
@@ -38,6 +38,6 @@ llm_providers:
   #         - name: verbose
   #           value: False
 default_provider: "Hugging Face"
-default_model: "meta-llama/Llama-2-7b-chat-hf"
+default_model: "mistralai/Mistral-7B-Instruct-v0.1"
 # type values=(default, round_robin,  all)
 type: all
