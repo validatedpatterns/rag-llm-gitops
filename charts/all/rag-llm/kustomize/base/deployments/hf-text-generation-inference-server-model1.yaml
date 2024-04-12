@@ -60,7 +60,7 @@ spec:
             failureThreshold: 3
           env:
             - name: MODEL_ID
-              value: meta-llama/Llama-2-7b-chat-hf
+              value: mistralai/Mistral-7B-Instruct-v0.1
             - name: MAX_INPUT_LENGTH
               value: '1024'
             - name: MAX_TOTAL_TOKENS
@@ -71,11 +71,6 @@ spec:
               value: '3000'
             - name: HOST
               value: 0.0.0.0
-            - name: HUGGING_FACE_HUB_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: huggingface-hub-token
-                  key: token
           securityContext:
             capabilities:
               drop:

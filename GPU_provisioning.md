@@ -47,7 +47,9 @@ Depending on type of EC2 instance creation of the new machines make take some ti
 
 ## Install Node Feature Operator
 
-From OperatorHub install Node Feature Discovery Operator , accepting defaults . Once Operator has been installed , create `NodeFeatureDiscovery`instance . Use default entries unless you something specific is needed . Node Feature Discovery Operator will add labels to nodes based on available hardware resources
+From OperatorHub install `Node Feature Discovery Operator` , accepting defaults . Once Operator has been installed , create `NodeFeatureDiscovery`instance . Use default entries unless you something specific is needed . Node Feature Discovery Operator will add labels to nodes based on available hardware resources
+
+![Diagram](images/node-feature-discovery.png)
 
 ## Install NVIDI GPU Operator
 
