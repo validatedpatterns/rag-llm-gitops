@@ -2,7 +2,7 @@ llm_providers:
   - name: "Hugging Face"
     enabled: True
     models:
-      - name: mistralai/Mistral-7B-Instruct-v0.1
+      - name: mistral-community/Mistral-7B-v0.2
         weight: 1
         url: http://hf-text-generation-inference-server-model1:3000
         params:
@@ -38,6 +38,6 @@ llm_providers:
   #         - name: verbose
   #           value: False
 default_provider: "Hugging Face"
-default_model: "mistralai/Mistral-7B-Instruct-v0.1"
+default_model: "mistral-community/Mistral-7B-v0.2"
 # type values=(default, round_robin,  all)
 type: all
