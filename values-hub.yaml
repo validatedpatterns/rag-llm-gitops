@@ -5,16 +5,30 @@ clusterGroup:
     - open-cluster-management
     - vault
     - golang-external-secrets
+    - openshift-nfd
+    - nvidia-gpu-operator
   subscriptions:
     # acm:
     #   name: advanced-cluster-management
     #   namespace: open-cluster-management
     #   channel: release-2.9
     #   csv: advanced-cluster-management.v2.6.1
+    nfd:
+      name: nfd
+      namespace: openshift-nfd
+      channel: stable
+    nvidia:
+      name: gpu-operator-certified
+      namespace: nvidia-gpu-operator
+      channel: v23.6
+      source: certified-operators
+
   projects:
     - hub
     - rag-llm
     - llm-monitoring
+    - gpu-config
+
   # Explicitly mention the cluster-state based overrides we plan to use for this pattern.
   # We can use self-referential variables because the chart calls the tpl function with these variables defined
   sharedValueFiles:
@@ -68,6 +82,30 @@ clusterGroup:
       project: llm-monitoring
       kustomize: true
       path: charts/all/llm-monitoring/kustomize/overlays/dev
+
+    nfd-config:
+      name: nfd-config
+      namespace: openshift-cfd
+      project: gpu-config
+      path: charts/all/nfd-config
+
+    nvidia-config:
+      name: nvidia-config
+      namespace: nvidia-network-operator
+      project: gpu-config
+      path: charts/all/nvidia-gpu-config
+
+    llm-ui-config:
+      name: rag-llm-ui-config
+      namespace: rag-llm
+      project: gpu-config
+      path: charts/all/rag-llm-ui-config
+
+    llm-monitoring-config:
+      name: grafana-ui-config
+      namespace: llm-monitoring
+      project: gpu-config
+      path: charts/all/llm-monitoring-config
 
   imperative:
     # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm

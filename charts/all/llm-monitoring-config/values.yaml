@@ -1,0 +1,5 @@
+global:
+  localClusterDomain: example.com
+  hubClusterDomain: example.com
+grafanaui:
+  namespace: llm-monitoring
