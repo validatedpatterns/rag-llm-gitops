@@ -23,7 +23,54 @@ The goal of this demo is to demonstrate a Chatbot LLM application augmented with
 - Monitoring dashboard to provide key metrics such as ratings
 - GitOps setup to deploy e2e demo (frontend / vector database / served models)
 
+
+![Overview](https://gitlab.com/osspa/portfolio-architecture-examples/-/raw/main/images/intro-marketectures/rag-demo-vp-marketing-slide.png)
+
+_Figure 1. Overview of the validated pattern for RAG Demo with Red Hat OpenShift_
+
+
+![Logical](https://gitlab.com/osspa/portfolio-architecture-examples/-/raw/main/images/logical-diagrams/rag-demo-vp-ld.png)
+
+_Figure 2. Logical diagram of the RAG Demo with Red Hat OpenShift._
+
+
+#### RAG Demo Workflow
+
+![Overview of workflow](https://gitlab.com/osspa/portfolio-architecture-examples/-/raw/main/images/schematic-diagrams/rag-demo-vp-sd.png)
+
+_Figure 3. Schematic diagram for workflow of RAG demo with Red Hat OpenShift._
+
+
+#### RAG Data Ingestion
+
+![ingestion](https://gitlab.com/osspa/portfolio-architecture-examples/-/raw/main/images/schematic-diagrams/rag-demo-vp-ingress-sd.png)
+
+_Figure 4. Schematic diagram for Ingestion of data for RAG._
+
+
+#### RAG Augmented Query
+
+
+![query](https://gitlab.com/osspa/portfolio-architecture-examples/-/raw/main/images/schematic-diagrams/rag-demo-vp-query-sd.png)
+
+_Figure 5. Schematic diagram for RAG demo augmented query._
+
+
+In Figure 5, we can see RAG augmented query. Llama 2 model is used for for language processing, LangChain to
+integrate different tools of the LLM-based application together and to process the PDF
+files and web pages, Redis is used to store vectors, HuggingFace TGI is used to serve the Llama 2 model, Gradio is used for user interface and object storage to store language model and other datasets. Solution components are deployed as microservices in the Red Hat OpenShift cluster.
+
+
+#### Download diagrams
+View and download all of the diagrams above in our open source tooling site.
+
+[Open Diagrams](https://www.redhat.com/architect/portfolio/tool/index.html?#gitlab.com/osspa/portfolio-architecture-examples/-/raw/main/diagrams/rag-demo-vp.drawio)
+
+
+
+
 ![Diagram](images/diagram.png)
+_Figure 6. Proposed demo architecture with OpenShift AI_
 
 ### Components deployed
 
