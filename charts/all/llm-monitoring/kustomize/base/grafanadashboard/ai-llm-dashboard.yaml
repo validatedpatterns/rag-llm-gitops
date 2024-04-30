@@ -97,8 +97,8 @@ spec:
           "scopedVars": {
             "ModelID": {
               "selected": false,
-              "text": "meta-llama/Llama-2-7b-chat-hf",
-              "value": "meta-llama/Llama-2-7b-chat-hf"
+              "text": "mistral-community/Mistral-7B-v0.2",
+              "value": "mistral-community/Mistral-7B-v0.2"
             }
           },
           "targets": [
@@ -246,8 +246,8 @@ spec:
           "scopedVars": {
             "ModelID": {
               "selected": false,
-              "text": "meta-llama/Llama-2-7b-chat-hf",
-              "value": "meta-llama/Llama-2-7b-chat-hf"
+              "text": "mistral-community/Mistral-7B-v0.2",
+              "value": "mistral-community/Mistral-7B-v0.2"
             }
           },
           "targets": [
@@ -390,8 +390,8 @@ spec:
           "scopedVars": {
             "ModelID": {
               "selected": false,
-              "text": "meta-llama/Llama-2-7b-chat-hf",
-              "value": "meta-llama/Llama-2-7b-chat-hf"
+              "text": "mistral-community/Mistral-7B-v0.2",
+              "value": "mistral-community/Mistral-7B-v0.2"
             }
           },
           "targets": [

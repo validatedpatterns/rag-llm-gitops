@@ -7,8 +7,8 @@ This deployment is based on `validated pattern framework` that uses GitOps to ea
 ## Pre-requisites
 
 - Podman
-- Red Hat Openshift cluster
-- [GPU Node](./GPU_provisioning.md) to run Hugging Face Text Generation Inference server on Red Hat OpenShift cluster.
+- Red Hat Openshift cluster running in AWS. Supported regions are us-west-2 and us-east-1.
+- GPU Node to run Hugging Face Text Generation Inference server on Red Hat OpenShift cluster.
 - Create a fork of the [rag-llm-gitops](https://github.com/validatedpatterns/rag-llm-gitops.git) git repository.
 
 ## Demo Description & Architecture
@@ -27,7 +27,7 @@ The goal of this demo is to demonstrate a Chatbot LLM application augmented with
 
 ### Components deployed
 
-- **Hugging Face Text Generation Inference Server:** The pattern deploys a Hugging Face TGIS server. The server deploys `meta-llama/Llama-2-7b-chat-hf` model. The server will require a GPU node.
+- **Hugging Face Text Generation Inference Server:** The pattern deploys a Hugging Face TGIS server. The server deploys `mistral-community/Mistral-7B-v0.2` model. The server will require a GPU node.
 - **Redis Server:** A Redis Server is deployed to store vector embeddings created from Red Hat product documentation.
 - **Populate VectorDb Job:** The job creates the embeddings and populates the vector database (Redis).
 - **LLM Application:** This is a Chatbot application that can generate a project proposal by augmenting the LLM with the Red Hat product documentation stored in vector db.
@@ -35,6 +35,37 @@ The goal of this demo is to demonstrate a Chatbot LLM application augmented with
 - **Grafana:** Deploys Grafana application to visualize the metrics.
 
 ## Deploying the demo
+
+### Cloning repository
+
+```sh
+git clone https://github.com/<<your-username>>/rag-llm-gitops.git
+cd rag-llm-gitops
+oc login --token=<> --server=<> # login to Openshift cluster
+podman machine start
+# Copy values-secret.yaml.template to ~/values-secret-rag-llm-gitops.yaml.
+# You should never check-in these files
+# Add secrets to the values-secret.yaml that needs to be added to the vault.
+cp values-secret.yaml.template ~/values-secret-rag-llm-gitops.yaml
+```
+
+### Provision GPU MachineSet
+
+As a pre-requisite to deploy the application using the validated pattern, GPU nodes should be provisioned along with Node Feature Discovery Operator and NVIDIA GPU operator. To provision GPU Nodes
+
+Following command will take about 5-10 minutes.
+
+```sh
+./pattern.sh make create-gpu-machineset
+```
+
+Wait till the nodes are provisioned and running.
+
+![Diagram](images/nodes.png)
+
+Alternatiely, follow the [instructions](./GPU_provisioning.md) to manually install GPU nodes, Node Feature Discovery Operator and NVIDIA GPU operator.
+
+### Deploy application
 
 Following commands will take about 15-20 minutes
 
@@ -65,11 +96,11 @@ Note: If the hf-text-generation-server is not running, make sure you have follow
 
 ### 2: Launch the application
 
-- Navigate to routes, Networking --> Routes
+- Click the `Application box` icon in the header, and select `Retrieval-Augmented-Generation (RAG) LLM Demonstration UI`
 
-  ![Routes](images/routes.png)
+![Launch Application](images/launch-application.png)
 
-- Click on the Location link and it should launch the application
+- It should launch the application
 
   ![Application](images/application.png)
 
@@ -112,8 +143,8 @@ By default, Grafana application is deployed in `llm-monitoring` namespace.To lau
   - Navigate to Workloads --> Secrets
   - Click on the grafana-admin-credentials and copy the GF_SECURITY_ADMIN_USER, GF_SECURITY_ADMIN_PASSWORD
 - Launch Grafana Dashboard
-  - Navigate to Networking --> Routes in the llm-monitoring namespace.
-  - Click on the `Location` link for `grafana-route`.
+  - Click the `Application box` icon in the header, and select `Grafana UI for LLM ratings`
+ ![Launch Application](images/launch-application.png)
   - Enter the Grafana admin credentials.
   - Ratings are displayed for each model.
 

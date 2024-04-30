@@ -51,7 +51,7 @@ From OperatorHub install `Node Feature Discovery Operator` , accepting defaults 
 
 ![Diagram](images/node-feature-discovery.png)
 
-## Install NVIDI GPU Operator
+## Install NVIDIA GPU Operator
 
 NVIDIA GPU Operator will provision daemonsets with drivers for the GPU to be used by workload running on these nodes . Detailed instructions are available in NVIDIA Documentation [NVIDIA on OpenShift](https://docs.nvidia.com/datacenter/cloud-native/openshift/latest/index.html) .  Following simplified steps for specific setup :
 
