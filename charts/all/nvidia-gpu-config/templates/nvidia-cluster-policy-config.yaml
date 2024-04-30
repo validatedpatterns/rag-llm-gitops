@@ -1,0 +1,89 @@
+apiVersion: nvidia.com/v1
+kind: ClusterPolicy
+metadata:
+  name: rag-llm-gpu-cluster-policy
+  namespace: nvidia-gpu-operator
+spec:
+  vgpuDeviceManager:
+    enabled: true
+  migManager:
+    enabled: true
+  operator:
+    defaultRuntime: crio
+    initContainer: {}
+    runtimeClass: nvidia
+    use_ocp_driver_toolkit: true
+  dcgm:
+    enabled: true
+  gfd:
+    enabled: true
+  dcgmExporter:
+    config:
+      name: ''
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  driver:
+    certConfig:
+      name: ''
+    enabled: true
+    kernelModuleConfig:
+      name: ''
+    licensingConfig:
+      configMapName: ''
+      nlsEnabled: false
+    repoConfig:
+      configMapName: ''
+    upgradePolicy:
+      autoUpgrade: true
+      drain:
+        deleteEmptyDir: false
+        enable: false
+        force: false
+        timeoutSeconds: 300
+      maxParallelUpgrades: 1
+      maxUnavailable: 25%
+      podDeletion:
+        deleteEmptyDir: false
+        force: false
+        timeoutSeconds: 300
+      waitForCompletion:
+        timeoutSeconds: 0
+    virtualTopology:
+      config: ''
+  devicePlugin:
+    config:
+      default: ''
+      name: ''
+    enabled: true
+  mig:
+    strategy: single
+  sandboxDevicePlugin:
+    enabled: true
+  validator:
+    plugin:
+      env:
+        - name: WITH_WORKLOAD
+          value: 'false'
+  nodeStatusExporter:
+    enabled: true
+  daemonsets:
+    rollingUpdate:
+      maxUnavailable: '1'
+    tolerations:
+      - effect: NoSchedule
+        key: odh-notebook
+        value: 'true'
+    updateStrategy: RollingUpdate
+  sandboxWorkloads:
+    defaultWorkload: container
+    enabled: false
+  gds:
+    enabled: false
+  vgpuManager:
+    enabled: false
+  vfioManager:
+    enabled: true
+  toolkit:
+    enabled: true
+    installDir: /usr/local/nvidia

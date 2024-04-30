@@ -15,6 +15,10 @@ help:
 install: operator-deploy post-install ## installs the pattern and loads the secrets
 	@echo "Installed"
 
+.PHONY: create-gpu-machineset
+create-gpu-machineset:
+	ansible-playbook ansible/playbooks/create-gpu-machine-set.yaml
+
 .PHONY: post-install
 post-install: ## Post-install tasks
 	make load-secrets
