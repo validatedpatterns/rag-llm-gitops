@@ -29,6 +29,19 @@
       ansible.builtin.debug:
         var: awszoneinfo.availability_zones[0].zone_name
 
+    - name: "[create-gpu-machine-set] Search for MachineSets"
+      kubernetes.core.k8s_info:
+        api: machine.openshift.io/v1beta1
+        kind: MachineSet
+        namespace: openshift-machine-api
+      register: machineset
+
+    - name: "[create-gpu-machine-set] Get the availability zone from the first worker MachineSets"
+      ansible.builtin.set_fact:
+        cloudAvailabilityZone: "{{ item.spec.template.spec.providerSpec.value.placement.availabilityZone}}"
+      with_items: 
+        - "{{ machineset.resources[0] }}"
+
     - name: "[create-gpu-machine-set] Search for worker MachineSets"
       kubernetes.core.k8s_info:
         api: machine.openshift.io/v1beta1
@@ -38,14 +51,9 @@
           - "machine.openshift.io/cluster-api-machine-type=worker"
       register: machines
 
-    - name: Debug machineset return
-      ansible.builtin.debug:
-        var: machines.resources[0].spec
-
     - name: "[create-gpu-machine-set] Setting facts to be used in MachineSet template"
       ansible.builtin.set_fact:
         clusterId: "{{ infraInfo.resources[0].status.infrastructureName }}"
-        cloudAvailabilityZone: "{{ awszoneinfo.availability_zones[0].zone_name }}"
         instanceAmi: "{{ machines.resources[0].spec.providerSpec.value.ami.id }}"
         cacheable: no
 
