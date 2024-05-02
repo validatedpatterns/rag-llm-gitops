@@ -119,14 +119,6 @@ Following commands will take about 15-20 minutes
 > **Validated pattern will be deployed**
 
 ```sh
-git clone https://github.com/<<your-username>>/rag-llm-gitops.git
-cd rag-llm-gitops
-oc login --token=<> --server=<> # login to Openshift cluster
-podman machine start
-# Copy values-secret.yaml.template to ~/values-secret-rag-llm-gitops.yaml.
-# You should never check-in these files
-# Add secrets to the values-secret.yaml that needs to be added to the vault.
-cp values-secret.yaml.template ~/values-secret-rag-llm-gitops.yaml
 ./pattern.sh make install
 ```
 
