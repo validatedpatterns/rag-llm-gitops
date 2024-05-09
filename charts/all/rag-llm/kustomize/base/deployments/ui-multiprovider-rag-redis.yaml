@@ -2,8 +2,6 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: ui-multiprovider-rag-redis
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
   labels:
     app: ui-multiprovider-rag-redis
 spec:
@@ -21,10 +19,6 @@ spec:
         - name: providerconfig
           configMap:
             name: providerconfig
-            defaultMode: 420
-        - name: openai
-          secret:
-            secretName: openai
             defaultMode: 420
         - name: redis-schema
           configMap:
@@ -65,11 +59,6 @@ spec:
             successThreshold: 1
             failureThreshold: 3
           env:
-            - name: DB_PASS
-              valueFrom:
-                secretKeyRef:
-                  name: redb-my-doc
-                  key: password
             - name: NAMESPACE
               valueFrom:
                 fieldRef:
@@ -80,8 +69,7 @@ spec:
             - name: APP_TITLE
               value: Talk with your documentation
             - name: REDIS_URL
-              value: >-
-                redis://default:$(DB_PASS)@my-doc-headless.$(NAMESPACE).svc.cluster.local:10225
+              value: redis://redis-stack-server:6379
             - name: REDIS_INDEX
               value: docs
           securityContext:
@@ -109,15 +97,13 @@ spec:
           volumeMounts:
             - name: providerconfig
               mountPath: /app-root/config
-            - name: openai
-              mountPath: /app-root/config/openai
             - name: redis-schema
               mountPath: /opt/app-root/src/redis_schema.yaml
               subPath: redis_schema.yaml
             - name: cache-volume
               mountPath: /opt/app-root/src/assets/proposal-docs
           terminationMessagePolicy: File
-          image: 'quay.io/sauagarw/gradio-tgi-multi-model-rag-redis:latest'
+          image: 'quay.io/ecosystem-appeng/gradio-tgi-multi-model-rag-redis:0.1.0'
       restartPolicy: Always
       terminationGracePeriodSeconds: 120
       dnsPolicy: ClusterFirst
