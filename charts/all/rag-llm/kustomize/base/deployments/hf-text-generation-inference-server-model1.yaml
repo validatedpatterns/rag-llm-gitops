@@ -2,8 +2,6 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: hf-text-generation-inference-server-model1
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
   labels:
     app: hf-text-generation-inference-server-model1
 spec:

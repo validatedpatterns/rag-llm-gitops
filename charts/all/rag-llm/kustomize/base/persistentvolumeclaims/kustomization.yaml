@@ -2,3 +2,4 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - models-cache-model1.yaml
+  - redis-stack-server.yaml

@@ -22,8 +22,7 @@ spec:
             requests:
               cpu: 250m
               memory: 256Mi
-
-          image: quay.io/mmikhail/redis-stack-server:7.2.0-v9
+          image: quay.io/ecosystem-appeng/redis-stack-server:7.2.0-v9
           imagePullPolicy: Always
           ports:
             - containerPort: 6379
