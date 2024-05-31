@@ -10,5 +10,4 @@ resources:
   - ../../base/persistentvolumeclaims
   - ../../base/routes
   - ../../base/jobs
-# Overriding default RedisEnterprise installation
   - namespaces
