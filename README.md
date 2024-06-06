@@ -188,3 +188,6 @@ By default, Grafana application is deployed in `llm-monitoring` namespace.To lau
   - Ratings are displayed for each model.
 
 ![Routes](images/monitoring.png)
+
+## Test Plan
+GOTO: [Test Plan](./TESTPLAN.md)
