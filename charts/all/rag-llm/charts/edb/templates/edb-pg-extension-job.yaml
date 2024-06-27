@@ -1,0 +1,48 @@
+{{- if eq .Values.global.db.type "PGVECTOR" }}
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: edb-pg-extension-job
+  labels:
+    component: edb-pg-extension-job
+spec:
+  parallelism: 1
+  completions: 1
+  backoffLimit: 6
+  template:
+    metadata:
+      name: edb-pg-extension-pod
+      creationTimestamp: null
+      labels:
+        component: edb-pg-extension-job
+        job-name: edb-pg-extension-job
+    spec:
+      containers:
+        - name: postgres-client
+          image: 'quay.io/openshift/origin-cli:latest'
+          command:
+            - /bin/sh
+            - '-c'
+          args:
+            - >
+              podname=$(oc get pods -l postgresql={{ .Values.database }},role=primary -o
+              jsonpath='{.items[0].metadata.name}')
+
+              echo $podname
+
+              oc rsh -c postgres $podname psql -U postgres -d {{ .Values.database }} -c 'CREATE
+              EXTENSION vector;'
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      serviceAccountName: postgres-service-account
+      serviceAccount: postgres-service-account
+      securityContext: {}
+      schedulerName: default-scheduler
+  completionMode: NonIndexed
+  suspend: false
+{{- end }}

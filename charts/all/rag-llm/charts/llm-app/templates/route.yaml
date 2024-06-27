@@ -1,0 +1,20 @@
+{{- if .Values.route.enabled }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: llm-ui
+  labels:
+    {{- include "llm-app.labels" . | nindent 4 }}
+spec:
+#  host: {{ .Values.route.path }}
+  port:
+    targetPort: http
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    name: ui-multiprovider-rag-redis
+    weight: 100
+  wildcardPolicy: None
+{{- end }}

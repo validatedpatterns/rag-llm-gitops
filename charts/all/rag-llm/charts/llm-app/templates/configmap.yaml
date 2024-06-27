@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: providerconfig
+data:
+  config.yaml: |-
+    {{- tpl ($.Files.Get "files/config.yaml") . | nindent 4 }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-schema
+data:
+  redis_schema.yaml: |-
+    {{- tpl ($.Files.Get "files/redis_schema.yaml") . | nindent 4 }}

@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ui-multiprovider-rag-redis
+  labels:
+    {{- include "llm-app.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "llm-app.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "llm-app.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "llm-app.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          terminationMessagePath: /dev/termination-log
+          env:
+            - name: CONFIG_FILE
+              value: /app-root/config/config.yaml
+            - name: APP_TITLE
+              value: Talk with your documentation
+            - name: DB_TYPE
+              value: {{ .Values.global.db.type }}
+
+        {{- if eq .Values.global.db.type "REDIS" }}
+            - name: REDIS_URL
+              value: redis://redis-stack-server:6379
+            - name: REDIS_INDEX
+              value: {{ .Values.global.db.index }}
+            - name: REDIS_SCHEMA
+              value: redis_schema.yaml
+        {{- end }}
+        {{- if eq .Values.global.db.type "PGVECTOR" }}
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: vectordb-app
+                  key: username
+            - name: PORT
+              valueFrom:
+                secretKeyRef:
+                  name: vectordb-app
+                  key: port
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: vectordb-app
+                  key: port
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: vectordb-app
+                  key: dbname
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: vectordb-app
+                  key: host
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: vectordb-app
+                  key: password
+            - name: PGVECTOR_URL
+              value: 'postgresql+psycopg://$(DB_USERNAME):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)'
+            - name: PGVECTOR_COLLECTION_NAME
+              value: {{ .Values.global.db.index }}
+        {{- end }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          startupProbe:
+            {{- toYaml .Values.startupProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- with .Values.volumeMounts }}
+          terminationMessagePolicy: File
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 120
+      dnsPolicy: ClusterFirst
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      schedulerName: default-scheduler
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- with .Values.tolerations }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
