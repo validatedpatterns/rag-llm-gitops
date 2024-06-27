@@ -1,0 +1,4 @@
+# global:
+#   db:
+#     type: PGVECTOR
+#     index: docs

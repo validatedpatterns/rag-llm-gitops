@@ -1,0 +1,16 @@
+{{- if eq .Values.global.db.type "PGVECTOR" }}
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: postgres-service-role
+rules:
+  - verbs:
+      - get
+      - list
+      - create
+    apiGroups:
+      - ''
+    resources:
+      - pods
+      - pods/exec
+{{- end }}
