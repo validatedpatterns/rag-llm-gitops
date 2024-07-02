@@ -66,4 +66,4 @@
       kubernetes.core.k8s:
         state: present
         src: /tmp/gpu-machineset.yaml
-      when: cloudRegion == "us-west-2" or cloudRegion == "us-east-1"
+      when: cloudRegion == "us-west-2" or cloudRegion == "us-east-1" or cloudRegion == "us-east-2"
