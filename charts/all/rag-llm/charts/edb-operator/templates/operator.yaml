@@ -1,0 +1,10 @@
+{{- if eq .Values.global.db.type "PGVECTOR" }}
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: edb
+spec:
+  targetNamespaces:
+    - {{ .Release.Namespace }}
+  upgradeStrategy: Default
+{{- end }}
