@@ -9,11 +9,6 @@ clusterGroup:
     - nvidia-gpu-operator
     - rag-llm
   subscriptions:
-    # acm:
-    #   name: advanced-cluster-management
-    #   namespace: open-cluster-management
-    #   channel: release-2.9
-    #   csv: advanced-cluster-management.v2.6.1
     nfd:
       name: nfd
       namespace: openshift-nfd
@@ -51,16 +46,6 @@ clusterGroup:
   #   - '/overrides/values-{{ $.Values.global.hubClusterDomain }}.yaml'
   #   - '/overrides/values-{{ $.Values.global.localClusterDomain }}.yaml'
   applications:
-    # acm:
-    #   name: acm
-    #   namespace: open-cluster-management
-    #   project: hub
-    #   path: common/acm
-    #   ignoreDifferences:
-    #     - group: internal.open-cluster-management.io
-    #       kind: ManagedClusterInfo
-    #       jsonPointers:
-    #         - /spec/loggingCA
     vault:
       name: vault
       namespace: vault
@@ -115,21 +100,15 @@ clusterGroup:
     # For additional overrides that apply to the jobs, please refer to
     # https://hybrid-cloud-patterns.io/imperative-actions/#additional-job-customizations
     jobs:
-      - name: hello-world
-        # ansible playbook to be run
-        playbook: common/ansible/playbooks/hello-world/hello-world.yaml
-        # per playbook timeout in seconds
-        timeout: 234
-        # verbosity: "-v"
   managedClusterGroups:
-    exampleRegion:
-      name: group-one
-      acmlabels:
-        - name: clusterGroup
-          value: group-one
-      helmOverrides:
-        - name: clusterGroup.isHubCluster
-          value: false
+    # exampleRegion:
+    #   name: group-one
+    #   acmlabels:
+    #     - name: clusterGroup
+    #       value: group-one
+    #   helmOverrides:
+    #     - name: clusterGroup.isHubCluster
+    #       value: false
           # Before enabling cluster provisioning, ensure AWS and/or Azure
           #   credentials and OCP pull secrets are defined in Vault.
           #   See values-secret.yaml.template
