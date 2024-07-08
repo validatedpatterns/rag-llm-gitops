@@ -114,6 +114,26 @@ Alternatiely, follow the [instructions](./GPU_provisioning.md) to manually insta
 
 ### Deploy application
 
+***Note:*** This pattern supports two types of vector databases, REDIS and PGVECTOR from EDB operator. By default the pattern will deploy REDIS as a vector DB. To deploy PGVECTOR using EDB operator, change the global.db.type to PGVECTOR in [values-global.yaml](./values-global.yaml).
+
+```yaml
+---
+global:
+  pattern: rag-llm-gitops
+  options:
+    useCSV: false
+    syncPolicy: Automatic
+    installPlanApproval: Automatic
+# Possible value for db.type = [REDIS, PGVECTOR]
+  db:
+    index: docs
+    type: PGVECTOR  <--- Change the db type to PGVECTOR
+main:
+  clusterGroupName: hub
+  multiSourceConfig:
+    enabled: true
+```
+
 Following commands will take about 15-20 minutes
 
 > **Validated pattern will be deployed**

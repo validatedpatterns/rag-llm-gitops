@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ui-multiprovider-rag-redis
+  labels:
+    {{- include "llm-app.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  clusterIP: None
+  ipFamilies:
+    - IPv4
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+    - name: metrics
+      protocol: TCP
+      port: {{ .Values.service.metricsPort }}
+      targetPort: {{ .Values.service.metricsPort }}
+  internalTrafficPolicy: Cluster
+  selector:
+    {{- include "llm-app.selectorLabels" . | nindent 4 }}

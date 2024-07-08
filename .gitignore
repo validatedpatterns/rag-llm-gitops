@@ -8,3 +8,4 @@ vault.init
 super-linter.log
 common/pattern-vault.init
 common/scripts/pattern-util.sh
+

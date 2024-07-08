@@ -7,6 +7,7 @@ clusterGroup:
     - golang-external-secrets
     - openshift-nfd
     - nvidia-gpu-operator
+    - rag-llm
   subscriptions:
     # acm:
     #   name: advanced-cluster-management
@@ -74,8 +75,7 @@ clusterGroup:
       name: rag-llm
       namespace: rag-llm
       project: rag-llm
-      kustomize: true
-      path: charts/all/rag-llm/kustomize/overlays/dev
+      path: charts/all/rag-llm
     llm-monitoring:
       name: llm-monitoring
       namespace: llm-monitoring

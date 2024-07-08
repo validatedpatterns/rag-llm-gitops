@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hf-text-generation-inference-server-model1
+  labels:
+    {{- include "tgis-server.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "tgis-server.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "tgis-server.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "tgis-server.serviceAccountName" . }}
+      terminationGracePeriodSeconds: 120
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          env:
+            - name: MODEL_ID
+              value: {{ .Values.env.MODEL_ID }}
+            - name: MAX_INPUT_LENGTH
+              value: {{ .Values.env.MAX_INPUT_LENGTH | quote }}
+            - name: MAX_TOTAL_TOKENS
+              value:  {{ .Values.env.MAX_TOTAL_TOKENS | quote }}
+            - name: HUGGINGFACE_HUB_CACHE
+              value: {{ .Values.env.HUGGINGFACE_HUB_CACHE }}
+            - name: PORT
+              value: {{ .Values.env.PORT | quote }}
+            - name: HOST
+              value:  {{ .Values.env.HOST | quote }}
+            {{- with .Values.env.HF_TOKEN }}
+            - name: HF_TOKEN
+              {{- toYaml .Values.env.HF_TOKEN | nindent 14 }}
+            {{- end }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          startupProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          volumeMounts:
+            - name: models-cache
+              mountPath: /models-cache
+            - name: shm
+              mountPath: /dev/shm
+          terminationMessagePolicy: File
+      volumes:
+        - name: models-cache
+          persistentVolumeClaim:
+            claimName: {{ include "tgis-server.fullname" . }}
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      dnsPolicy: ClusterFirst
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  strategy:
+    type: Recreate

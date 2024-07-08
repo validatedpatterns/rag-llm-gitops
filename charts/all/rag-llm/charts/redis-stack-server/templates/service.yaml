@@ -1,0 +1,17 @@
+{{- if eq .Values.global.db.type "REDIS" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-stack-server
+  labels:
+    {{- include "redis-stack-server.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+      protocol: TCP
+      name: db
+  selector:
+    {{- include "redis-stack-server.selectorLabels" . | nindent 4 }}
+{{- end }}
