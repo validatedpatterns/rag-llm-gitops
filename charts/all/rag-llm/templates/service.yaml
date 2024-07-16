@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: ui-multiprovider-rag-redis
   labels:
-    {{- include "llm-app.labels" . | nindent 4 }}
+    {{- include "rag-llm.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   clusterIP: None
@@ -20,4 +20,4 @@ spec:
       targetPort: {{ .Values.service.metricsPort }}
   internalTrafficPolicy: Cluster
   selector:
-    {{- include "llm-app.selectorLabels" . | nindent 4 }}
+    {{- include "rag-llm.selectorLabels" . | nindent 4 }}

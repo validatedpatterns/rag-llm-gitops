@@ -3,10 +3,6 @@ global:
     useCSV: False
     syncPolicy: Automatic
     installPlanApproval: Automatic
-  db:
-    index: docs
-    type: REDIS
-  
 clusterGroup:
   name: group-one
   isHubCluster: false
@@ -24,11 +20,11 @@ clusterGroup:
       namespace: golang-external-secrets
       project: eso
       path: common/golang-external-secrets
-    # rag-llm:
-    #   name: rag-llm
-    #   namespace: rag-llm
-    #   project: rag-llm
-    #   path: charts/all/rag-llm
+    rag-llm:
+      name: rag-llm
+      namespace: rag-llm
+      project: rag-llm
+      path: charts/all/rag-llm
     llm-monitoring:
       name: llm-monitoring
       namespace: llm-monitoring
@@ -43,6 +39,12 @@ clusterGroup:
     # For additional overrides that apply to the jobs, please refer to
     # https://hybrid-cloud-patterns.io/imperative-actions/#additional-job-customizations
     jobs:
+      - name: hello-world
+        # ansible playbook to be run
+        playbook: common/ansible/playbooks/hello-world/hello-world.yaml
+        # per playbook timeout in seconds
+        timeout: 234
+        # verbosity: "-v"
   # Explicitly mention the cluster-state based overrides we plan to use for this pattern.
   # We can use self-referential variables because the chart calls the tpl function with these variables defined
   sharedValueFiles:

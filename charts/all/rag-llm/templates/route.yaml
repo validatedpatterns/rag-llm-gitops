@@ -4,7 +4,7 @@ kind: Route
 metadata:
   name: llm-ui
   labels:
-    {{- include "llm-app.labels" . | nindent 4 }}
+    {{- include "rag-llm.labels" . | nindent 4 }}
 spec:
 #  host: {{ .Values.route.path }}
   port:

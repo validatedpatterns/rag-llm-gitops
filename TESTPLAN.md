@@ -59,7 +59,11 @@
 
 - Application provisioned correctly.
   - Click on the rag-llm namespace
-    - Four pods should be running
+  
+    - By Default, EDB Operator will be deployed, which will deploy PGVECTOR vector database, 6 pods should be running
+      ![ragllm pgvector pods](https://validatedpatterns.io/images/rag-llm-gitops/rag-llm-pgvector.png)
+
+    - If the global.db.type is set to REDIS in the values-global.yaml, four pods should be running
       ![ragllm pods](https://validatedpatterns.io/images/rag-llm-gitops/rag-llm.png)
   
     - Click on Networking → Routes from the left Navigation panel. An llm-ui route should exist

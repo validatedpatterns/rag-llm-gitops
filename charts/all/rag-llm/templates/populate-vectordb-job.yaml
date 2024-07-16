@@ -1,10 +1,13 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name:  populate-vectordb-{{ include "llm-app.fullname" . }}
+  name:  populate-vectordb-{{ include "rag-llm.fullname" . }}
   labels:
-    {{- include "llm-app.labels" . | nindent 4 }}
+    {{- include "rag-llm.labels" . | nindent 4 }}
 spec:
+{{- if eq .Values.global.db.type "PGVECTOR" }}
+  ttlSecondsAfterFinished: 100
+{{- end }}
   template:
     spec:
     {{- if .Values.populateDbJob.imagePullSecrets }}
