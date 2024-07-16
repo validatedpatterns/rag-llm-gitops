@@ -1,4 +1,210 @@
-# global:
-#   db:
-#     type: PGVECTOR
-#     index: docs
+
+replicaCount: 1
+
+image:
+  repository: 'quay.io/ecosystem-appeng/gradio-tgi-multi-model-rag-redis'
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "0.1.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  seccompProfile:
+    type: RuntimeDefault
+
+service:
+  type: ClusterIP
+  port: 7860
+  metricsPort: 8000
+
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    cpu: '2'
+    memory: 2Gi
+  requests:
+    cpu: '1'
+    memory: 1Gi
+
+livenessProbe:
+  httpGet:
+    path: /queue/status
+    port: http
+    scheme: HTTP
+  timeoutSeconds: 8
+  periodSeconds: 100
+  successThreshold: 1
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /queue/status
+    port: http
+    scheme: HTTP
+  timeoutSeconds: 5
+  periodSeconds: 30
+  successThreshold: 1
+  failureThreshold: 3
+
+startupProbe:
+  httpGet:
+    path: /queue/status
+    port: http
+    scheme: HTTP
+  timeoutSeconds: 1
+  periodSeconds: 30
+  successThreshold: 1
+  failureThreshold: 24
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Additional volumes on the output Deployment definition.
+volumes:
+  - name: providerconfig
+    configMap:
+      name: providerconfig
+      defaultMode: 420
+  - name: redis-schema
+    configMap:
+      name: redis-schema
+      items:
+        - key: redis_schema.yaml
+          path: redis_schema.yaml
+      defaultMode: 420
+  - name: cache-volume
+    emptyDir:
+      sizeLimit: 2Gi
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts:
+  - name: providerconfig
+    mountPath: /app-root/config
+  - name: redis-schema
+    mountPath: /opt/app-root/src/redis_schema.yaml
+    subPath: redis_schema.yaml
+  - name: cache-volume
+    mountPath: /opt/app-root/src/assets/proposal-docs
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 25%
+    maxSurge: 1
+
+route:
+  enabled: true
+  name: llm-ui
+  portName: http
+  labels:
+  annotations:
+  # path: /
+
+populateDbJob:
+  ## Job image
+  image:
+    repository: "quay.io/ecosystem-appeng/embeddingjob"
+    tag: "0.0.3"
+    pullPolicy: IfNotPresent
+
+  command: ["/usr/bin/bash", "/app/entrypoint.sh"]
+  #args: ["echo 'consuming a message'; sleep 5"]
+
+  ## Define env
+  # env:
+
+  ## Job configurations
+  backoffLimit: 10
+  restartPolicy: Never
+
+  doc_git_repo: https://github.com/RHEcosystemAppEng/llm-on-openshift.git
+  doc_location: examples/notebooks/langchain/rhods-doc
+  doc_dir: /docs
+
+
+
+
+  # By default, fullname uses '{{ .Release.Name }}-{{ .Chart.Name }}'. This
+  # overrides that and uses the given string instead.
+  # fullnameOverride: "some-name"
+
+  # This adds a prefix
+  # fullnamePrefix: "pre-"
+  # This appends a suffix
+  # fullnameSuffix: "-suf"
+
+  annotations: {}
+
+  ## define resources
+  #resources:
+  #  limits:
+  #    cpu: 2
+  #    memory: 2000Mi
+  #  requests:
+  #    cpu: 500m
+  #    memory: 500Mi
+
+  securityContext:
+    runAsUser: 
+    runAsGroup:
+    fsGroup:
+
+  volumeMounts:
+    - mountPath: /cache/
+      name: cache-volume
+    - mountPath: /docs/
+      name: doc-volume
+  
+  volumes:
+    - name: cache-volume
+      emptyDir:
+        sizeLimit: 2Gi
+    - name: doc-volume
+      emptyDir:
+        sizeLimit: 5Gi

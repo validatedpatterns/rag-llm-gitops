@@ -3,14 +3,14 @@ kind: Deployment
 metadata:
   name: ui-multiprovider-rag-redis
   labels:
-    {{- include "llm-app.labels" . | nindent 4 }}
+    {{- include "rag-llm.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "llm-app.selectorLabels" . | nindent 6 }}
+      {{- include "rag-llm.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,7 +18,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "llm-app.labels" . | nindent 8 }}
+        {{- include "rag-llm.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -27,7 +27,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "llm-app.serviceAccountName" . }}
+      serviceAccountName: {{ include "rag-llm.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:

@@ -2,14 +2,14 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "llm-app.fullname" . }}
+  name: {{ include "rag-llm.fullname" . }}
   labels:
-    {{- include "llm-app.labels" . | nindent 4 }}
+    {{- include "rag-llm.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "llm-app.fullname" . }}
+    name: {{ include "rag-llm.fullname" . }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:
