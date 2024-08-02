@@ -21,7 +21,7 @@ clusterGroup:
     nvidia:
       name: gpu-operator-certified
       namespace: nvidia-gpu-operator
-      channel: v23.6
+      channel: v24.6
       source: certified-operators
     edb:
       name: cloud-native-postgresql
