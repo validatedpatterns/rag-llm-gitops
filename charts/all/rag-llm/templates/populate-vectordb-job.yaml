@@ -3,6 +3,8 @@ kind: Job
 metadata:
   name:  populate-vectordb-{{ include "rag-llm.fullname" . }}
   labels:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
     {{- include "rag-llm.labels" . | nindent 4 }}
 spec:
 {{- if eq .Values.global.db.type "PGVECTOR" }}

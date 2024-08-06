@@ -1,7 +1,0 @@
-subscription:
-  name: cloud-native-postgresql
-  channel: stable-v1.22
-  installPlanApproval: Automatic
-  source: certified-operators
-  sourceNamespace: openshift-marketplace
-  #startingCSV: cloud-native-postgresql.v1.22.3
