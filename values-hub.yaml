@@ -23,6 +23,12 @@ clusterGroup:
       namespace: nvidia-gpu-operator
       channel: v23.6
       source: certified-operators
+    edb:
+      name: cloud-native-postgresql
+      namespace: openshift-operators
+      channel: stable-v1.23
+      source: certified-operators
+
 
   projects:
     - hub
