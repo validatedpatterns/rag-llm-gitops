@@ -45,6 +45,8 @@ spec:
       localeCType: C
       localeCollate: C
       owner:  {{ .Values.owner }}
+      postInitTemplateSQL:
+        - CREATE EXTENSION IF NOT EXISTS vector;
   failoverDelay: 0
   postgresql:
     parameters:
