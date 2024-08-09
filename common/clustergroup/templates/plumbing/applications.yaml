@@ -40,7 +40,7 @@ spec:
           limit: {{ default 20 $.Values.global.options.applicationRetryLimit }}
       {{- end }}
       {{- if .ignoreDifferences }}
-      ignoreDifferences: {{ .ignoreDifferences | toPrettyJson }}
+      ignoreDifferences: {{ .ignoreDifferences | toPrettyJson | nindent 2 }}
       {{- end }}
       source:
         repoURL: {{ coalesce .repoURL $.Values.global.repoURL }}
@@ -78,7 +78,7 @@ spec:
             - name: global.namespace
               value: {{ $.Values.global.namespace }}
             - name: clusterGroup.name
-              value: {{ .Values.clusterGroup.name }}
+              value: {{ $.Values.clusterGroup.name }}
         {{- range .extraHubClusterDomainFields }}
             - name: {{ . }}
               value: {{ $.Values.global.hubClusterDomain }}
@@ -105,7 +105,7 @@ spec:
         {{- end }}
         {{- range $k, $v := $.Values.extraParametersNested }}
             - name: {{ $k }}
-              value: {{ $v }}
+              value: {{ printf "%s" $v | quote }}
         {{- end }}
         {{- range .overrides }}
             - name: {{ .name  }}
@@ -119,6 +119,7 @@ spec:
         server: {{ coalesce .destinationServer "https://kubernetes.default.svc" }}
         namespace: {{ coalesce .destinationNamespace .namespace $namespace }}
 {{- else }}
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -148,6 +149,11 @@ spec:
       {{- else }}
       helm:
         ignoreMissingValueFiles: true
+        values: |
+          extraParametersNested: 
+          {{- range $k, $v := $.Values.extraParametersNested }}
+            {{ $k }}: {{ printf "%s" $v | quote }}
+          {{- end }}
         valueFiles:
         {{- include "clustergroup.app.globalvalues.prefixedvaluefiles" $ | nindent 8 }}
         {{- range $valueFile := $.Values.clusterGroup.sharedValueFiles }}
@@ -184,7 +190,7 @@ spec:
           {{- end }}
           {{- range $k, $v := $.Values.extraParametersNested }}
           - name: {{ $k }}
-            value: {{ $v }}
+            value: {{ printf "%s" $v | quote }}
           {{- end }}
           {{- range .overrides }}
           - name: {{ .name }}
@@ -215,6 +221,11 @@ spec:
     {{- else if not .kustomize }}
     helm:
       ignoreMissingValueFiles: true
+      values: |
+        extraParametersNested:
+          {{- range $k, $v := $.Values.extraParametersNested }}
+            {{ $k }}: {{ printf "%s" $v | quote }}
+          {{- end }}
       valueFiles:
       {{- include "clustergroup.app.globalvalues.valuefiles" $ | nindent 6 }}
       {{- range $valueFile := $.Values.clusterGroup.sharedValueFiles }}
@@ -251,7 +262,7 @@ spec:
         {{- end }}
         {{- range $k, $v := $.Values.extraParametersNested }}
         - name: {{ $k }}
-          value: {{ $v }}
+          value: {{ printf "%s" $v | quote }}
         {{- end }}
         {{- range .overrides }}
         - name: {{ .name }}
@@ -280,7 +291,6 @@ spec:
     retry:
       limit: {{ default 20 $.Values.global.applicationRetryLimit }}
   {{- end }}{{- /* .syncPolicy */}}
----
 {{- end }}{{- /* if or (.generators) (.generatorFile) (.useGeneratorValues) (.destinationServer) (.destinationNamespace) */}}
 {{- end }}{{- /* range .Values.clusterGroup.applications */}}
 {{- end }}{{- /* if not (eq .Values.enabled "core") */}}

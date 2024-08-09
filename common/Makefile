@@ -1,4 +1,5 @@
 NAME ?= $(shell basename "`pwd`")
+
 ifneq ($(origin TARGET_SITE), undefined)
   TARGET_SITE_OPT=--set main.clusterGroupName=$(TARGET_SITE)
 endif
@@ -55,11 +56,12 @@ help: ## This help message
 show: ## show the starting template without installing it
 	helm template common/operator-install/ --name-template $(NAME) $(HELM_OPTS)
 
-preview-all:
+preview-all: ## (EXPERIMENTAL) Previews all applications on hub and managed clusters
+	@echo "NOTE: This is just a tentative approximation of rendering all hub and managed clusters templates"
 	@common/scripts/preview-all.sh $(TARGET_REPO) $(TARGET_BRANCH)
 
 preview-%:
-	CLUSTERGROUP?=$(shell yq ".main.clusterGroupName" values-global.yaml)
+	$(eval CLUSTERGROUP ?= $(shell yq ".main.clusterGroupName" values-global.yaml))
 	@common/scripts/preview.sh $(CLUSTERGROUP) $* $(TARGET_REPO) $(TARGET_BRANCH)
 
 .PHONY: operator-deploy
@@ -111,14 +113,15 @@ secrets-backend-none: ## Edits values files to remove secrets manager + ESO
 .PHONY: load-iib
 load-iib: ## CI target to install Index Image Bundles
 	@set -e; if [ x$(INDEX_IMAGES) != x ]; then \
-		for IIB in $(shell echo $(INDEX_IMAGES) | tr ',' '\n'); do \
-			INDEX_IMAGE="$${IIB}" ansible-playbook common/ansible/playbooks/iib-ci/iib-ci.yaml; \
-		done; \
+		ansible-playbook common/ansible/playbooks/iib-ci/iib-ci.yaml; \
 	else \
 		echo "No INDEX_IMAGES defined. Bailing out"; \
 		exit 1; \
 	fi
 
+.PHONY: token-kubeconfig
+token-kubeconfig: ## Create a local ~/.kube/config with password (not usually needed)
+	common/scripts/write-token-kubeconfig.sh
 
 ##@ Validation Tasks
 
@@ -230,17 +233,20 @@ kubeconform: ## run helm kubeconform
 super-linter: ## Runs super linter locally
 	rm -rf .mypy_cache
 	podman run -e RUN_LOCAL=true -e USE_FIND_ALGORITHM=true	\
+					-e VALIDATE_ANSIBLE=false \
 					-e VALIDATE_BASH=false \
+					-e VALIDATE_CHECKOV=false \
+					-e VALIDATE_DOCKERFILE_HADOLINT=false \
 					-e VALIDATE_JSCPD=false \
 					-e VALIDATE_KUBERNETES_KUBECONFORM=false \
-					-e VALIDATE_YAML=false \
-					-e VALIDATE_ANSIBLE=false \
-					-e VALIDATE_DOCKERFILE_HADOLINT=false \
+					-e VALIDATE_PYTHON_PYLINT=false \
+					-e VALIDATE_SHELL_SHFMT=false \
 					-e VALIDATE_TEKTON=false \
+					-e VALIDATE_YAML=false \
 					$(DISABLE_LINTERS) \
 					-v $(PWD):/tmp/lint:rw,z \
 					-w /tmp/lint \
-					docker.io/github/super-linter:slim-v5
+					ghcr.io/super-linter/super-linter:slim-v6
 
 .PHONY: ansible-lint
 ansible-lint: ## run ansible lint on ansible/ folder
