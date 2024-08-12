@@ -5,6 +5,8 @@ metadata:
   name: llm-ui
   labels:
     {{- include "rag-llm.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"
 spec:
 #  host: {{ .Values.route.path }}
   port:

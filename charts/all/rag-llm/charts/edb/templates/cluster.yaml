@@ -3,6 +3,9 @@ apiVersion: postgresql.k8s.enterprisedb.io/v1
 kind: Cluster
 metadata:
   name: vectordb
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   logLevel: info
   startDelay: 3600

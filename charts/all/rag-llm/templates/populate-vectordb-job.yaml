@@ -4,6 +4,8 @@ metadata:
   name:  populate-vectordb-{{ include "rag-llm.fullname" . }}
   labels:
     {{- include "rag-llm.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"
 spec:
 {{- if eq .Values.global.db.type "PGVECTOR" }}
   ttlSecondsAfterFinished: 100

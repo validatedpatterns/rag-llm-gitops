@@ -3,6 +3,8 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: providerconfig
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"
 data:
   config.yaml: |-
     {{- tpl ($.Files.Get "files/config.yaml") . | nindent 4 }}
@@ -12,6 +14,8 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: redis-schema
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"
 data:
   redis_schema.yaml: |-
     {{- tpl ($.Files.Get "files/redis_schema.yaml") . | nindent 4 }}

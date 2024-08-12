@@ -5,6 +5,8 @@ metadata:
   name: edb-pg-extension-job
   labels:
     component: edb-pg-extension-job
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"
 spec:
   parallelism: 1
   completions: 1

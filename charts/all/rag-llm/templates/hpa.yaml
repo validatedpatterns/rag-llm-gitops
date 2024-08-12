@@ -5,6 +5,8 @@ metadata:
   name: {{ include "rag-llm.fullname" . }}
   labels:
     {{- include "rag-llm.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"
 spec:
   scaleTargetRef:
     apiVersion: apps/v1

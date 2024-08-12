@@ -4,6 +4,8 @@ metadata:
   name: ui-multiprovider-rag-redis
   labels:
     {{- include "rag-llm.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "50"
 spec:
   type: {{ .Values.service.type }}
   clusterIP: None
