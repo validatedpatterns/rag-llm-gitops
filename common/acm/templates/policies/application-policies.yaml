@@ -36,45 +36,71 @@ spec:
                   - resources-finalizer.argocd.argoproj.io/foreground
                 spec:
                   project: default
+                  {{- if $.Values.global.multiSourceSupport }}
+                  sources:
+                    - repoURL: {{ coalesce .repoURL $.Values.global.repoURL }}
+                      targetRevision: {{ coalesce .targetRevision $.Values.global.targetRevision }}
+                      ref: patternref
+                    - repoURL: {{ $.Values.global.multiSourceRepoUrl }}
+                      targetRevision: {{ $.Values.global.multiSourceTargetRevision }}
+                      chart: clustergroup
+                      helm:
+                        ignoreMissingValueFiles: true
+                        values: |
+                          extraParametersNested:
+                          {{- range $k, $v := $.Values.extraParametersNested }}
+                            {{ $k }}: {{ printf "%s" $v | quote }}
+                          {{- end }}
+                        valueFiles:
+                        {{- include "acm.app.policies.multisourcevaluefiles" . | nindent 24 }}
+                        {{- range $valueFile := .extraValueFiles }}
+                        - {{ $valueFile | quote }}
+                        {{- end }}
+                        parameters:
+                        {{- include "acm.app.policies.helmparameters" $ | nindent 24 }}
+                        - name: clusterGroup.name
+                          value: {{ $group.name }}
+                        {{- range $k, $v := $.Values.extraParametersNested }}
+                        - name: {{ $k }}
+                          value: {{ printf "%s" $v | quote }}
+                        {{- end }}
+                       {{- range .helmOverrides }}
+                        - name: {{ .name }}
+                          value: {{ .value | quote }}
+                       {{- end }}
+                       {{- if .fileParameters }}
+                        fileParameters:
+                        {{- range .fileParameters }}
+                        - name: {{ .name }}
+                          path: {{ .path }}
+                        {{- end }}
+                       {{- end }}
+
+                  {{- else }}
                   source:
                     repoURL: {{ coalesce .repoURL $.Values.global.repoURL }}
                     targetRevision: {{ coalesce .targetRevision $.Values.global.targetRevision }}
                     path: {{ default "common/clustergroup" .path }}
                     helm:
                       ignoreMissingValueFiles: true
+                      values: |
+                        extraParametersNested:
+                        {{- range $k, $v := $.Values.extraParametersNested }}
+                          {{ $k }}: {{ printf "%s" $v | quote }}
+                        {{- end }}
                       valueFiles:
-                      {{- include "acm.app.policies.valuefiles" . | nindent 24 }}
-                      {{- range $valueFile := $.Values.global.extraValueFiles }}
-                      - {{ $valueFile | quote }}
-                      {{- end }}
+                      {{- include "acm.app.policies.valuefiles" . | nindent 22 }}
                       {{- range $valueFile := .extraValueFiles }}
                       - {{ $valueFile | quote }}
                       {{- end }}
                       parameters:
-                      - name: global.repoURL
-                        value: $ARGOCD_APP_SOURCE_REPO_URL
-                      - name: global.targetRevision
-                        value: $ARGOCD_APP_SOURCE_TARGET_REVISION
-                      - name: global.namespace
-                        value: $ARGOCD_APP_NAMESPACE
-                      - name: global.pattern
-                        value: {{ $.Values.global.pattern }}
-                      - name: global.hubClusterDomain
-                        value: {{ $.Values.global.hubClusterDomain }}
-                      - name: global.localClusterDomain
-                        value: '{{ `{{ (lookup "config.openshift.io/v1" "Ingress" "" "cluster").spec.domain }}` }}'
-                      # Requires ACM 2.6 or higher
-                      - name: global.clusterDomain
-                        value: '{{ `{{ (lookup "config.openshift.io/v1" "Ingress" "" "cluster").spec.domain | replace "apps." "" }}` }}'
-                      # Requires ACM 2.6 or higher (I could not come up with something less terrible to get maj.min)
-                      - name: global.clusterVersion
-                        value: '{{ `{{ printf "%d.%d" ((semver (index (lookup "config.openshift.io/v1" "ClusterVersion" "" "version").status.history 0).version).Major) ((semver (index (lookup "config.openshift.io/v1" "ClusterVersion" "" "version").status.history 0).version).Minor) }}` }}'
-                      - name: global.localClusterName
-                        value: '{{ `{{ (split "." (lookup "config.openshift.io/v1" "Ingress" "" "cluster").spec.domain)._1 }}` }}'
-                      - name: global.clusterPlatform
-                        value: {{ $.Values.global.clusterPlatform }}
+                      {{- include "acm.app.policies.helmparameters" $ | nindent 22 }}
                       - name: clusterGroup.name
                         value: {{ $group.name }}
+                      {{- range $k, $v := $.Values.extraParametersNested }}
+                      - name: {{ $k }}
+                        value: {{ printf "%s" $v | quote }}
+                      {{- end }}
                      {{- range .helmOverrides }}
                       - name: {{ .name }}
                         value: {{ .value | quote }}
@@ -86,6 +112,7 @@ spec:
                         path: {{ .path }}
                       {{- end }}
                      {{- end }}
+                  {{- end }}{{/* if $.Values.global.multiSourceSupport */}}
                   destination:
                     server: https://kubernetes.default.svc
                     namespace: {{ $.Values.global.pattern }}-{{ .name }}

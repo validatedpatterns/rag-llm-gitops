@@ -2,12 +2,12 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name:  populate-vectordb-{{ include "rag-llm.fullname" . }}
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
   labels:
     {{- include "rag-llm.labels" . | nindent 4 }}
 spec:
-{{- if eq .Values.global.db.type "PGVECTOR" }}
-  ttlSecondsAfterFinished: 100
-{{- end }}
   template:
     spec:
     {{- if .Values.populateDbJob.imagePullSecrets }}
