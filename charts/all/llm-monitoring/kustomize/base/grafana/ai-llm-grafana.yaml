@@ -7,6 +7,8 @@ metadata:
     dashboards: "grafana"
   name: ai-llm-grafana
 spec:
+  route:
+    spec: {}
   config:
     auth:
       disable_login_form: "false"
@@ -18,8 +20,4 @@ spec:
       mode: console
     log.frontend:
       enabled: "true"
-# The ingress field in this format exist only for Grafana operator < 5
-#  ingress:
-#    enabled: true
-#    path: /
-#    pathType: Prefix
+
