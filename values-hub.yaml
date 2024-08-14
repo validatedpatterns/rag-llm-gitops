@@ -8,6 +8,13 @@ clusterGroup:
     - openshift-nfd
     - nvidia-gpu-operator
     - rag-llm
+    - tenant-ns
+    - minio-operator:
+        operatorGroup: true
+        targetNamespaces: []
+    - openshift-serverless:
+        operatorGroup: true
+        targetNamespaces: []
   subscriptions:
     # acm:
     #   name: advanced-cluster-management
@@ -18,24 +25,32 @@ clusterGroup:
       name: nfd
       namespace: openshift-nfd
       channel: stable
+    minio:
+      name: minio-operator
+      namespace: minio-operator
+      channel: stable
+      source: certified-operators
+      csv: minio-operator.v5.0.15
+      ip: install-dk7bt
     nvidia:
       name: gpu-operator-certified
       namespace: nvidia-gpu-operator
-      channel: v24.6
+      channel: v23.6
       source: certified-operators
-    edb:
-      name: cloud-native-postgresql
+    serverless:
+      name: serverless-operator
+      namespace: openshift-serverless
+      channel: stable
+    servicemesh:
+      name: servicemeshoperator
       namespace: openshift-operators
-      channel: stable-v1.23
-      source: certified-operators
-
-
+      channel: stable
   projects:
     - hub
     - rag-llm
     - llm-monitoring
     - gpu-config
-
+    - openshift-ai
   # Explicitly mention the cluster-state based overrides we plan to use for this pattern.
   # We can use self-referential variables because the chart calls the tpl function with these variables defined
   sharedValueFiles:
@@ -82,6 +97,11 @@ clusterGroup:
       namespace: rag-llm
       project: rag-llm
       path: charts/all/tgis-server
+    minio-tenant:
+      name: tenant-ns
+      namespace: tenant-ns
+      project: hub
+      path: charts/all/minio-config
     rag-llm:
       name: rag-llm
       namespace: rag-llm
@@ -117,6 +137,12 @@ clusterGroup:
       namespace: llm-monitoring
       project: gpu-config
       path: charts/all/llm-monitoring-config
+
+    openshift-ai:
+      name: openshift-ai
+      project: openshift-ai
+      path: kustomization/openshift-ai/aggregate/overlays/fast
+      kustomize: true
 
   imperative:
     # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm
