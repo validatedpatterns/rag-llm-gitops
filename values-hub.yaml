@@ -35,7 +35,12 @@ clusterGroup:
     nvidia:
       name: gpu-operator-certified
       namespace: nvidia-gpu-operator
-      channel: v23.6
+      channel: v24.6
+      source: certified-operators
+    edb:
+      name: cloud-native-postgresql
+      namespace: openshift-operators
+      channel: stable-v1.23
       source: certified-operators
     serverless:
       name: serverless-operator
@@ -137,7 +142,6 @@ clusterGroup:
       namespace: llm-monitoring
       project: gpu-config
       path: charts/all/llm-monitoring-config
-
     openshift-ai:
       name: openshift-ai
       project: openshift-ai
