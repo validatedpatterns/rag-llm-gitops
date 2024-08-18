@@ -295,7 +295,8 @@ tenant:
   #    - name: my-minio-bucket
   #         objectLock: false        # optional
   #         region: us-east-1        # optional
-  buckets: [ ]
+  buckets:
+    - name: rag-llm-bucket
   ###
   # Array of Kubernetes secrets from which the Operator generates MinIO users during tenant provisioning.
   #
@@ -329,7 +330,9 @@ tenant:
   # - Specify ``console: true`` to expose the Console.
   #
   # Both fields default to ``false``.
-  exposeServices: { }
+  exposeServices:
+    minio: true
+    console: true
   ###
   # The `Kubernetes Service Account <https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/>`__ associated with the Tenant.
   serviceAccountName: ""
