@@ -283,7 +283,7 @@ tenant:
   # MinIO features to enable or disable in the MinIO Tenant
   # See `Operator CRD: Features <https://min.io/docs/minio/kubernetes/upstream/reference/operator-crd.html#features>`__.
   features:
-    bucketDNS: false
+    bucketDNS: true
     domains: { }
     enableSFTP: false
   ###
