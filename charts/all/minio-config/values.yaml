@@ -203,7 +203,7 @@ tenant:
         runAsUser: 1000750000
         runAsGroup: 1000750000
         runAsNonRoot: true
-        allowPrivilegeEscalation: true
+        allowPrivilegeEscalation: false
         capabilities:
           drop:
             - ALL
