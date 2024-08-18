@@ -203,7 +203,7 @@ tenant:
         runAsUser: 1000
         runAsGroup: 1000
         runAsNonRoot: true
-        allowPrivilegeEscalation: false
+        allowPrivilegeEscalation: true
         capabilities:
           drop:
             - ALL
@@ -495,8 +495,6 @@ ingress:
     host: minio.local
     path: /
     pathType: Prefix
-    port: 
-      number: 9000
   console:
     enabled: true
     ingressClassName: ""
@@ -506,8 +504,6 @@ ingress:
     host: minio-console.local
     path: /
     pathType: Prefix
-    port:
-      number: 9000
 # Use an extraResources template section to include additional Kubernetes resources
 # with the Helm deployment.
 #extraResources:
