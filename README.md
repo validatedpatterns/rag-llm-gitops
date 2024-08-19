@@ -2,7 +2,10 @@
 
 ## Introduction
 
-This deployment is based on `validated pattern framework` that uses GitOps to easily provision all operators and apps. It deploys a Chatbot application that leverages the power of Large Language Models (LLMs) in conjunction with the Retrieval-Augmented Generation (RAG) framework running on Red Hat OpenShift to generate a project proposal for a given Red Hat product.
+This deployment is based on `validated pattern framework` that uses GitOps to easily provision all operators and apps.
+It deploys a Chatbot application that leverages the power of Large Language Models (LLMs) in conjunction with the
+Retrieval-Augmented Generation (RAG) framework and using the EDB Postgres for Kubernetes operator(default) or REDIS to store
+embeddings of Red Hat products while running on Red Hat OpenShift to generate a project proposal for a given Red Hat product.
 
 ## Pre-requisites
 
@@ -13,13 +16,15 @@ This deployment is based on `validated pattern framework` that uses GitOps to ea
 
 ## Demo Description & Architecture
 
-The goal of this demo is to demonstrate a Chatbot LLM application augmented with data from Red Hat product documentation running on Red Hat OpenShift. It deploys an LLM application that connects to multiple LLM providers such as OpenAI, Hugging Face, and NVIDIA NIM. The application generates a project proposal for a Red Hat product
+The goal of this demo is to demonstrate a Chatbot LLM application augmented with data from Red Hat product documentation
+running on Red Hat OpenShift. It deploys an LLM application that connects to multiple LLM providers such as OpenAI, Hugging Face, and NVIDIA NIM.
+The application generates a project proposal for a Red Hat product
 
 ### Key Features
 
 - LLM Application augmented with content from Red Hat product documentation.
 - Multiple LLM providers (OpenAI, Hugging Face, NVIDIA)
-- Vector Database, such as PGVECTOR or REDIS, to store embeddings of RedHat product documentation.
+- Vector Database, such as EDB Postgres for Kubernetes or REDIS, to store embeddings of RedHat product documentation.
 - Monitoring dashboard to provide key metrics such as ratings
 - GitOps setup to deploy e2e demo (frontend / vector database / served models)
 
@@ -58,7 +63,9 @@ _Figure 5. Schematic diagram for RAG demo augmented query._
 
 In Figure 5, we can see RAG augmented query. Llama 2 model is used for for language processing, LangChain to
 integrate different tools of the LLM-based application together and to process the PDF
-files and web pages, vector database such as PGVECTOR or REDIS, is used to store vectors, HuggingFace TGI is used to serve the Llama 2 model, Gradio is used for user interface and object storage to store language model and other datasets. Solution components are deployed as microservices in the Red Hat OpenShift cluster.
+files and web pages, vector database provider such as EDB Postgres for Kubernetes or REDIS, is used to store vectors, HuggingFace TGI
+is used to serve the Llama 2 model, Gradio is used for user interface and object storage to store language model and other datasets.
+Solution components are deployed as microservices in the Red Hat OpenShift cluster.
 
 
 #### Download diagrams
@@ -75,7 +82,7 @@ _Figure 6. Proposed demo architecture with OpenShift AI_
 ### Components deployed
 
 - **Hugging Face Text Generation Inference Server:** The pattern deploys a Hugging Face TGIS server. The server deploys `mistral-community/Mistral-7B-v0.2` model. The server will require a GPU node.
-- **EDB (PGVECTOR) / Redis Server:** A Vector Database server is deployed to store vector embeddings created from Red Hat product documentation.
+- **EDB Postgres for Kubernetes / Redis Server:** A Vector Database server is deployed to store vector embeddings created from Red Hat product documentation.
 - **Populate VectorDb Job:** The job creates the embeddings and populates the vector database.
 - **LLM Application:** This is a Chatbot application that can generate a project proposal by augmenting the LLM with the Red Hat product documentation stored in vector db.
 - **Prometheus:** Deploys a prometheus instance to store the various metrics from the LLM application and TGIS server.
@@ -114,7 +121,7 @@ Alternatiely, follow the [instructions](./GPU_provisioning.md) to manually insta
 
 ### Deploy application
 
-***Note:**: This pattern supports two types of vector databases, PGVECTOR and REDIS. By default the pattern will deploy PGVECTOR as a vector DB. To deploy REDIS, change the global.db.type to REDIS in [values-global.yaml](./values-global.yaml).
+***Note:**: This pattern supports two types of vector databases, EDB Postgres for Kubernetes and REDIS. By default the pattern will deploy EDB Postgres for Kubernetes as a vector DB. To deploy REDIS, change the global.db.type to REDIS in [values-global.yaml](./values-global.yaml).
 
 ```yaml
 ---
