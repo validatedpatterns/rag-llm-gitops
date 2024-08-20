@@ -124,10 +124,10 @@ global:
     useCSV: false
     syncPolicy: Automatic
     installPlanApproval: Automatic
-# Possible value for db.type = [REDIS, PGVECTOR]
+# Possible value for db.type = [REDIS, EDB]
   db:
     index: docs
-    type: PGVECTOR  <--- Default is PGVECTOR, Change the db type to REDIS for REDIS deployment
+    type: EDB  <--- Default is EDB, Change the db type to REDIS for REDIS deployment
 main:
   clusterGroupName: hub
   multiSourceConfig:
