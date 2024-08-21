@@ -331,8 +331,8 @@ tenant:
   #
   # Both fields default to ``false``.
   exposeServices:
-    minio: true
-    console: true
+    minio: false
+    console: false
   ###
   # The `Kubernetes Service Account <https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/>`__ associated with the Tenant.
   serviceAccountName: ""
@@ -487,7 +487,7 @@ tenant:
 # Set the keys to conform to the Ingress controller and configuration of your choice.
 ingress:
   api:
-    enabled: true
+    enabled: false
     ingressClassName: ""
     labels: { }
     annotations: { }
@@ -496,7 +496,7 @@ ingress:
     path: /
     pathType: Prefix
   console:
-    enabled: true
+    enabled: false
     ingressClassName: ""
     labels: { }
     annotations: { }
