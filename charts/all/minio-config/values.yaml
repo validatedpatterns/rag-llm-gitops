@@ -190,23 +190,16 @@ tenant:
       # You may need to modify these values to meet your cluster's security and access settings.
       #
       # We recommend disabling recursive permission changes by setting ``fsGroupChangePolicy`` to ``OnRootMismatch`` as those operations can be expensive for certain workloads (e.g. large volumes with many small files).
-      securityContext:
-        runAsUser: 1000770000
-        runAsGroup: 1000770000
-        fsGroup: 1000770000
-        fsGroupChangePolicy: "OnRootMismatch"
-        runAsNonRoot: true
+      securityContext: {}
       ###
       # The Kubernetes `SecurityContext <https://kubernetes.io/docs/tasks/configure-pod-container/security-context/>`__ to use for deploying Tenant containers.
       # You may need to modify these values to meet your cluster's security and access settings.
       containerSecurityContext:
-        runAsUser: 1000770000
-        runAsGroup: 1000770000
-        runAsNonRoot: true
         allowPrivilegeEscalation: false
         capabilities:
           drop:
             - ALL
+        runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
       ###
@@ -266,7 +259,7 @@ tenant:
     externalCertSecret: [ ]
     ###
     # Enable automatic Kubernetes based `certificate generation and signing <https://kubernetes.io/docs/tasks/tls/managing-tls-in-a-cluster>`__
-    requestAutoCert: true
+    requestAutoCert: false
     ###
     # The minimum number of days to expiry before an alert for an expiring certificate is fired.
     # In the below example, if a given certificate will expire in 7 days then expiration events will only be triggered 1 day before expiry
