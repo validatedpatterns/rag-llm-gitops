@@ -1,0 +1,6 @@
+kind: Project
+apiVersion: project.openshift.io/v1
+metadata:
+  name: tenant-ns
+  labels: 
+    opendatahub.io/dashboard: 'true'
