@@ -324,8 +324,8 @@ tenant:
   #
   # Both fields default to ``false``.
   exposeServices:
-    minio: false
-    console: false
+    minio: true
+    console: true
   ###
   # The `Kubernetes Service Account <https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/>`__ associated with the Tenant.
   serviceAccountName: ""
