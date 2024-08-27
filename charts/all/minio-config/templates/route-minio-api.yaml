@@ -1,0 +1,14 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: minio-appi
+spec:
+  to:
+    kind: Service
+    name: myminio-h1
+    weight: 100
+  port:
+    targetPort: http-console
+  tls:
+    termination: edge
+  wildcardPolicy: None
