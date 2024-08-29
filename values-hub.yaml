@@ -9,6 +9,9 @@ clusterGroup:
     - nvidia-gpu-operator
     - rag-llm
     - tenant-ns
+    - rhods-operator:
+        operatorGroup: true
+        targetNamespaces: []
     - minio-operator:
         operatorGroup: true
         targetNamespaces: []
@@ -26,8 +29,8 @@ clusterGroup:
       namespace: openshift-nfd
       channel: stable
     RHODS:
-      name: minio-operator
-      namespace: minio-operator
+      name: rhods-operator
+      namespace: redhat-ods-operator
       channel: fast
       csv: rhods-operator.2.11.0
     minio:
