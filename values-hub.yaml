@@ -115,11 +115,11 @@ clusterGroup:
       namespace: tenant-ns
       project: hub
       path: charts/all/minio-config
-    rag-llm:
-      name: rag-llm
-      namespace: rag-llm
-      project: rag-llm
-      path: charts/all/rag-llm
+    # rag-llm:
+    #   name: rag-llm
+    #   namespace: rag-llm
+    #   project: rag-llm
+    #   path: charts/all/rag-llm
     llm-monitoring:
       name: llm-monitoring
       namespace: llm-monitoring
