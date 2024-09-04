@@ -5,10 +5,10 @@ global:
     useCSV: false
     syncPolicy: Automatic
     installPlanApproval: Automatic
-# Possible value for db.type = [REDIS, PGVECTOR]
+# Possible value for db.type = [REDIS, EDB]
   db:
     index: docs
-    type: PGVECTOR
+    type: EDB
 main:
   clusterGroupName: hub
   multiSourceConfig:

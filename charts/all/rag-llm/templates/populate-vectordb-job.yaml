@@ -2,14 +2,12 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name:  populate-vectordb-{{ include "rag-llm.fullname" . }}
-  labels:
+  annotations:
     argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: HookSucceeded
+  labels:
     {{- include "rag-llm.labels" . | nindent 4 }}
 spec:
-{{- if eq .Values.global.db.type "PGVECTOR" }}
-  ttlSecondsAfterFinished: 100
-{{- end }}
   template:
     spec:
     {{- if .Values.populateDbJob.imagePullSecrets }}
@@ -51,7 +49,7 @@ spec:
         - name: REDIS_SCHEMA
           value: redis_schema.yaml
       {{- end }}
-     {{- if eq .Values.global.db.type "PGVECTOR" }}
+     {{- if eq .Values.global.db.type "EDB" }}
         - name: DB_USERNAME
           valueFrom:
             secretKeyRef:

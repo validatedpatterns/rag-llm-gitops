@@ -1,4 +1,4 @@
-{{- if eq .Values.global.db.type "PGVECTOR" }}
+{{- if eq .Values.global.db.type "EDB" }}
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:

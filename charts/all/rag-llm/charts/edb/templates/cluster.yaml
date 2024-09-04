@@ -1,4 +1,4 @@
-{{- if eq .Values.global.db.type "PGVECTOR" }}
+{{- if eq .Values.global.db.type "EDB" }}
 apiVersion: postgresql.k8s.enterprisedb.io/v1
 kind: Cluster
 metadata:
