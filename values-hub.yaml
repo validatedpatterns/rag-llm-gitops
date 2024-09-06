@@ -9,7 +9,7 @@ clusterGroup:
     - nvidia-gpu-operator
     - rag-llm
     - tenant-ns
-    - rhods-operator:
+    - redhat-ods-operator:
         operatorGroup: true
         targetNamespaces: []
     - minio-operator:
