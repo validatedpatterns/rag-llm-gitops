@@ -33,13 +33,13 @@ clusterGroup:
       namespace: redhat-ods-operator
       channel: fast
       csv: rhods-operator.2.11.0
-    minio:
-      name: minio-operator
-      namespace: minio-operator
-      channel: stable
-      source: certified-operators
-      csv: minio-operator.v5.0.15
-      ip: install-dk7bt
+    # minio:
+    #   name: minio-operator
+    #   namespace: minio-operator
+    #   channel: stable
+    #   source: certified-operators
+    #   csv: minio-operator.v5.0.15
+    #   ip: install-dk7bt
     nvidia:
       name: gpu-operator-certified
       namespace: nvidia-gpu-operator
@@ -114,7 +114,7 @@ clusterGroup:
       name: tenant-ns
       namespace: tenant-ns
       project: hub
-      path: charts/all/minio-config
+      path: charts/all/minio
     rag-llm:
       name: rag-llm
       namespace: rag-llm

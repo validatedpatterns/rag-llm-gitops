@@ -1,0 +1,394 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: demo-setup
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: demo-setup-edit
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+subjects:
+  - kind: ServiceAccount
+    name: demo-setup
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: minio-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  volumeMode: Filesystem
+---
+kind: Secret
+apiVersion: v1
+metadata:
+  name: minio-secret
+stringData:
+  # change the username and password to your own values.
+  # ensure that the user is at least 3 characters long and the password at least 8
+  MINIO_ROOT_USER: minio
+  MINIO_ROOT_PASSWORD: minio123
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: minio
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: minio
+    spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: minio-pvc
+      containers:
+        - resources:
+            limits:
+              cpu: 250m
+              memory: 1Gi
+            requests:
+              cpu: 20m
+              memory: 100Mi
+          readinessProbe:
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: minio
+          livenessProbe:
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 30
+            timeoutSeconds: 1
+            periodSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: MINIO_ROOT_USER
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: MINIO_ROOT_PASSWORD
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+            - containerPort: 9090
+              protocol: TCP
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: data
+              mountPath: /data
+              subPath: minio
+          terminationMessagePolicy: File
+          image: >-
+            quay.io/minio/minio:latest
+          args:
+            - server
+            - /data
+            - --console-address
+            - :9090
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: Recreate
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: minio-service
+spec:
+  ipFamilies:
+    - IPv4
+  ports:
+    - name: api
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
+    - name: ui
+      protocol: TCP
+      port: 9090
+      targetPort: 9090
+  internalTrafficPolicy: Cluster
+  type: ClusterIP
+  ipFamilyPolicy: SingleStack
+  sessionAffinity: None
+  selector:
+    app: minio
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: minio-api
+spec:
+  to:
+    kind: Service
+    name: minio-service
+    weight: 100
+  port:
+    targetPort: api
+  wildcardPolicy: None
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: minio-ui
+spec:
+  to:
+    kind: Service
+    name: minio-service
+    weight: 100
+  port:
+    targetPort: ui
+  wildcardPolicy: None
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: demo-setup
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app.kubernetes.io/component: minio
+    app.kubernetes.io/instance: minio
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/part-of: minio
+    component: minio
+  name: create-minio-buckets
+spec:
+  selector: {}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: minio
+        app.kubernetes.io/instance: minio
+        app.kubernetes.io/name: minio
+        app.kubernetes.io/part-of: minio
+        component: minio
+    spec:
+      containers:
+        - args:
+            - -ec
+            - |-
+              oc get secret minio-secret
+              env | grep MINIO
+              cat << 'EOF' | python3
+              import boto3, os
+
+              s3 = boto3.client("s3",
+                                endpoint_url="http://minio-service.test-minio.svc.cluster.local:9000",
+                                aws_access_key_id=os.getenv("MINIO_ROOT_USER"),
+                                aws_secret_access_key=os.getenv("MINIO_ROOT_PASSWORD"))
+              bucket = 'models'
+              print('creating models bucket')
+              if bucket not in [bu["Name"] for bu in s3.list_buckets()["Buckets"]]:
+                s3.create_bucket(Bucket=bucket)
+              # bucket = 'my-storage'
+              # print('creating my-storage bucket')
+              # if bucket not in [bu["Name"] for bu in s3.list_buckets()["Buckets"]]:
+              #   s3.create_bucket(Bucket=bucket)
+              EOF
+          command:
+            - /bin/bash
+          envFrom:
+            - secretRef:
+                name: minio-secret
+          image: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/s2i-generic-data-science-notebook:2024.1
+          imagePullPolicy: IfNotPresent
+          name: create-buckets
+      initContainers:
+        - args:
+            - -ec
+            - |-
+              echo -n 'Waiting for minio root user secret'
+              while ! oc get secret minio-secret 2>/dev/null | grep -qF minio-secret; do
+              echo -n .
+              sleep 5
+              done; echo
+
+              echo -n 'Waiting for minio deployment'
+              while ! oc get deployment minio 2>/dev/null | grep -qF minio; do
+                echo -n .
+                sleep 5
+              done; echo
+              oc wait --for=condition=available --timeout=60s deployment/minio
+              sleep 10
+          command:
+            - /bin/bash
+          image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+          imagePullPolicy: IfNotPresent
+          name: wait-for-minio
+      restartPolicy: Never
+      serviceAccountName: demo-setup
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app.kubernetes.io/component: minio
+    app.kubernetes.io/instance: minio
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/part-of: minio
+    component: minio
+  name: load-model-set
+spec:
+  selector: {}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: minio
+        app.kubernetes.io/instance: minio
+        app.kubernetes.io/name: minio
+        app.kubernetes.io/part-of: minio
+        component: minio
+    spec:
+      containers:
+        - args:
+            - -ec
+            - |-
+              
+              pip install huggingface_hub;
+              
+              oc get secret minio-secret
+              env | grep MINIO
+              cat << 'EOF' | python3
+              import boto3, os, botocore 
+              from huggingface_hub import snapshot_download
+              from pathlib import Path
+              from huggingface_hub import login
+              
+              login(token="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")
+
+              mistral_models_path = Path.home().joinpath('mistral_models', '7B-Instruct-v0.3')
+              mistral_models_path.mkdir(parents=True, exist_ok=True)
+
+              snapshot_download(repo_id="mistralai/Mistral-7B-Instruct-v0.3", allow_patterns=["params.json", "consolidated.safetensors", "tokenizer.model.v3"], local_dir=mistral_models_path)
+
+
+              # Upload Model to bucket
+              endpoint_url = "http://minio-service.test-minio.svc.cluster.local:9000"
+              aws_access_key_id = os.getenv("MINIO_ROOT_USER")
+              aws_secret_access_key = os.getenv("MINIO_ROOT_PASSWORD")
+              region_name = "us"
+              bucket_name = "models"
+              
+              if not all([aws_access_key_id, aws_secret_access_key, endpoint_url, region_name, bucket_name]):
+                  raise ValueError("One or data connection variables are empty.  "
+                                  "Please check your data connection to an S3 bucket.")
+
+              session = boto3.session.Session(aws_access_key_id=aws_access_key_id,
+                                              aws_secret_access_key=aws_secret_access_key)
+
+              s3_resource = session.resource(
+                  's3',
+                  config=botocore.client.Config(signature_version='s3v4'),
+                  endpoint_url=endpoint_url,
+                  region_name=region_name)
+
+              bucket = s3_resource.Bucket(bucket_name)
+
+
+              def upload_directory_to_s3(local_directory, s3_prefix):
+                  num_files = 0
+                  for root, dirs, files in os.walk(local_directory):
+                      for filename in files:
+                          file_path = os.path.join(root, filename)
+                          relative_path = os.path.relpath(file_path, local_directory)
+                          s3_key = os.path.join(s3_prefix, relative_path)
+                          print(f"{file_path} -> {s3_key}")
+                          bucket.upload_file(file_path, s3_key)
+                          num_files += 1
+                  return num_files
+
+
+              def list_objects(prefix):
+                  filter = bucket.objects.filter(Prefix=prefix)
+                  for obj in filter.all():
+                      print(obj.key)
+
+              list_objects("models")
+
+              # local_models_directory = "model"
+
+              # if not os.path.isdir(local_models_directory):
+              #     raise ValueError(f"The directory '{local_models_directory}' does not exist.  "
+              #                      "Did you finish training the model in the previous notebook?")
+
+              num_files = upload_directory_to_s3("mistral_models", "models/Mistral-7B-Instruct-v0.3")
+
+              if num_files == 0:
+                  raise ValueError("No files uploaded. "
+                                  "saving the model to the \"models\" directory? ")
+
+              list_objects("models")
+
+              EOF
+          command:
+            - /bin/bash
+          envFrom:
+            - secretRef:
+                name: minio-secret
+          image: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/s2i-generic-data-science-notebook:2024.1
+          imagePullPolicy: IfNotPresent
+          name: download-model
+      initContainers:
+        - args:
+            - -ec
+            - |-
+              echo -n 'Waiting for minio root user secret'
+              while ! oc get secret minio-secret 2>/dev/null | grep -qF minio-secret; do
+              echo -n .
+              sleep 5
+              done; echo
+
+              echo -n 'Waiting for minio deployment'
+              while ! oc get deployment minio 2>/dev/null | grep -qF minio; do
+                echo -n .
+                sleep 5
+              done; echo
+              oc wait --for=condition=available --timeout=60s deployment/minio
+              sleep 10
+          command:
+            - /bin/bash
+          image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+          imagePullPolicy: IfNotPresent
+          name: wait-for-minio
+      restartPolicy: Never
+      serviceAccountName: demo-setup
