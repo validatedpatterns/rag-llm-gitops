@@ -303,7 +303,7 @@ spec:
 
 
               # Upload Model to bucket
-              endpoint_url = "http://minio-service:9000"
+              endpoint_url = "http://minio-service.test-minio.svc.cluster.local:9000"
               aws_access_key_id = os.getenv("MINIO_ROOT_USER")
               aws_secret_access_key = os.getenv("MINIO_ROOT_PASSWORD")
               region_name = "us"

@@ -115,6 +115,10 @@ clusterGroup:
       namespace: tenant-ns
       project: hub
       path: charts/all/minio
+    rhods:
+      name: rhods
+      project: hub
+      path: charts/all/rhods
     rag-llm:
       name: rag-llm
       namespace: rag-llm
@@ -150,6 +154,7 @@ clusterGroup:
       namespace: llm-monitoring
       project: gpu-config
       path: charts/all/llm-monitoring-config
+
     # openshift-ai:
     #   name: openshift-ai
     #   project: openshift-ai
