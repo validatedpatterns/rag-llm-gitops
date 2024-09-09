@@ -65,10 +65,10 @@ _Figure 4. Schematic diagram for Ingestion of data for RAG._
 _Figure 5. Schematic diagram for RAG demo augmented query._
 
 
-In Figure 5, we can see RAG augmented query. Llama 2 model is used for for language processing, LangChain to
+In Figure 5, we can see RAG augmented query. Mistral-7B model is used for for language processing, LangChain to
 integrate different tools of the LLM-based application together and to process the PDF
 files and web pages, vector database provider such as EDB Postgres for Kubernetes or Redis, is used to store vectors, HuggingFace TGI
-is used to serve the Llama 2 model, Gradio is used for user interface and object storage to store language model and other datasets.
+is used to serve the Mistral-7B model, Gradio is used for user interface and object storage to store language model and other datasets.
 Solution components are deployed as microservices in the Red Hat OpenShift cluster.
 
 
