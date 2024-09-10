@@ -110,11 +110,11 @@ clusterGroup:
       namespace: rag-llm
       project: rag-llm
       path: charts/all/tgis-server
-    minio-tenant:
-      name: tenant-ns
-      namespace: tenant-ns
-      project: hub
-      path: charts/all/minio
+    # minio-tenant:
+    #   name: tenant-ns
+    #   namespace: tenant-ns
+    #   project: hub
+    #   path: charts/all/minio
     rhods:
       name: rhods
       project: hub
