@@ -177,11 +177,6 @@ spec:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect
 ---
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: demo-setup
----
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -213,7 +208,7 @@ spec:
               import boto3, os
 
               s3 = boto3.client("s3",
-                                endpoint_url="http://minio-service.test-minio.svc.cluster.local:9000",
+                                endpoint_url="http://minio-service:9000",
                                 aws_access_key_id=os.getenv("MINIO_ROOT_USER"),
                                 aws_secret_access_key=os.getenv("MINIO_ROOT_PASSWORD"))
               bucket = 'models'
