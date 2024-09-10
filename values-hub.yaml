@@ -115,10 +115,10 @@ clusterGroup:
     #   namespace: tenant-ns
     #   project: hub
     #   path: charts/all/minio
-    rhods:
-      name: rhods
-      project: hub
-      path: charts/all/rhods
+    # rhods:
+    #   name: rhods
+    #   project: hub
+    #   path: charts/all/rhods
     rag-llm:
       name: rag-llm
       namespace: rag-llm
