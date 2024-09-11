@@ -9,7 +9,7 @@ clusterGroup:
     - nvidia-gpu-operator
     - rag-llm
     - tenant-ns
-    - redhat-ods-operator:
+    - openshift-serverless:
         operatorGroup: true
         targetNamespaces: []
   subscriptions:
@@ -50,6 +50,7 @@ clusterGroup:
     - rag-llm
     - llm-monitoring
     - gpu-config
+    - openshift-ai
   # Explicitly mention the cluster-state based overrides we plan to use for this pattern.
   # We can use self-referential variables because the chart calls the tpl function with these variables defined
   sharedValueFiles:
