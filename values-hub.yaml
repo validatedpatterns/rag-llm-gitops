@@ -9,6 +9,9 @@ clusterGroup:
     - nvidia-gpu-operator
     - rag-llm
     - tenant-ns
+    - redhat-ods-operator:
+       operatorGroup: true
+       targetNamespaces:
     - openshift-serverless:
         operatorGroup: true
         targetNamespaces: []
@@ -102,10 +105,10 @@ clusterGroup:
     #   namespace: tenant-ns
     #   project: hub
     #   path: charts/all/minio
-    # rhods:
-    #   name: rhods
-    #   project: hub
-    #   path: charts/all/rhods
+    rhods:
+      name: rhods
+      project: hub
+      path: charts/all/rhods
     rag-llm:
       name: rag-llm
       namespace: rag-llm
