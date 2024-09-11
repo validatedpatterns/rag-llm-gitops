@@ -8,7 +8,6 @@ clusterGroup:
     - openshift-nfd
     - nvidia-gpu-operator
     - rag-llm
-    - tenant-ns
     - redhat-ods-operator:
        operatorGroup: true
        targetNamespaces:
@@ -101,11 +100,16 @@ clusterGroup:
       namespace: rag-llm
       project: rag-llm
       path: charts/all/tgis-server
-    # minio-tenant:
-    #   name: tenant-ns
-    #   namespace: tenant-ns
-    #   project: hub
-    #   path: charts/all/minio
+    minio:
+      name: rag-llm
+      namespace: rag-llm
+      project: hub
+      path: charts/all/minio
+    llm-serving-service:
+      name: rag-llm
+      namespace: rag-llm
+      project: hub
+      path: charts/all/llm-serving-service
     rhods:
       name: rhods
       project: hub
