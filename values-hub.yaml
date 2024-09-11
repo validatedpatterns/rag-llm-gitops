@@ -12,12 +12,6 @@ clusterGroup:
     - redhat-ods-operator:
         operatorGroup: true
         targetNamespaces: []
-    - minio-operator:
-        operatorGroup: true
-        targetNamespaces: []
-    - openshift-serverless:
-        operatorGroup: true
-        targetNamespaces: []
   subscriptions:
     # acm:
     #   name: advanced-cluster-management
@@ -28,18 +22,11 @@ clusterGroup:
       name: nfd
       namespace: openshift-nfd
       channel: stable
-    RHODS:
+    openshift-ai:
       name: rhods-operator
       namespace: redhat-ods-operator
       channel: fast
       csv: rhods-operator.2.11.0
-    # minio:
-    #   name: minio-operator
-    #   namespace: minio-operator
-    #   channel: stable
-    #   source: certified-operators
-    #   csv: minio-operator.v5.0.15
-    #   ip: install-dk7bt
     nvidia:
       name: gpu-operator-certified
       namespace: nvidia-gpu-operator
@@ -63,7 +50,6 @@ clusterGroup:
     - rag-llm
     - llm-monitoring
     - gpu-config
-    - openshift-ai
   # Explicitly mention the cluster-state based overrides we plan to use for this pattern.
   # We can use self-referential variables because the chart calls the tpl function with these variables defined
   sharedValueFiles:
