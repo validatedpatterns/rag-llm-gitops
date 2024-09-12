@@ -26,7 +26,6 @@ metadata:
 stringData:
   AWS_ACCESS_KEY_ID: minio
   AWS_SECRET_ACCESS_KEY: minio123
-
   AWS_DEFAULT_REGION: us-east-1
   AWS_S3_BUCKET: my-storage
   AWS_S3_ENDPOINT: http://minio-service:9000
@@ -37,8 +36,12 @@ kind: InferenceService
 metadata:
   name: mistral-7b-instruct-v02
   labels:
-    networking.knative.dev/visibility: cluster-local
     opendatahub.io/dashboard: 'true'
+  annotations:
+    openshift.io/display-name: mistral-7b-instruct-v02
+    serving.knative.openshift.io/enablePassthrough: 'true'
+    sidecar.istio.io/inject: 'true'
+    sidecar.istio.io/rewriteAppHTTPProbers: 'true'
 spec:
   predictor:
     maxReplicas: 1
