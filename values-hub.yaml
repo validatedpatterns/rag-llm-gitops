@@ -24,12 +24,12 @@ clusterGroup:
       name: nfd
       namespace: openshift-nfd
       channel: stable
-    openshift-ai:
-      name: rhods-operator
-      namespace: redhat-ods-operator
-      channel: fast
-      csv: rhods-operator.2.11.0
-      # installPlanApproval: Manual
+    # openshift-ai:
+    #   name: rhods-operator
+    #   namespace: redhat-ods-operator
+    #   channel: fast
+    #   csv: rhods-operator.2.11.0
+    #   installplan: install-zvdt4
     nvidia:
       name: gpu-operator-certified
       namespace: nvidia-gpu-operator
@@ -105,15 +105,15 @@ clusterGroup:
       namespace: rag-llm
       project: hub
       path: charts/all/minio
-    llm-serving-service:
-      name: llm-serving-service
-      namespace: rag-llm
-      project: hub
-      path: charts/all/llm-serving-service
-    rhods:
-      name: rhods
-      project: hub
-      path: charts/all/rhods
+    # llm-serving-service:
+    #   name: llm-serving-service
+    #   namespace: rag-llm
+    #   project: hub
+    #   path: charts/all/llm-serving-service
+    # rhods:
+    #   name: rhods
+    #   project: hub
+    #   path: charts/all/rhods
     rag-llm:
       name: rag-llm
       namespace: rag-llm
