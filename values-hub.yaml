@@ -101,12 +101,12 @@ clusterGroup:
       project: rag-llm
       path: charts/all/tgis-server
     minio:
-      name: rag-llm
+      name: minio
       namespace: rag-llm
       project: hub
       path: charts/all/minio
     llm-serving-service:
-      name: rag-llm
+      name: llm-serving-service
       namespace: rag-llm
       project: hub
       path: charts/all/llm-serving-service
