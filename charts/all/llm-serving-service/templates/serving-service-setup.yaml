@@ -17,6 +17,7 @@ kind: Secret
 apiVersion: v1
 metadata:
   name: aws-connection-rag-llm-bucket
+  namespace: rag-llm
   labels:
     opendatahub.io/dashboard: 'true'
     opendatahub.io/managed: 'true'
@@ -35,6 +36,7 @@ apiVersion: serving.kserve.io/v1beta1
 kind: InferenceService
 metadata:
   name: mistral-7b-instruct-v02
+  namespace: rag-llm
   labels:
     opendatahub.io/dashboard: 'true'
   annotations:
@@ -73,6 +75,7 @@ metadata:
     opendatahub.io/template-name: vllm-runtime
     openshift.io/display-name: vllm
   name: mistral-7b-instruct-v02
+  namespace: rag-llm
   labels:
     opendatahub.io/dashboard: 'true'
 spec:
@@ -111,6 +114,7 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: mistral-7b-instruct-v02-predictor
+  namespace: rag-llm
   labels:
     component: predictor
     networking.knative.dev/visibility: cluster-local
