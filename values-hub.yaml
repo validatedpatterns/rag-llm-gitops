@@ -108,16 +108,16 @@ clusterGroup:
       namespace: rag-llm
       project: hub
       path: charts/all/minio
-    llm-serving-service:
-      name: llm-serving-service
-      namespace: rag-llm
-      project: hub
-      path: charts/all/llm-serving-service
-    openshift-ai:
-      name: openshift-ai
-      project: openshift-ai
-      path: kustomization/openshift-ai/aggregate/overlays/fast
-      kustomize: true
+    # llm-serving-service:
+    #   name: llm-serving-service
+    #   namespace: rag-llm
+    #   project: hub
+    #   path: charts/all/llm-serving-service
+    # openshift-ai:
+    #   name: openshift-ai
+    #   project: openshift-ai
+    #   path: kustomization/openshift-ai/aggregate/overlays/fast
+    #   kustomize: true
     rag-llm:
       name: rag-llm
       namespace: rag-llm
