@@ -8,6 +8,8 @@ clusterGroup:
     - openshift-nfd
     - nvidia-gpu-operator
     - rag-llm
+        labels:
+          opendatahub.io/dashboard: "true"
     # - redhat-ods-operator:
     #    operatorGroup: true
     #    targetNamespaces:
