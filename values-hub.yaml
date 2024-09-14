@@ -156,11 +156,10 @@ clusterGroup:
       project: gpu-config
       path: charts/all/llm-monitoring-config
 
-    # openshift-ai:
-    #   name: openshift-ai
-    #   project: openshift-ai
-    #   path: kustomization/openshift-ai/aggregate/overlays/fast
-    #   kustomize: true
+    openshift-ai:
+      name: openshift-ai
+      project: openshift-ai
+      path: charts/all/rhods
 
   imperative:
     # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm
