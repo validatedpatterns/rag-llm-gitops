@@ -7,6 +7,9 @@ clusterGroup:
     - golang-external-secrets
     - openshift-nfd
     - nvidia-gpu-operator
+    - redhat-ods-operator:
+        operatorGroup: true
+        targetNamespaces: []
     - rag-llm:
         labels:
           opendatahub.io/dashboard: "true"
