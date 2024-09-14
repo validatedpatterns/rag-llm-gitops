@@ -15,7 +15,7 @@ spec:
                 echo -n .
                 sleep 5
               done; echo
-              oc patch installplan install-dq68d --namespace redhat-ods-operator --type merge --patch '{"spec":{"approved":true}}'
+              oc patch installplan install-nlbqq --namespace redhat-ods-operator --type merge --patch '{"spec":{"approved":true}}'
               sleep 10
 
               cat << EOF | oc apply -f-
