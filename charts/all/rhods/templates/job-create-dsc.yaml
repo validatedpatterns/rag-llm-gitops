@@ -15,7 +15,7 @@ spec:
                 echo -n .
                 sleep 5
               done; echo
-              oc wait --for=jsonpath='{.status.phase}'=Ready --timeout=60s -n redhat-ods-operator dscinitialization/default-dsci
+              oc patch installplan install-dq68d --namespace redhat-ods-operator --type merge --patch '{"spec":{"approved":true}}'
               sleep 10
 
               cat << EOF | oc apply -f-
