@@ -28,7 +28,7 @@ stringData:
   AWS_ACCESS_KEY_ID: minio
   AWS_SECRET_ACCESS_KEY: minio123
   AWS_DEFAULT_REGION: us-east-1
-  AWS_S3_BUCKET: my-storage
+  AWS_S3_BUCKET: models
   AWS_S3_ENDPOINT: http://minio-service:9000
 type: Opaque
 ---
@@ -62,7 +62,7 @@ spec:
       runtime: mistral-7b-instruct-v02
       storage:
         key: aws-connection-rag-llm-bucket
-        path: models
+        path: Mistral-7B-Instruct-v0.3
 ---
 apiVersion: serving.kserve.io/v1alpha1
 kind: ServingRuntime
@@ -73,7 +73,7 @@ metadata:
     opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
     opendatahub.io/template-display-name: vLLM ServingRuntime for KServe
     opendatahub.io/template-name: vllm-runtime
-    openshift.io/display-name: vllm
+    openshift.io/display-name: mistral-7b-instruct-v02
   name: mistral-7b-instruct-v02
   namespace: rag-llm
   labels:
@@ -124,13 +124,13 @@ spec:
   template:
     metadata:
       annotations:
-        internal.serving.kserve.io/storage-initializer-sourceuri: '<scheme-placeholder>://models'
+        internal.serving.kserve.io/storage-initializer-sourceuri: '<scheme-placeholder>://Mistral-7B-Instruct-v0.3'
         autoscaling.knative.dev/max-scale: '1'
         prometheus.io/port: '8080'
         openshift.io/display-name: Mistral-7B-Instruct-v0.2
         prometheus.io/path: /metrics
         sidecar.istio.io/inject: 'true'
-        internal.serving.kserve.io/storage-spec-key: aws-connection-test-bucket
+        internal.serving.kserve.io/storage-spec-key: aws-connection-rag-llm
         autoscaling.knative.dev/min-scale: '1'
         sidecar.istio.io/rewriteAppHTTPProbers: 'true'
         autoscaling.knative.dev/class: kpa.autoscaling.knative.dev

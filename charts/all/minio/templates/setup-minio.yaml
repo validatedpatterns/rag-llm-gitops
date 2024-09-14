@@ -399,7 +399,7 @@ spec:
                 echo -n .
                 sleep 5
               done; echo
-              oc wait --for=condition=available --timeout=60s deployment/minio
+              oc wait --for=jsonpath='{.status.phase}'=Ready --timeout=60s -n redhat-ods-operator dscinitialization/default-dsci
               sleep 10
           command:
             - /bin/bash
