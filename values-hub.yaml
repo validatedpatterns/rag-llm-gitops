@@ -158,6 +158,7 @@ clusterGroup:
 
     openshift-ai:
       name: openshift-ai
+      namespace: rag-llm
       project: openshift-ai
       path: charts/all/rhods
 
