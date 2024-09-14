@@ -79,6 +79,9 @@ metadata:
   labels:
     opendatahub.io/dashboard: 'true'
 spec:
+  annotations:
+    prometheus.io/path: /metrics
+    prometheus.io/port: '8080'
   containers:
     - args:
         - '--port=8080'
