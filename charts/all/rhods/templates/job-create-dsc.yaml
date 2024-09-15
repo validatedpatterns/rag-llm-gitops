@@ -9,7 +9,7 @@ kind: ClusterRole
 metadata:
   name: datasciencecluster-manager
 rules:
-- apiGroups: ["datasciencecluster.opendatahub.io/v1"]  
+- apiGroups: ["datasciencecluster.opendatahub.io"]  
   resources: ["datascienceclusters"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 ---
