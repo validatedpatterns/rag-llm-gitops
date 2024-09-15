@@ -58,9 +58,10 @@ spec:
                 echo -n .
                 sleep 5
               done; echo
+              sleep 10
+
               export INSTALL_PLAN_NAME=$(oc get installplan -o jsonpath='{.items[0].metadata.name}')
               oc patch installplan $INSTALL_PLAN_NAME --namespace redhat-ods-operator --type merge --patch '{"spec":{"approved":true}}'
-              sleep 10
 
               cat << EOF | oc apply -f-
               apiVersion: datasciencecluster.opendatahub.io/v1
