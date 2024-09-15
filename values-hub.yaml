@@ -158,7 +158,7 @@ clusterGroup:
 
     openshift-ai:
       name: openshift-ai
-      namespace: rag-llm
+      namespace: redhat-ods-operator
       project: openshift-ai
       path: charts/all/rhods
 
