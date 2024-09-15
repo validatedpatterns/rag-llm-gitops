@@ -5,28 +5,27 @@ metadata:
   name: dsc-setup
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
   name: datasciencecluster-manager
-  namespace: redhat-ods-operator
 rules:
-- apiGroups: ["datasciencecluster.opendatahub.io/v1"]  # Replace with the actual API group for DataScienceCluster
+- apiGroups: ["datasciencecluster.opendatahub.io/v1"]  
   resources: ["datascienceclusters"]
   verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
   name: datasciencecluster-manager-binding
-  namespace: redhat-ods-operator
 subjects:
 - kind: ServiceAccount
   name: dsc-setup
   namespace: redhat-ods-operator
 roleRef:
-  kind: Role
+  kind: ClusterRole
   name: datasciencecluster-manager
   apiGroup: rbac.authorization.k8s.io
+
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -68,7 +67,7 @@ roleRef:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: create-ds-connections
+  name: create-dsc-connections
 spec:
   selector: {}
   template:
@@ -87,7 +86,7 @@ spec:
               export INSTALL_PLAN_NAME=$(oc get installplan -o jsonpath='{.items[0].metadata.name}')
               oc patch installplan $INSTALL_PLAN_NAME --namespace redhat-ods-operator --type merge --patch '{"spec":{"approved":true}}'
 
-              cat << EOF | oc apply -f-
+              cat <<EOF | oc apply -f -
               apiVersion: datasciencecluster.opendatahub.io/v1
               kind: DataScienceCluster
               metadata:
