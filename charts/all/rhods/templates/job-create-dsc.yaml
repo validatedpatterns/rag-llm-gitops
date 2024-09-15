@@ -5,16 +5,28 @@ metadata:
   name: dsc-setup
 ---
 apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: datasciencecluster-manager
+  namespace: redhat-ods-operator
+rules:
+- apiGroups: ["datasciencecluster.opendatahub.io/v1"]  # Replace with the actual API group for DataScienceCluster
+  resources: ["datascienceclusters"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: demo-setup-edit
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: edit
+  name: datasciencecluster-manager-binding
+  namespace: redhat-ods-operator
 subjects:
-  - kind: ServiceAccount
-    name: dsc-setup
+- kind: ServiceAccount
+  name: dsc-setup
+  namespace: redhat-ods-operator
+roleRef:
+  kind: Role
+  name: datasciencecluster-manager
+  apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
