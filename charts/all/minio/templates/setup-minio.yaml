@@ -360,7 +360,7 @@ spec:
               #     raise ValueError(f"The directory '{local_models_directory}' does not exist.  "
               #                      "Did you finish training the model in the previous notebook?")
 
-              num_files = upload_directory_to_s3("mistral_models", "Mistral-7B-v0.2")
+              num_files = upload_directory_to_s3("Mistral-7B-v0.2")
 
               if num_files == 0:
                   raise ValueError("No files uploaded. "
