@@ -39,9 +39,9 @@ spec:
           value:  {{ .Values.populateDbJob.doc_location | quote }}
         - name: TEMP_DIR
           value: {{ .Values.populateDbJob.doc_dir | quote }}
-        - name: DB_TYPE
-          value: {{ .Values.global.db.type }}
       {{- if eq .Values.global.db.type "REDIS" }}
+        - name: DB_TYPE
+          value: "REDIS"
         - name: REDIS_URL
           value: redis://redis-stack-server:6379
         - name: REDIS_INDEX
@@ -50,6 +50,8 @@ spec:
           value: redis_schema.yaml
       {{- end }}
      {{- if eq .Values.global.db.type "EDB" }}
+        - name: DB_TYPE
+          value: "PGVECTOR"
         - name: DB_USERNAME
           valueFrom:
             secretKeyRef:
