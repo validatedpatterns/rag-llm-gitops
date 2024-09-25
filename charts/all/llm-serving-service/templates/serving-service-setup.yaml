@@ -35,15 +35,16 @@ type: Opaque
 apiVersion: serving.kserve.io/v1beta1
 kind: InferenceService
 metadata:
-  name: mistral-7b-instruct-v02
-  namespace: rag-llm
-  labels:
-    opendatahub.io/dashboard: 'true'
   annotations:
     openshift.io/display-name: mistral-7b-instruct-v02
     serving.knative.openshift.io/enablePassthrough: 'true'
     sidecar.istio.io/inject: 'true'
-    sidecar.istio.io/rewriteAppHTTPProbers: 'true'
+    sidecar.istio.io/rewriteAppHTTPProbers: 'true'  
+  name: mistral-7b-instruct-v02
+  namespace: rag-llm
+  generation: 1
+  labels:
+    opendatahub.io/dashboard: 'true'
 spec:
   predictor:
     maxReplicas: 1
@@ -56,9 +57,11 @@ spec:
         limits:
           cpu: '8'
           memory: 10Gi
+          nvidia.com/gpu: '1'
         requests:
           cpu: '4'
           memory: 8Gi
+          nvidia.com/gpu: '1'
       runtime: mistral-7b-instruct-v02
       storage:
         key: aws-connection-rag-llm-bucket
