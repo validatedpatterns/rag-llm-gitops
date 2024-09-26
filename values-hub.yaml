@@ -110,11 +110,11 @@ clusterGroup:
       namespace: rag-llm
       project: hub
       path: charts/all/minio
-    llm-serving-service:
-      name: llm-serving-service
-      namespace: rag-llm
-      project: hub
-      path: charts/all/llm-serving-service
+    # llm-serving-service:
+    #   name: llm-serving-service
+    #   namespace: rag-llm
+    #   project: hub
+    #   path: charts/all/llm-serving-service
     # openshift-ai:
     #   name: openshift-ai
     #   project: openshift-ai

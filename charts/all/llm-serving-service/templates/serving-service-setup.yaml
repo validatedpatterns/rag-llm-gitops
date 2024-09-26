@@ -66,140 +66,140 @@ spec:
         key: aws-connection-rag-llm-bucket
         path: Mistral-7B-v0.2
 ---
-# apiVersion: serving.kserve.io/v1alpha1
-# kind: ServingRuntime
-# metadata:
-#   annotations:
-#     opendatahub.io/accelerator-name: nvidia-gpu
-#     opendatahub.io/apiProtocol: REST
-#     opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
-#     opendatahub.io/template-display-name: vLLM ServingRuntime for KServe
-#     opendatahub.io/template-name: vllm-runtime
-#     openshift.io/display-name: mistral-7b-instruct-v02
-#   name: mistral-7b-instruct-v02
-#   namespace: rag-llm
-#   labels:
-#     opendatahub.io/dashboard: 'true'
-# spec:
-#   annotations:
-#     prometheus.io/path: /metrics
-#     prometheus.io/port: '8080'
-#   containers:
-#     - args:
-#         - '--port=8080'
-#         - '--model=/mnt/models'
-#         - '--served-model-name={{.Name}}'
-#         - '--distributed-executor-backend=mp'
-#         - '--max-model-len=4096'
-#       command:
-#         - python
-#         - '-m'
-#         - vllm.entrypoints.openai.api_server
-#       env:
-#         - name: HF_HOME
-#           value: /tmp/hf_home
-#       image: 'quay.io/modh/vllm@sha256:b51fde66f162f1a78e8c027320dddf214732d5345953b1599a84fe0f0168c619'
-#       name: kserve-container
-#       ports:
-#         - containerPort: 8080
-#           protocol: TCP
-#       volumeMounts:
-#         - mountPath: /dev/shm
-#           name: shm
-#   multiModel: false
-#   supportedModelFormats:
-#     - autoSelect: true
-#       name: vLLM
-#   volumes:
-#     - emptyDir:
-#         medium: Memory
-#         sizeLimit: 2Gi
-#       name: shm
----
-apiVersion: batch/v1
-kind: Job
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
 metadata:
-  name: create-vllm
+  annotations:
+    opendatahub.io/accelerator-name: nvidia-gpu
+    opendatahub.io/apiProtocol: REST
+    opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+    opendatahub.io/template-display-name: vLLM ServingRuntime for KServe
+    opendatahub.io/template-name: vllm-runtime
+    openshift.io/display-name: mistral-7b-instruct-v02
+  name: mistral-7b-instruct-v02
+  namespace: rag-llm
+  labels:
+    opendatahub.io/dashboard: 'true'
 spec:
-  selector: {}
-  template:
-    spec:
-      containers:
-      - args:
-        - -ec
-        - |-
-          cat << EOF | oc apply -f-
-          apiVersion: serving.kserve.io/v1alpha1
-          kind: ServingRuntime
-          metadata:
-            annotations:
-              opendatahub.io/accelerator-name: nvidia-gpu
-              opendatahub.io/apiProtocol: REST
-              opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
-              opendatahub.io/template-display-name: vLLM ServingRuntime for KServe
-              opendatahub.io/template-name: vllm-runtime
-              openshift.io/display-name: mistral-7b-instruct-v02
-            name: mistral-7b-instruct-v02
-            namespace: rag-llm
-            labels:
-              opendatahub.io/dashboard: 'true'
-          spec:
-            annotations:
-              prometheus.io/path: /metrics
-              prometheus.io/port: '8080'
-            containers:
-              - args:
-                  - '--port=8080'
-                  - '--model=/mnt/models'
-                  - '--served-model-name={{.Name}}'
-                  - '--distributed-executor-backend=mp'
-                  - '--max-model-len=4096'
-                command:
-                  - python
-                  - '-m'
-                  - vllm.entrypoints.openai.api_server
-                env:
-                  - name: HF_HOME
-                    value: /tmp/hf_home
-                image: 'quay.io/modh/vllm@sha256:b51fde66f162f1a78e8c027320dddf214732d5345953b1599a84fe0f0168c619'
-                name: kserve-container
-                ports:
-                  - containerPort: 8080
-                    protocol: TCP
-                volumeMounts:
-                  - mountPath: /dev/shm
-                    name: shm
-            multiModel: false
-            supportedModelFormats:
-              - autoSelect: true
-                name: vLLM
-            volumes:
-              - emptyDir:
-                  medium: Memory
-                  sizeLimit: 2Gi
-                name: shm
-          EOF
-        command:
-        - /bin/bash
-        image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
-        imagePullPolicy: IfNotPresent
-        name: create-vllm
-      initContainers:
-        - args:
-            - -ec
-            - |-
-              echo -n 'Waiting for openshift ai initialize'
-              while ! oc describe sub rhods-operator -n redhat-ods-operator 2>/dev/null | grep -qF rhods-operator; do
-                echo -n .
-                sleep 5
-              done; echo
-              oc wait --for=jsonpath='{.status.phase}'=Ready --timeout=60s -n redhat-ods-operator dscinitialization/default-dsci
-              sleep 10
-          command:
-            - /bin/bash
-          image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
-          imagePullPolicy: IfNotPresent
-          name: wait-for-openshift
-      restartPolicy: Never
-      serviceAccount: demo-setup
-      serviceAccountName: demo-setup
+  annotations:
+    prometheus.io/path: /metrics
+    prometheus.io/port: '8080'
+  containers:
+    - args:
+        - '--port=8080'
+        - '--model=/mnt/models'
+        - '--served-model-name={{.Name}}'
+        - '--distributed-executor-backend=mp'
+        - '--max-model-len=4096'
+      command:
+        - python
+        - '-m'
+        - vllm.entrypoints.openai.api_server
+      env:
+        - name: HF_HOME
+          value: /tmp/hf_home
+      image: 'quay.io/modh/vllm@sha256:b51fde66f162f1a78e8c027320dddf214732d5345953b1599a84fe0f0168c619'
+      name: kserve-container
+      ports:
+        - containerPort: 8080
+          protocol: TCP
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: shm
+  multiModel: false
+  supportedModelFormats:
+    - autoSelect: true
+      name: vLLM
+  volumes:
+    - emptyDir:
+        medium: Memory
+        sizeLimit: 2Gi
+      name: shm
+# ---
+# apiVersion: batch/v1
+# kind: Job
+# metadata:
+#   name: create-vllm
+# spec:
+#   selector: {}
+#   template:
+#     spec:
+#       containers:
+#       - args:
+#         - -ec
+#         - |-
+#           cat << EOF | oc apply -f-
+#           apiVersion: serving.kserve.io/v1alpha1
+#           kind: ServingRuntime
+#           metadata:
+#             annotations:
+#               opendatahub.io/accelerator-name: nvidia-gpu
+#               opendatahub.io/apiProtocol: REST
+#               opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+#               opendatahub.io/template-display-name: vLLM ServingRuntime for KServe
+#               opendatahub.io/template-name: vllm-runtime
+#               openshift.io/display-name: mistral-7b-instruct-v02
+#             name: mistral-7b-instruct-v02
+#             namespace: rag-llm
+#             labels:
+#               opendatahub.io/dashboard: 'true'
+#           spec:
+#             annotations:
+#               prometheus.io/path: /metrics
+#               prometheus.io/port: '8080'
+#             containers:
+#               - args:
+#                   - '--port=8080'
+#                   - '--model=/mnt/models'
+#                   - '--served-model-name={{.Name}}'
+#                   - '--distributed-executor-backend=mp'
+#                   - '--max-model-len=4096'
+#                 command:
+#                   - python
+#                   - '-m'
+#                   - vllm.entrypoints.openai.api_server
+#                 env:
+#                   - name: HF_HOME
+#                     value: /tmp/hf_home
+#                 image: 'quay.io/modh/vllm@sha256:b51fde66f162f1a78e8c027320dddf214732d5345953b1599a84fe0f0168c619'
+#                 name: kserve-container
+#                 ports:
+#                   - containerPort: 8080
+#                     protocol: TCP
+#                 volumeMounts:
+#                   - mountPath: /dev/shm
+#                     name: shm
+#             multiModel: false
+#             supportedModelFormats:
+#               - autoSelect: true
+#                 name: vLLM
+#             volumes:
+#               - emptyDir:
+#                   medium: Memory
+#                   sizeLimit: 2Gi
+#                 name: shm
+#           EOF
+#         command:
+#         - /bin/bash
+#         image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+#         imagePullPolicy: IfNotPresent
+#         name: create-vllm
+#       initContainers:
+#         - args:
+#             - -ec
+#             - |-
+#               echo -n 'Waiting for openshift ai initialize'
+#               while ! oc describe sub rhods-operator -n redhat-ods-operator 2>/dev/null | grep -qF rhods-operator; do
+#                 echo -n .
+#                 sleep 5
+#               done; echo
+#               oc wait --for=jsonpath='{.status.phase}'=Ready --timeout=60s -n redhat-ods-operator dscinitialization/default-dsci
+#               sleep 10
+#           command:
+#             - /bin/bash
+#           image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+#           imagePullPolicy: IfNotPresent
+#           name: wait-for-openshift
+#       restartPolicy: Never
+#       serviceAccount: demo-setup
+#       serviceAccountName: demo-setup
