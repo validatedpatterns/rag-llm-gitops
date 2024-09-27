@@ -58,7 +58,7 @@ spec:
           memory: 10Gi
           nvidia.com/gpu: '1'
         requests:
-          cpu: '4'
+          cpu: '2'
           memory: 8Gi
           nvidia.com/gpu: '1'
       runtime: mistral-7b-instruct-v02
@@ -91,6 +91,10 @@ spec:
         - '--served-model-name={{.Name}}'
         - '--distributed-executor-backend=mp'
         - '--max-model-len=4096'
+        - '--dtype=half'
+        - '--gpu-memory-utilization'
+        - '0.98'
+        - '--enforce-eager'
       command:
         - python
         - '-m'
