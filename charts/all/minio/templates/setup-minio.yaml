@@ -294,7 +294,7 @@ spec:
               
               # pip install huggingface_hub;
               git lfs install
-              git clone https://huggingface.co/mistral-community/Mistral-7B-v0.2
+              git clone https://huggingface.co/mistral-community/Mistral-7B-v0.2 && rm -rf Mistral-7B-v0.2/.git
               oc get secret minio-secret
               env | grep MINIO
               cat << 'EOF' | python3
