@@ -48,6 +48,10 @@ spec:
   predictor:
     maxReplicas: 1
     minReplicas: 1
+    retryPolicy:
+      maxRetries: 3           # Set number of retries for the predictor
+      backoffLimit: 5         # Max retry time
+      backoffDelay: 1 
     model:
       modelFormat:
         name: vLLM
