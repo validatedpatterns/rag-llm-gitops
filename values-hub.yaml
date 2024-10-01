@@ -13,6 +13,7 @@ clusterGroup:
     - rag-llm:
         labels:
           opendatahub.io/dashboard: "true"
+          modelmesh-enabled: 'false'
     - openshift-serverless:
         operatorGroup: true
         targetNamespaces: []
