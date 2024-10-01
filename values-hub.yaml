@@ -115,6 +115,10 @@ clusterGroup:
       namespace: rag-llm
       project: hub
       path: charts/all/llm-serving-service
+      syncPolicy:
+          automated: {}
+          retry:
+            limit: 50
     # openshift-ai:
     #   name: openshift-ai
     #   project: openshift-ai
