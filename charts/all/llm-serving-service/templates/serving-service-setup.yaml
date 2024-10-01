@@ -66,6 +66,10 @@ spec:
       storage:
         key: aws-connection-rag-llm-bucket
         path: Mistral-7B-v0.2
+    tolerations:
+    - effect: NoSchedule
+      key: odh-notebook
+      operator: Exists
 ---
 apiVersion: serving.kserve.io/v1alpha1
 kind: ServingRuntime
