@@ -101,11 +101,11 @@ clusterGroup:
       namespace: golang-external-secrets
       project: hub
       path: common/golang-external-secrets
-    tgis-server:
-      name: tgis-server
-      namespace: rag-llm
-      project: rag-llm
-      path: charts/all/tgis-server
+    # tgis-server:
+    #   name: tgis-server
+    #   namespace: rag-llm
+    #   project: rag-llm
+    #   path: charts/all/tgis-server
     minio:
       name: minio
       namespace: rag-llm
