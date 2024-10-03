@@ -1,4 +1,11 @@
 
+global:
+  localClusterDomain: example.com
+  hubClusterDomain: example.com
+llmui:
+  namespace: "rag-llm"
+
+
 replicaCount: 1
 
 image:
