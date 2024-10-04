@@ -4,7 +4,7 @@ llm_providers:
     models:
       - name: mistral-community/Mistral-7B-v0.2
         weight: 1
-        url: https://mistral-7b-instruct-v02-{{ .Values.llmui.namespace }}.{{ coalesce .Values.global.localClusterDomain .Values.global.hubClusterDomain }}
+        url: https://mistral-7b-instruct-v02-{{ .Values.llmui.namespace }}.{{ coalesce .Values.global.localClusterDomain .Values.global.hubClusterDomain }}/v1
         params:
           - name: max_new_tokens
             value: 1024
