@@ -1,0 +1,19 @@
+kind: Secret
+apiVersion: v1
+metadata:
+  name: aws-connection-rag-llm-bucket
+  namespace: tenant-ns
+  labels:
+    opendatahub.io/dashboard: 'true'
+    opendatahub.io/managed: 'true'
+  annotations:
+    opendatahub.io/connection-type: s3
+    openshift.io/display-name: rag-llm-bucket
+data:
+  AWS_ACCESS_KEY_ID: minio
+  AWS_SECRET_ACCESS_KEY: minio123
+stringData:
+  AWS_DEFAULT_REGION: us-east-1
+  AWS_S3_BUCKET: my-storage
+  AWS_S3_ENDPOINT: http://minio-service:9000
+type: Opaque
