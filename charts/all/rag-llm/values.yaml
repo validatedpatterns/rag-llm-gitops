@@ -9,10 +9,10 @@ llmui:
 replicaCount: 1
 
 image:
-  repository: 'quay.io/ecosystem-appeng/gradio-tgi-multi-model-rag-redis'
+  repository:  'quay.io/ecosystem-appeng/gradio-tgi-multi-model-rag'
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.1.0"
+  tag: "0.2.0"
 
 imagePullSecrets: []
 nameOverride: ""

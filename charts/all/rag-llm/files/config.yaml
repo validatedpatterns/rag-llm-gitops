@@ -1,5 +1,5 @@
 llm_providers:
-  - name: "Hugging Face"
+  - name: "OpenShift AI (vLLM)"
     enabled: True
     models:
       - name: mistral-community/Mistral-7B-v0.2
@@ -20,7 +20,7 @@ llm_providers:
             value: False
           - name: typical_p
             value: 0.95
-default_provider: "Hugging Face"
+default_provider: "OpenShift AI (vLLM)"
 default_model: "mistral-community/Mistral-7B-v0.2"
 # type values=(default, round_robin,  all)
 type: all

@@ -228,10 +228,6 @@ spec:
               print('creating models bucket')
               if bucket not in [bu["Name"] for bu in s3.list_buckets()["Buckets"]]:
                 s3.create_bucket(Bucket=bucket)
-              # bucket = 'my-storage'
-              # print('creating my-storage bucket')
-              # if bucket not in [bu["Name"] for bu in s3.list_buckets()["Buckets"]]:
-              #   s3.create_bucket(Bucket=bucket)
               EOF
           command:
             - /bin/bash
@@ -310,7 +306,6 @@ spec:
 
               # snapshot_download(repo_id="mistralai/Mistral-7B-Instruct-v0.3", allow_patterns=["config.json", "params.json", "consolidated.safetensors", "tokenizer.model.v3"], local_dir=mistral_models_path)
 
-
               # Upload Model to bucket
               endpoint_url = "http://minio-service:9000"
               aws_access_key_id = os.getenv("MINIO_ROOT_USER")
@@ -354,13 +349,7 @@ spec:
 
               list_objects("models")
 
-              # local_models_directory = "model"
-
-              # if not os.path.isdir(local_models_directory):
-              #     raise ValueError(f"The directory '{local_models_directory}' does not exist.  "
-              #                      "Did you finish training the model in the previous notebook?")
-
-              num_files = upload_directory_to_s3("Mistral-7B-v0.2", "Mistral-7B-v0.2")
+              num_files = upload_directory_to_s3("Mistral-7B-v0.2", "llm-models/Mistral-7B-v0.2")
 
               if num_files == 0:
                   raise ValueError("No files uploaded. "

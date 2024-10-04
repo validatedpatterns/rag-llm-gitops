@@ -133,7 +133,7 @@ spec:
                 runtime: mistral-7b-instruct-v02
                 storage:
                   key: aws-connection-rag-llm-bucket
-                  path: Mistral-7B-v0.2
+                  path: models/llm-models
               tolerations:
               - effect: NoSchedule
                 key: odh-notebook
