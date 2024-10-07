@@ -13,25 +13,6 @@ spec:
     key: odh-notebook
     operator: Exists
 ---
-kind: Secret
-apiVersion: v1
-metadata:
-  name: aws-connection-rag-llm-bucket
-  namespace: rag-llm
-  labels:
-    opendatahub.io/dashboard: 'true'
-    opendatahub.io/managed: 'true'
-  annotations:
-    opendatahub.io/connection-type: s3
-    openshift.io/display-name: rag-llm-bucket
-stringData:
-  AWS_ACCESS_KEY_ID: minio
-  AWS_SECRET_ACCESS_KEY: minio123
-  AWS_DEFAULT_REGION: us-east-1
-  AWS_S3_BUCKET: models
-  AWS_S3_ENDPOINT: http://minio-service:9000
-type: Opaque
----
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -44,6 +25,13 @@ spec:
       - args:
         - -ec
         - |-
+          export MINIO_SECRET=$(oc get secret minio-secret -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 --decode)
+          oc create secret generic aws-connection-rag-llm-bucket \
+            --from-literal=AWS_ACCESS_KEY_ID=minio \
+            --from-literal=AWS_SECRET_ACCESS_KEY=$MINIO_SECRET \
+            --from-literal=AWS_DEFAULT_REGION=us-east-1 \
+            --from-literal=AWS_S3_BUCKET=models \
+            --from-literal=AWS_S3_ENDPOINT=http://minio-service:9000
           cat << EOF | oc apply -f-
           apiVersion: serving.kserve.io/v1alpha1
           kind: ServingRuntime
@@ -251,3 +239,22 @@ spec:
 #         medium: Memory
 #         sizeLimit: 2Gi
 #       name: shm
+# ---
+# kind: Secret
+# apiVersion: v1
+# metadata:
+#   name: aws-connection-rag-llm-bucket
+#   namespace: rag-llm
+#   labels:
+#     opendatahub.io/dashboard: 'true'
+#     opendatahub.io/managed: 'true'
+#   annotations:
+#     opendatahub.io/connection-type: s3
+#     openshift.io/display-name: rag-llm-bucket
+# stringData:
+#   AWS_ACCESS_KEY_ID: minio
+#   AWS_SECRET_ACCESS_KEY: minio123
+#   AWS_DEFAULT_REGION: us-east-1
+#   AWS_S3_BUCKET: models
+#   AWS_S3_ENDPOINT: http://minio-service:9000
+# type: Opaque
