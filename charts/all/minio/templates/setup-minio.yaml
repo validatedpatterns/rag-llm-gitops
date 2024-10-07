@@ -45,11 +45,11 @@ kind: Secret
 apiVersion: v1
 metadata:
   name: minio-secret
-stringData:
+data:
   # change the username and password to your own values.
   # ensure that the user is at least 3 characters long and the password at least 8
   MINIO_ROOT_USER: minio
-  MINIO_ROOT_PASSWORD: minio123
+  MINIO_ROOT_PASSWORD: {{ randAlphaNum 20 | b64enc }}
 ---
 kind: Deployment
 apiVersion: apps/v1
