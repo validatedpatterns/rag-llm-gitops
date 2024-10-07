@@ -390,7 +390,7 @@ spec:
                 sleep 5
               done; echo
               
-              oc wait --for=condition=CatalogSourcesUnhealthy=False subscription/rhods-operator -n openshift-operators --timeout=600s
+              # oc wait --for=condition=CatalogSourcesUnhealthy=False subscription/rhods-operator -n openshift-operators --timeout=600s
 
               oc wait --for=jsonpath='{.status.phase}'=Ready --timeout=600s -n redhat-ods-operator dscinitialization/default-dsci
               sleep 10
