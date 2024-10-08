@@ -40,7 +40,7 @@ spec:
               openshift.io/display-name: rag-llm-bucket
           stringData:
             AWS_ACCESS_KEY_ID: minio
-            AWS_SECRET_ACCESS_KEY: $MINIO_ROOT_PASSWORD
+            AWS_SECRET_ACCESS_KEY: $MINIO_SECRET
             AWS_DEFAULT_REGION: us-east-1
             AWS_S3_BUCKET: models
             AWS_S3_ENDPOINT: http://minio-service:9000
