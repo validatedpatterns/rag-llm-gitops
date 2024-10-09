@@ -48,9 +48,9 @@ metadata:
 stringData:
   MINIO_ROOT_USER: minio
   MINIO_ROOT_PASSWORD: {{- if not (lookup "v1" "Secret" .Release.Namespace "minio-secret") }}
-    {{ randAlphaNum 16 | b64enc }}
+    {{ randAlphaNum 10 | b64enc }}
   {{- else }}
-    {{ (lookup "v1" "Secret" .Release.Namespace "minio-secret").data.password }}
+    {{ (lookup "v1" "Secret" .Release.Namespace "minio-secret").data.minio_root_password | b64dec }}
   {{- end }}
 ---
 kind: Deployment
