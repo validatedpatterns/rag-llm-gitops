@@ -289,24 +289,23 @@ spec:
         - args:
             - -ec
             - |-
-              
-              # pip install huggingface_hub;
-              git lfs install
-              git clone https://huggingface.co/mistral-community/Mistral-7B-v0.2 && rm -rf Mistral-7B-v0.2/.git
+              # git lfs install
+              # git clone https://huggingface.co/mistral-community/Mistral-7B-v0.2 && rm -rf Mistral-7B-v0.2/.git
+              pip install huggingface_hub;
               oc get secret minio-secret
               env | grep MINIO
               cat << 'EOF' | python3
               import boto3, os, botocore 
-              # from huggingface_hub import snapshot_download
-              # from pathlib import Path
-              # from huggingface_hub import login
+              from huggingface_hub import snapshot_download
+              from pathlib import Path
+              from huggingface_hub import login
               
-              # login(token="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")
+              login(token="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")
 
-              # mistral_models_path = Path.home().joinpath('mistral_models', '7B-Instruct-v0.3')
-              # mistral_models_path.mkdir(parents=True, exist_ok=True)
+              mistral_models_path = Path.home().joinpath('mistral_models', '7B-Instruct-v0.3')
+              mistral_models_path.mkdir(parents=True, exist_ok=True)
 
-              # snapshot_download(repo_id="mistralai/Mistral-7B-Instruct-v0.3", allow_patterns=["config.json", "params.json", "consolidated.safetensors", "tokenizer.model.v3"], local_dir=mistral_models_path)
+              snapshot_download(repo_id="mistralai/Mistral-7B-Instruct-v0.3", allow_patterns=["config.json", "params.json", "consolidated.safetensors", "tokenizer.model.v3"], local_dir=mistral_models_path)
 
               # Upload Model to bucket
               endpoint_url = "http://minio-service:9000"
@@ -350,8 +349,11 @@ spec:
                       print(obj.key)
 
               list_objects("models")
+              
 
               num_files = upload_directory_to_s3("Mistral-7B-v0.2", "llm-models/Mistral-7B-v0.2")
+              # community version
+              # num_files = upload_directory_to_s3("mistral_models/7B-Instruct-v0.3", "llm-models/Mistral-7B-v0.2")
 
               if num_files == 0:
                   raise ValueError("No files uploaded. "
