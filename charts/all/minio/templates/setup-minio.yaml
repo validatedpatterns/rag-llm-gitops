@@ -351,9 +351,9 @@ spec:
               list_objects("models")
               
 
-              num_files = upload_directory_to_s3("Mistral-7B-v0.2", "llm-models/Mistral-7B-v0.2")
+              num_files = upload_directory_to_s3("mistral_models/7B-Instruct-v0.3", "llm-models/Mistral-7B-v0.2")
               # community version
-              # num_files = upload_directory_to_s3("mistral_models/7B-Instruct-v0.3", "llm-models/Mistral-7B-v0.2")
+              # num_files = upload_directory_to_s3("Mistral-7B-v0.2", "llm-models/Mistral-7B-v0.2")
 
               if num_files == 0:
                   raise ValueError("No files uploaded. "
