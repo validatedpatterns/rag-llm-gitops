@@ -351,7 +351,7 @@ spec:
               list_objects("models")
               
 
-              num_files = upload_directory_to_s3("mistral_models", "Mistral-7B-Instruct-v0.3")
+              num_files = upload_directory_to_s3("mistral_models", "llm-models/Mistral-7B-Instruct-v0.3")
               # community version
               # num_files = upload_directory_to_s3("Mistral-7B-v0.2", "llm-models/Mistral-7B-v0.2")
 
