@@ -305,7 +305,7 @@ spec:
               mistral_models_path = Path.home().joinpath('mistral_models', '7B-Instruct-v0.3')
               mistral_models_path.mkdir(parents=True, exist_ok=True)
 
-              snapshot_download(repo_id="mistralai/Mistral-7B-Instruct-v0.3", allow_patterns=["config.json", "params.json", "consolidated.safetensors", "tokenizer*"], local_dir=mistral_models_path)
+              snapshot_download(repo_id="mistralai/Mistral-7B-Instruct-v0.3", allow_patterns=["config.json", "consolidated.safetensors", "generation_config.json",  "model*", "special_tokens_map.json", "tokenizer*", "params.json"], local_dir=mistral_models_path)
 
               # Upload Model to bucket
               endpoint_url = "http://minio-service:9000"
