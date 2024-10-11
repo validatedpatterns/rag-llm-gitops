@@ -215,3 +215,10 @@ populateDbJob:
     - name: doc-volume
       emptyDir:
         sizeLimit: 5Gi
+
+secretStore:
+  name: vault-backend
+  kind: ClusterSecretStore
+
+hfmodel:
+  key: secret/data/hub/hfmodel
