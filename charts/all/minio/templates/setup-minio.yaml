@@ -300,7 +300,7 @@ spec:
               from pathlib import Path
               from huggingface_hub import login
               
-              login(token="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")
+              login(token="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")
 
               mistral_models_path = Path.home().joinpath('mistral_models', '7B-Instruct-v0.3')
               mistral_models_path.mkdir(parents=True, exist_ok=True)
