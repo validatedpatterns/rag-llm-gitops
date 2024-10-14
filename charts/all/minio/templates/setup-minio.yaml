@@ -367,6 +367,8 @@ spec:
           envFrom:
             - secretRef:
                 name: minio-secret
+            - secretRef:
+                name: huggingface-secret
           image: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/s2i-generic-data-science-notebook:2024.1
           imagePullPolicy: IfNotPresent
           name: download-model
