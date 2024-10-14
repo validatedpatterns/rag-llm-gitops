@@ -292,11 +292,11 @@ spec:
               if [[ -n "$hf_token" && "$hf_token" != "None" ]]; then
                   # If hf_token is not empty and not "None", execute this code
                   echo "hf_token is set and has a valid value."
-                  git lfs install
-                  git clone https://huggingface.co/mistral-community/Mistral-7B-v0.2 && rm -rf Mistral-7B-v0.2/.git
               else
                   # If hf_token is null or "None", execute this code
                   echo "hf_token is not set or is 'None'."
+                  git lfs install
+                  git clone https://huggingface.co/mistral-community/Mistral-7B-v0.2 && rm -rf Mistral-7B-v0.2/.git
               fi
               # git lfs install
               # git clone https://huggingface.co/mistral-community/Mistral-7B-v0.2 && rm -rf Mistral-7B-v0.2/.git
