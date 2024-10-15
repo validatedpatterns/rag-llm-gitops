@@ -157,7 +157,7 @@ populateDbJob:
   ## Job image
   image:
     repository: "quay.io/ecosystem-appeng/embeddingjob"
-    tag: "0.0.3"
+    tag: "0.0.4"
     pullPolicy: IfNotPresent
 
   command: ["/usr/bin/bash", "/app/entrypoint.sh"]
