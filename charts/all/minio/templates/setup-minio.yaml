@@ -256,7 +256,12 @@ spec:
               done; echo
               oc wait --for=condition=available --timeout=60s deployment/minio
               sleep 10
-
+              
+              echo -n 'Waiting for openshift ai initialize'
+              while ! oc describe sub rhods-operator -n redhat-ods-operator 2>/dev/null | grep -qF rhods-operator; do
+                echo -n .
+                sleep 5
+              done; echo
           command:
             - /bin/bash
           image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
