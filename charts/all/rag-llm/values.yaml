@@ -114,7 +114,7 @@ volumes:
       defaultMode: 420
   - name: cache-volume
     emptyDir:
-      sizeLimit: 10Gi
+      sizeLimit: 5Gi
 # - name: foo
 #   secret:
 #     secretName: mysecret
@@ -211,7 +211,7 @@ populateDbJob:
   volumes:
     - name: cache-volume
       emptyDir:
-        sizeLimit: 2Gi
+        sizeLimit: 5Gi
     - name: doc-volume
       emptyDir:
         sizeLimit: 5Gi
