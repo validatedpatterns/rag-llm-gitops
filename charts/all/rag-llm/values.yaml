@@ -114,7 +114,7 @@ volumes:
       defaultMode: 420
   - name: cache-volume
     emptyDir:
-      sizeLimit: 2Gi
+      sizeLimit: 10Gi
 # - name: foo
 #   secret:
 #     secretName: mysecret
