@@ -256,6 +256,12 @@ spec:
               done; echo
               oc wait --for=condition=available --timeout=60s deployment/minio
               sleep 10
+              
+              echo -n 'Waiting for openshift ai initialize'
+              while ! oc describe sub rhods-operator -n redhat-ods-operator 2>/dev/null | grep -qF rhods-operator; do
+                echo -n .
+                sleep 5
+              done; echo
           command:
             - /bin/bash
           image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
@@ -289,23 +295,26 @@ spec:
         - args:
             - -ec
             - |-
+              if [[ -n "$hf_token" && "$hf_token" != "None" ]]; then
+                  # If hf_token is not empty and not "None", execute this code
+                  echo "hf_token is set and has a valid value."
+              else
+                  # If hf_token is null or "None", execute this code
+                  echo "hf_token is not set or is 'None'."
+                  git lfs install
+                  git clone https://huggingface.co/mistral-community/Mistral-7B-v0.2 && rm -rf Mistral-7B-v0.2/.git
+              fi
               # git lfs install
               # git clone https://huggingface.co/mistral-community/Mistral-7B-v0.2 && rm -rf Mistral-7B-v0.2/.git
               pip install huggingface_hub;
-              oc get secret minio-secret
-              env | grep MINIO
               cat << 'EOF' | python3
               import boto3, os, botocore 
               from huggingface_hub import snapshot_download
               from pathlib import Path
               from huggingface_hub import login
-              
-              login(token="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")
 
-              mistral_models_path = Path.home().joinpath('mistral_models', '7B-Instruct-v0.3')
-              mistral_models_path.mkdir(parents=True, exist_ok=True)
-
-              snapshot_download(repo_id="mistralai/Mistral-7B-Instruct-v0.3", allow_patterns=["config.json", "consolidated.safetensors", "generation_config.json",  "model*", "special_tokens_map.json", "tokenizer*", "params.json"], local_dir=mistral_models_path)
+              # Get the environment variable 'hftoken'
+              hf_token = os.getenv('hftoken')
 
               # Upload Model to bucket
               endpoint_url = "http://minio-service:9000"
@@ -313,7 +322,7 @@ spec:
               aws_secret_access_key = os.getenv("MINIO_ROOT_PASSWORD")
               region_name = "us"
               bucket_name = "models"
-              
+
               if not all([aws_access_key_id, aws_secret_access_key, endpoint_url, region_name, bucket_name]):
                   raise ValueError("One or data connection variables are empty.  "
                                   "Please check your data connection to an S3 bucket.")
@@ -328,7 +337,6 @@ spec:
                   region_name=region_name)
 
               bucket = s3_resource.Bucket(bucket_name)
-
 
               def upload_directory_to_s3(local_directory, s3_prefix):
                   num_files = 0
@@ -348,10 +356,24 @@ spec:
                   for obj in filter.all():
                       print(obj.key)
 
-              list_objects("models")
-              
+              if hf_token is not None and hf_token.strip() != "None":
+                  # If 'hftoken' is not None and not empty, execute this code
+                  print("hftoken is set.")
+                  mistral_models_path = Path.home().joinpath('Mistral-7B-v0.3')
+                  mistral_models_path.mkdir(parents=True, exist_ok=True)
+                  snapshot_download(repo_id="mistralai/Mistral-7B-Instruct-v0.3", allow_patterns=["config.json", "consolidated.safetensors", "generation_config.json",  "model*", "special_tokens_map.json", "tokenizer*", "params.json"], local_dir=mistral_models_path)
 
-              num_files = upload_directory_to_s3("mistral_models", "llm-models")
+                  hf_model_name = "Mistral-7B-v0.3"
+              else:
+                  # If 'hftoken' is None or an empty string, execute this code
+                  print("hftoken is not set or is empty.")
+                  print("Performing default action due to missing hftoken.")
+                  hf_model_name = "Mistral-7B-v0.2"
+
+              list_objects("models")
+
+
+              num_files = upload_directory_to_s3(hf_model_name, "llm-models/" + hf_model_name)
               # community version
               # num_files = upload_directory_to_s3("Mistral-7B-v0.2", "llm-models/Mistral-7B-v0.2")
 
@@ -367,6 +389,8 @@ spec:
           envFrom:
             - secretRef:
                 name: minio-secret
+            - secretRef:
+                name: huggingface-secret
           image: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/s2i-generic-data-science-notebook:2024.1
           imagePullPolicy: IfNotPresent
           name: download-model
@@ -393,9 +417,8 @@ spec:
                 echo -n .
                 sleep 5
               done; echo
-              
-              oc wait --for=condition=CatalogSourcesUnhealthy=False subscription/rhods-operator -n redhat-ods-operator --timeout=600s
 
+              oc wait --for=condition=CatalogSourcesUnhealthy=False subscription/rhods-operator -n redhat-ods-operator --timeout=600s
               oc wait --for=jsonpath='{.status.phase}'=Ready --timeout=600s -n redhat-ods-operator dscinitialization/default-dsci
               sleep 10
           command:
