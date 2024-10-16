@@ -10,7 +10,7 @@ spec:
     editable: true
     secureJsonData: {}
     name: Prometheus
-    url: 'prometheus-operated:9090'
+    url: 'http://prometheus-operated:9090'
     jsonData:
       timeInterval: 5s
     isDefault: true
