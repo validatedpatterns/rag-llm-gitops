@@ -367,7 +367,7 @@ spec:
                   # If 'hftoken' is None or an empty string, execute this code
                   print("hftoken is not set or is empty.")
                   print("Performing default action due to missing hftoken.")
-                  hf_model_name = "Mistral-7B-v0.2"
+                  hf_model_name = "Mistral-7B-Instruct-v0.3"
 
               list_objects("models")
 
