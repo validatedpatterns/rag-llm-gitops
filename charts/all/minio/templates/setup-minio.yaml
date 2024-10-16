@@ -300,12 +300,11 @@ spec:
                   echo "hf_token is set and has a valid value."
               else
                   # If hf_token is null or "None", execute this code
-                  echo "hf_token is not set or is 'None'."
+                  echo "hf_token is not set."
                   git lfs install
-                  git clone https://huggingface.co/mistral-community/Mistral-7B-v0.2 && rm -rf Mistral-7B-v0.2/.git
+                  git clone https://huggingface.co/mistral-community/Mistral-7B-Instruct-v0.3 && rm -rf Mistral-7B-Instruct-v0.3/.git
               fi
-              # git lfs install
-              # git clone https://huggingface.co/mistral-community/Mistral-7B-v0.2 && rm -rf Mistral-7B-v0.2/.git
+
               pip install huggingface_hub;
               cat << 'EOF' | python3
               import boto3, os, botocore 
