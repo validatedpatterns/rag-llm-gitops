@@ -175,8 +175,6 @@ populateDbJob:
   doc_dir: /docs
 
 
-
-
   # By default, fullname uses '{{ .Release.Name }}-{{ .Chart.Name }}'. This
   # overrides that and uses the given string instead.
   # fullnameOverride: "some-name"
@@ -222,3 +220,7 @@ secretStore:
 
 hfmodel:
   key: secret/data/hub/hfmodel
+
+# Create NetworkPolicy to allow traffic to llm-monitoring namespace. Set to false if monitoring is not needed
+customnetworkpolicy:
+  enabled: true
