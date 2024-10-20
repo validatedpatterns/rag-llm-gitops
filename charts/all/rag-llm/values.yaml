@@ -223,4 +223,4 @@ hfmodel:
 
 # Create NetworkPolicy to allow traffic to llm-monitoring namespace. Set to false if monitoring is not needed
 customnetworkpolicy:
-  enabled: true
+  enabled: false
