@@ -295,25 +295,25 @@ spec:
         - args:
             - -ec
             - |-
-              if [[ -n "$hf_token" && "$hf_token" != "None" ]]; then
-                  # If hf_token is not empty and not "None", execute this code
-                  echo "hf_token is set and has a valid value."
-              else
-                  # If hf_token is null or "None", execute this code
-                  echo "hf_token is not set."
-                  git lfs install
-                  git clone https://huggingface.co/mistral-community/Mistral-7B-Instruct-v0.3 && rm -rf Mistral-7B-Instruct-v0.3/.git
-              fi
-
               pip install huggingface_hub;
               cat << 'EOF' | python3
-              import boto3, os, botocore 
+              import boto3, os, botocore, subprocess
               from huggingface_hub import snapshot_download
               from pathlib import Path
               from huggingface_hub import login
 
               # Get the environment variable 'hftoken'
               hf_token = os.getenv('hftoken')
+              # Get model id
+              modelid = os.getenv('modelId')
+              model_id = modelid.split('/')[-1]
+
+              def run_command(command):
+                  """Run a shell command and check for errors."""
+                  result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
+                  print(result.stdout)
+                  if result.stderr:
+                      print(result.stderr)
 
               # Upload Model to bucket
               endpoint_url = "http://minio-service:9000"
@@ -358,27 +358,36 @@ spec:
               if hf_token is not None and hf_token.strip() != "None":
                   # If 'hftoken' is not None and not empty, execute this code
                   print("hftoken is set.")
-                  mistral_models_path = Path.home().joinpath('Mistral-7B-v0.3')
+                  mistral_models_path = Path.home().joinpath(model_id)
                   mistral_models_path.mkdir(parents=True, exist_ok=True)
-                  snapshot_download(repo_id="mistralai/Mistral-7B-Instruct-v0.3", allow_patterns=["config.json", "consolidated.safetensors", "generation_config.json",  "model*", "special_tokens_map.json", "tokenizer*", "params.json"], local_dir=mistral_models_path)
+                  snapshot_download(repo_id="mistralai/" + model_id, allow_patterns=["config.json", "consolidated.safetensors", "generation_config.json",  "model*", "special_tokens_map.json", "tokenizer*", "params.json"], local_dir=mistral_models_path)
 
-                  hf_model_name = "Mistral-7B-v0.3"
               else:
                   # If 'hftoken' is None or an empty string, execute this code
                   print("hftoken is not set or is empty.")
                   print("Performing default action due to missing hftoken.")
-                  hf_model_name = "Mistral-7B-Instruct-v0.3"
+                  try:
+                      # Step 1: Install Git LFS
+                      run_command("git lfs install")
+
+                      # Step 2: Clone the specified repository from Hugging Face
+                      run_command("git clone https://huggingface.co/mistral-community/" + model_id)
+
+                      # Step 3: Remove the .git directory to save space
+                      run_command("rm -rf " + model_id + "/.git")
+
+                      print("Commands executed successfully.")
+
+                  except subprocess.CalledProcessError as e:
+                      print(f"An error occurred while running the command: {e}")
 
               list_objects("models")
 
-
-              num_files = upload_directory_to_s3(hf_model_name, "llm-models/" + hf_model_name)
-              # community version
-              # num_files = upload_directory_to_s3("Mistral-7B-v0.2", "llm-models/Mistral-7B-v0.2")
+              print(model_id)
+              num_files = upload_directory_to_s3(model_id, "llm-models/" + model_id)
 
               if num_files == 0:
-                  raise ValueError("No files uploaded. "
-                                  "saving the model to the \"models\" directory? ")
+                  raise ValueError("No files uploaded.")
 
               list_objects("models")
 
