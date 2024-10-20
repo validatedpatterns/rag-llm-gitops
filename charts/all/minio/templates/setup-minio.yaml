@@ -246,13 +246,13 @@ spec:
               echo -n 'Waiting for minio root user secret'
               while ! oc get secret minio-secret 2>/dev/null | grep -qF minio-secret; do
               echo -n .
-              sleep 5
+              sleep 15
               done; echo
 
               echo -n 'Waiting for minio deployment'
               while ! oc get deployment minio 2>/dev/null | grep -qF minio; do
                 echo -n .
-                sleep 5
+                sleep 15
               done; echo
               oc wait --for=condition=available --timeout=60s deployment/minio
               sleep 10
@@ -260,7 +260,7 @@ spec:
               echo -n 'Waiting for openshift ai initialize'
               while ! oc describe sub rhods-operator -n redhat-ods-operator 2>/dev/null | grep -qF rhods-operator; do
                 echo -n .
-                sleep 5
+                sleep 15
               done; echo
           command:
             - /bin/bash
@@ -400,13 +400,13 @@ spec:
               echo -n 'Waiting for minio root user secret'
               while ! oc get secret minio-secret 2>/dev/null | grep -qF minio-secret; do
               echo -n .
-              sleep 5
+              sleep 15
               done; echo
 
               echo -n 'Waiting for minio deployment'
               while ! oc get deployment minio 2>/dev/null | grep -qF minio; do
                 echo -n .
-                sleep 5
+                sleep 15
               done; echo
               oc wait --for=condition=available --timeout=60s deployment/minio
               sleep 10
@@ -414,7 +414,7 @@ spec:
               echo -n 'Waiting for openshift ai initialize'
               while ! oc describe sub rhods-operator -n redhat-ods-operator 2>/dev/null | grep -qF rhods-operator; do
                 echo -n .
-                sleep 5
+                sleep 15
               done; echo
 
               oc wait --for=condition=CatalogSourcesUnhealthy=False subscription/rhods-operator -n redhat-ods-operator --timeout=600s
