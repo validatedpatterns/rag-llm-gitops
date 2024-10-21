@@ -221,6 +221,6 @@ secretStore:
 hfmodel:
   key: secret/data/hub/hfmodel
 
-# Create NetworkPolicy to allow traffic to llm-monitoring namespace. Set to false if monitoring is not needed
+# Create NetworkPolicy to allow traffic from all namespaces to allow monitoring. Set to false if monitoring is not needed
 customnetworkpolicy:
-  enabled: false
+  enabled: true
