@@ -26,7 +26,7 @@ spec:
         - -ec
         - |-
           export MINIO_SECRET=$(oc get secret minio-secret -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 --decode)
-          export MODEL_ID=$(echo "${modelId##*/}" | sed 's/-[^-]*$//')
+          export MODEL_ID=$(echo "${modelId##*/}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9.-]/-/g' | sed 's/^-*\|-$//g')
           cat << EOF | oc apply -f-
           kind: Secret
           apiVersion: v1
