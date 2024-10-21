@@ -107,11 +107,11 @@ spec:
           kind: InferenceService
           metadata:
             annotations:
-              openshift.io/display-name: $MODEL_ID
+              openshift.io/display-name: "{{ (splitList "/" .Values.hfmodel.key | last) }}"
               serving.knative.openshift.io/enablePassthrough: 'true'
               sidecar.istio.io/inject: 'true'
               sidecar.istio.io/rewriteAppHTTPProbers: 'true'  
-            name: $MODEL_ID
+            name: "{{ (splitList "/" .Values.hfmodel.key | last) }}"
             namespace: rag-llm
             labels:
               opendatahub.io/dashboard: 'true'
@@ -133,10 +133,10 @@ spec:
                     cpu: '2'
                     memory: 8Gi
                     nvidia.com/gpu: '1'
-                runtime: $MODEL_ID
+                runtime: "{{ (splitList "/" .Values.hfmodel.key | last) }}"
                 storage:
                   key: aws-connection-rag-llm-bucket
-                  path: llm-models/Mistral-7B-v0.2
+                  path: llm-models/"{{ (splitList "/" .Values.hfmodel.key | last) }}"
               tolerations:
               - effect: NoSchedule
                 key: odh-notebook
