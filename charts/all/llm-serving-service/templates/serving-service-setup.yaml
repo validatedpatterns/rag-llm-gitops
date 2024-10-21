@@ -27,6 +27,7 @@ spec:
         - |-
           export MINIO_SECRET=$(oc get secret minio-secret -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 --decode)
           export MODEL_NAME=$(echo "${modelId##*/}" | sed 's/-[^-]*$//' | tr '[:upper:]' '[:lower:]')
+          export MODEL_ID=$(echo "${modelId}" | awk -F'/' '{print $NF}')
           cat << EOF | oc apply -f-
           kind: Secret
           apiVersion: v1
@@ -136,7 +137,7 @@ spec:
                 runtime: $MODEL_NAME
                 storage:
                   key: aws-connection-rag-llm-bucket
-                  path: llm-models/$MODEL_NAME
+                  path: llm-models/$MODEL_ID
               tolerations:
               - effect: NoSchedule
                 key: odh-notebook
