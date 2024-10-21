@@ -26,7 +26,7 @@ spec:
         - -ec
         - |-
           export MINIO_SECRET=$(oc get secret minio-secret -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 --decode)
-          export MODEL_NAME="{{ (splitList "/" .Values.hfmodel.key | last) }}"
+
           # export MODEL_ID=$(python3 -c "import os; modelid = os.getenv('modelId'); print(modelid.split('/')[-1])")
           cat << EOF | oc apply -f-
           kind: Secret
@@ -148,6 +148,11 @@ spec:
         image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
         imagePullPolicy: IfNotPresent
         name: create-vllm
+        envFrom:
+          - secretRef:
+              name: minio-secret
+          - secretRef:
+              name: huggingface-secret
       initContainers:
         - args:
             - -ec
@@ -156,11 +161,6 @@ spec:
               sleep 10
           command:
             - /bin/bash
-          envFrom:
-            - secretRef:
-                name: minio-secret
-            - secretRef:
-                name: huggingface-secret
           image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
           imagePullPolicy: IfNotPresent
           name: wait-for-openshift
