@@ -57,8 +57,8 @@ spec:
               opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
               opendatahub.io/template-display-name: vLLM ServingRuntime for KServe
               opendatahub.io/template-name: vllm-runtime
-              openshift.io/display-name: $MODEL_ID
-            name: $MODEL_ID
+              openshift.io/display-name: $MODEL_NAME
+            name: $MODEL_NAME
             namespace: rag-llm
             labels:
               opendatahub.io/dashboard: 'true'
