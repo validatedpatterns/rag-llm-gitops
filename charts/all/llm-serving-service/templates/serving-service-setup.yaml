@@ -26,6 +26,7 @@ spec:
         - -ec
         - |-
           export MINIO_SECRET=$(oc get secret minio-secret -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 --decode)
+          export MODEL_NAME="{{ (splitList "/" .Values.hfmodel.key | last) }}"
           # export MODEL_ID=$(python3 -c "import os; modelid = os.getenv('modelId'); print(modelid.split('/')[-1])")
           cat << EOF | oc apply -f-
           kind: Secret
@@ -107,11 +108,11 @@ spec:
           kind: InferenceService
           metadata:
             annotations:
-              openshift.io/display-name: "{{ (splitList "/" .Values.hfmodel.key | last) }}"
+              openshift.io/display-name: $MODEL_NAME
               serving.knative.openshift.io/enablePassthrough: 'true'
               sidecar.istio.io/inject: 'true'
               sidecar.istio.io/rewriteAppHTTPProbers: 'true'  
-            name: "{{ (splitList "/" .Values.hfmodel.key | last) }}"
+            name: $MODEL_NAME
             namespace: rag-llm
             labels:
               opendatahub.io/dashboard: 'true'
@@ -133,10 +134,10 @@ spec:
                     cpu: '2'
                     memory: 8Gi
                     nvidia.com/gpu: '1'
-                runtime: "{{ (splitList "/" .Values.hfmodel.key | last) }}"
+                runtime: $MODEL_NAME
                 storage:
                   key: aws-connection-rag-llm-bucket
-                  path: llm-models/"{{ (splitList "/" .Values.hfmodel.key | last) }}"
+                  path: llm-models/$MODEL_NAME
               tolerations:
               - effect: NoSchedule
                 key: odh-notebook
