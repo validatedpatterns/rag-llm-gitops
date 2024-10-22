@@ -9,6 +9,9 @@ global:
   db:
     index: docs
     type: EDB
+# Add for model ID
+  model:
+      modelId: mistral-community/Mistral-7B-Instruct-v0.3
 main:
   clusterGroupName: hub
   multiSourceConfig:
