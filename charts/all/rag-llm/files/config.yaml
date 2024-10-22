@@ -2,10 +2,10 @@ llm_providers:
   - name: "OpenShift AI (vLLM)"
     enabled: True
     models:
-      - name: {{ .Values.model.modelId }}
+      - name: {{ .Values.global.model.modelId }}
         weight: 1
         enabled: True
-        url: https://{{ .Values.model.modelId }}-{{ .Values.llmui.namespace }}.{{ coalesce .Values.global.localClusterDomain .Values.global.hubClusterDomain }}/v1
+        url: https://{{ .Values.global.model.modelId }}-{{ .Values.llmui.namespace }}.{{ coalesce .Values.global.localClusterDomain .Values.global.hubClusterDomain }}/v1
         params:
           - name: max_new_tokens
             value: 1024
@@ -22,6 +22,6 @@ llm_providers:
           - name: typical_p
             value: 0.95
 default_provider: "OpenShift AI (vLLM)"
-default_model: {{ .Values.model.modelId }}
+default_model: {{ .Values.global.model.modelId }}
 # type values=(default, round_robin,  all)
 type: all
