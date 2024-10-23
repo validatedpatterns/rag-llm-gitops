@@ -60,3 +60,17 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+
+{{/*
+Extracts everything after the slash and removes everything after the last dash.
+Input example: value/value-value-02
+Output: value-value
+This is the required format for servingRuntime
+*/}}
+{{- define "extractModelId" -}}
+  {{- $input := . -}}
+  {{- $afterSlash := regexReplaceAll "^.*/" $input "" -}}
+  {{- $beforeLastDash := regexReplaceAll "-[^-]*$" $afterSlash "" -}}
+  {{- $beforeLastDash -}}
+{{- end -}}
