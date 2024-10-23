@@ -2,13 +2,11 @@
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: allow-from-llm-monitoring-ns
+  name: allow-from-all-ns
 spec:
   ingress:
     - from:
-        - namespaceSelector:
-            matchLabels:
-              name: llm-monitoring
+        - namespaceSelector: {}
   policyTypes:
     - Ingress
 {{- end }}
