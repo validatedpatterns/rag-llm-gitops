@@ -358,6 +358,7 @@ spec:
               if hf_token is not None and hf_token.strip() != "None":
                   # If 'hftoken' is not None and not empty, execute this code
                   print("hftoken is set.")
+                  login(token=hf_token)
                   mistral_models_path = Path.home().joinpath(model_id)
                   mistral_models_path.mkdir(parents=True, exist_ok=True)
                   snapshot_download(repo_id="mistralai/" + model_id, allow_patterns=["config.json", "consolidated.safetensors", "generation_config.json",  "model*", "special_tokens_map.json", "tokenizer*", "params.json"], local_dir=mistral_models_path)
@@ -417,7 +418,7 @@ spec:
                 echo -n .
                 sleep 15
               done; echo
-              oc wait --for=condition=available --timeout=60s deployment/minio
+              oc wait --for=condition=available --timeout=600s deployment/minio
               sleep 10
               
               echo -n 'Waiting for openshift ai initialize'
@@ -426,7 +427,7 @@ spec:
                 sleep 15
               done; echo
 
-              oc wait --for=condition=CatalogSourcesUnhealthy=False subscription/rhods-operator -n redhat-ods-operator --timeout=600s
+              oc wait --for=condition=CatalogSourcesUnhealthy=False subscription/rhods-operator --timeout=600s -n redhat-ods-operator
               oc wait --for=jsonpath='{.status.phase}'=Ready --timeout=600s -n redhat-ods-operator dscinitialization/default-dsci
               sleep 10
           command:
