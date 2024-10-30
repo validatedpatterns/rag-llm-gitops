@@ -12,4 +12,4 @@ spec:
       - tgis-llm-demo
   selector:
     matchExpressions:
-      - {key: app, operator: In, values: [ui-multiprovider-rag-redis,gradio-hftgi-rag-redis-model1,gradio-hftgi-rag-redis-model2]}
+      - {key: app.kubernetes.io/name, operator: In, values: [rag-llm]}

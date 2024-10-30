@@ -1,0 +1,281 @@
+---
+apiVersion: dashboard.opendatahub.io/v1
+kind: AcceleratorProfile
+metadata:
+  name: nvidia-gpu
+  namespace: redhat-ods-applications
+spec:
+  displayName: NVIDIA GPU
+  enabled: true
+  identifier: nvidia.com/gpu
+  tolerations:
+  - effect: NoSchedule
+    key: odh-notebook
+    operator: Exists
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-vllm
+spec:
+  selector: {}
+  template:
+    spec:
+      containers:
+      - args:
+        - -ec
+        - |-
+          export MINIO_SECRET=$(oc get secret minio-secret -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 --decode)
+          export MODEL_NAME=$(echo "${modelId##*/}" | sed 's/-[^-]*$//' | tr '[:upper:]' '[:lower:]')
+          export MODEL_ID=$(echo "${modelId}" | awk -F'/' '{print $NF}')
+          cat << EOF | oc apply -f-
+          kind: Secret
+          apiVersion: v1
+          metadata:
+            name: aws-connection-rag-llm-bucket
+            namespace: rag-llm
+            labels:
+              opendatahub.io/dashboard: 'true'
+              opendatahub.io/managed: 'true'
+            annotations:
+              opendatahub.io/connection-type: s3
+              openshift.io/display-name: rag-llm-bucket
+          stringData:
+            AWS_ACCESS_KEY_ID: minio
+            AWS_SECRET_ACCESS_KEY: $MINIO_SECRET
+            AWS_DEFAULT_REGION: us-east-1
+            AWS_S3_BUCKET: models
+            AWS_S3_ENDPOINT: http://minio-service:9000
+          type: Opaque
+          EOF
+          cat << EOF | oc apply -f-
+          apiVersion: serving.kserve.io/v1alpha1
+          kind: ServingRuntime
+          metadata:
+            annotations:
+              opendatahub.io/accelerator-name: nvidia-gpu
+              opendatahub.io/apiProtocol: REST
+              opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+              opendatahub.io/template-display-name: vLLM ServingRuntime for KServe
+              opendatahub.io/template-name: vllm-runtime
+              openshift.io/display-name: $MODEL_NAME
+            name: $MODEL_NAME
+            namespace: rag-llm
+            labels:
+              opendatahub.io/dashboard: 'true'
+          spec:
+            annotations:
+              prometheus.io/path: /metrics
+              prometheus.io/port: '8080'
+            containers:
+              - args:
+                  - '--port=8080'
+                  - '--model=/mnt/models'
+                  - '--served-model-name={{`{{.Name}}`}}'
+                  - '--distributed-executor-backend=mp'
+                  - '--max-model-len=4096'
+                  - '--dtype=half'
+                  - '--gpu-memory-utilization'
+                  - '0.98'
+                  - '--enforce-eager'
+                command:
+                  - python
+                  - '-m'
+                  - vllm.entrypoints.openai.api_server
+                env:
+                  - name: HF_HOME
+                    value: /tmp/hf_home
+                image: 'quay.io/modh/vllm@sha256:b51fde66f162f1a78e8c027320dddf214732d5345953b1599a84fe0f0168c619'
+                name: kserve-container
+                ports:
+                  - containerPort: 8080
+                    protocol: TCP
+                volumeMounts:
+                  - mountPath: /dev/shm
+                    name: shm
+            multiModel: false
+            supportedModelFormats:
+              - autoSelect: true
+                name: vLLM
+            volumes:
+              - emptyDir:
+                  medium: Memory
+                  sizeLimit: 2Gi
+                name: shm
+          EOF
+          cat << EOF | oc apply -f-
+          apiVersion: serving.kserve.io/v1beta1
+          kind: InferenceService
+          metadata:
+            annotations:
+              openshift.io/display-name: $MODEL_NAME
+              serving.knative.openshift.io/enablePassthrough: 'true'
+              sidecar.istio.io/inject: 'true'
+              sidecar.istio.io/rewriteAppHTTPProbers: 'true'  
+            name: $MODEL_NAME
+            namespace: rag-llm
+            labels:
+              opendatahub.io/dashboard: 'true'
+          spec:
+            predictor:
+              restartPolicy: OnFailure
+              maxReplicas: 1
+              minReplicas: 1
+              model:
+                modelFormat:
+                  name: vLLM
+                name: ''
+                resources:
+                  limits:
+                    cpu: '8'
+                    memory: 10Gi
+                    nvidia.com/gpu: '1'
+                  requests:
+                    cpu: '2'
+                    memory: 8Gi
+                    nvidia.com/gpu: '1'
+                runtime: $MODEL_NAME
+                storage:
+                  key: aws-connection-rag-llm-bucket
+                  path: llm-models/$MODEL_ID
+              tolerations:
+              - effect: NoSchedule
+                key: odh-notebook
+                operator: Exists
+          EOF
+        command:
+        - /bin/bash
+        image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+        imagePullPolicy: IfNotPresent
+        name: create-vllm
+        envFrom:
+          - secretRef:
+              name: minio-secret
+          - secretRef:
+              name: huggingface-secret
+      initContainers:
+        - args:
+            - -ec
+            - |-
+              oc wait --for=condition=complete job/load-model-set -n rag-llm --timeout=10m
+              sleep 10
+          command:
+            - /bin/bash
+          image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+          imagePullPolicy: IfNotPresent
+          name: wait-for-openshift
+      restartPolicy: Never
+      serviceAccount: demo-setup
+      serviceAccountName: demo-setup
+# ---
+# apiVersion: serving.kserve.io/v1beta1
+# kind: InferenceService
+# metadata:
+#   annotations:
+#     openshift.io/display-name: mistral-7b-instruct-v02
+#     serving.knative.openshift.io/enablePassthrough: 'true'
+#     sidecar.istio.io/inject: 'true'
+#     sidecar.istio.io/rewriteAppHTTPProbers: 'true'  
+#   name: mistral-7b-instruct-v02
+#   namespace: rag-llm
+#   labels:
+#     opendatahub.io/dashboard: 'true'
+# spec:
+#   predictor:
+#     restartPolicy: OnFailure
+#     maxReplicas: 1
+#     minReplicas: 1
+#     model:
+#       modelFormat:
+#         name: vLLM
+#       name: ''
+#       resources:
+#         limits:
+#           cpu: '8'
+#           memory: 10Gi
+#           nvidia.com/gpu: '1'
+#         requests:
+#           cpu: '2'
+#           memory: 8Gi
+#           nvidia.com/gpu: '1'
+#       runtime: mistral-7b-instruct-v02
+#       storage:
+#         key: aws-connection-rag-llm-bucket
+#         path: Mistral-7B-v0.2
+#     tolerations:
+#     - effect: NoSchedule
+#       key: odh-notebook
+#       operator: Exists
+# ---
+# apiVersion: serving.kserve.io/v1alpha1
+# kind: ServingRuntime
+# metadata:
+#   annotations:
+#     opendatahub.io/accelerator-name: nvidia-gpu
+#     opendatahub.io/apiProtocol: REST
+#     opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+#     opendatahub.io/template-display-name: vLLM ServingRuntime for KServe
+#     opendatahub.io/template-name: vllm-runtime
+#     openshift.io/display-name: mistral-7b-instruct-v02
+#   name: mistral-7b-instruct-v02
+#   namespace: rag-llm
+#   labels:
+#     opendatahub.io/dashboard: 'true'
+# spec:
+#   annotations:
+#     prometheus.io/path: /metrics
+#     prometheus.io/port: '8080'
+#   containers:
+#     - args:
+#         - '--port=8080'
+#         - '--model=/mnt/models'
+#         - '--served-model-name={{.Name}}'
+#         - '--distributed-executor-backend=mp'
+#         - '--max-model-len=4096'
+#         - '--dtype=half'
+#         - '--gpu-memory-utilization'
+#         - '0.98'
+#         - '--enforce-eager'
+#       command:
+#         - python
+#         - '-m'
+#         - vllm.entrypoints.openai.api_server
+#       env:
+#         - name: HF_HOME
+#           value: /tmp/hf_home
+#       image: 'quay.io/modh/vllm@sha256:b51fde66f162f1a78e8c027320dddf214732d5345953b1599a84fe0f0168c619'
+#       name: kserve-container
+#       ports:
+#         - containerPort: 8080
+#           protocol: TCP
+#       volumeMounts:
+#         - mountPath: /dev/shm
+#           name: shm
+#   multiModel: false
+#   supportedModelFormats:
+#     - autoSelect: true
+#       name: vLLM
+#   volumes:
+#     - emptyDir:
+#         medium: Memory
+#         sizeLimit: 2Gi
+#       name: shm
+# ---
+# kind: Secret
+# apiVersion: v1
+# metadata:
+#   name: aws-connection-rag-llm-bucket
+#   namespace: rag-llm
+#   labels:
+#     opendatahub.io/dashboard: 'true'
+#     opendatahub.io/managed: 'true'
+#   annotations:
+#     opendatahub.io/connection-type: s3
+#     openshift.io/display-name: rag-llm-bucket
+# stringData:
+#   AWS_ACCESS_KEY_ID: minio
+#   AWS_SECRET_ACCESS_KEY: minio123
+#   AWS_DEFAULT_REGION: us-east-1
+#   AWS_S3_BUCKET: models
+#   AWS_S3_ENDPOINT: http://minio-service:9000
+# type: Opaque

@@ -7,8 +7,20 @@ clusterGroup:
     - golang-external-secrets
     - openshift-nfd
     - nvidia-gpu-operator
-    - rag-llm
+    - redhat-ods-operator:
+        operatorGroup: true
+        targetNamespaces: []
+    - rag-llm:
+        labels:
+          opendatahub.io/dashboard: "true"
+          modelmesh-enabled: 'false'
+    - openshift-serverless:
+        operatorGroup: true
+        targetNamespaces: []
   subscriptions:
+    # Don't install RHOAI via validated patterns
+    # RHOAI must be installed after service mesh and other dependencies are installed or it will break. 
+    # The RHOAI Application will install the operator after a validation check has passed
     # acm:
     #   name: advanced-cluster-management
     #   namespace: open-cluster-management
@@ -18,6 +30,12 @@ clusterGroup:
       name: nfd
       namespace: openshift-nfd
       channel: stable
+    # openshift-ai:
+    #   name: rhods-operator
+    #   namespace: redhat-ods-operator
+    #   channel: fast
+    #   csv: rhods-operator.2.11.0
+    #   installplan: install-zvdt4
     nvidia:
       name: gpu-operator-certified
       namespace: nvidia-gpu-operator
@@ -28,14 +46,20 @@ clusterGroup:
       namespace: openshift-operators
       channel: stable-v1.23
       source: certified-operators
-
-
+    serverless:
+      name: serverless-operator
+      namespace: openshift-serverless
+      channel: stable
+    servicemesh:
+      name: servicemeshoperator
+      namespace: openshift-operators
+      channel: stable
   projects:
     - hub
     - rag-llm
     - llm-monitoring
     - gpu-config
-
+    - openshift-ai
   # Explicitly mention the cluster-state based overrides we plan to use for this pattern.
   # We can use self-referential variables because the chart calls the tpl function with these variables defined
   sharedValueFiles:
@@ -77,11 +101,30 @@ clusterGroup:
       namespace: golang-external-secrets
       project: hub
       path: common/golang-external-secrets
-    tgis-server:
-      name: tgis-server
+    # tgis-server:
+    #   name: tgis-server
+    #   namespace: rag-llm
+    #   project: rag-llm
+    #   path: charts/all/tgis-server
+    minio:
+      name: minio
       namespace: rag-llm
-      project: rag-llm
-      path: charts/all/tgis-server
+      project: hub
+      path: charts/all/minio
+    llm-serving-service:
+      name: llm-serving-service
+      namespace: rag-llm
+      project: hub
+      path: charts/all/llm-serving-service
+      syncPolicy:
+        automated: {}
+        retry:
+          limit: 50
+    # openshift-ai:
+    #   name: openshift-ai
+    #   project: openshift-ai
+    #   path: kustomization/openshift-ai/aggregate/overlays/fast
+    #   kustomize: true
     rag-llm:
       name: rag-llm
       namespace: rag-llm
@@ -117,6 +160,12 @@ clusterGroup:
       namespace: llm-monitoring
       project: gpu-config
       path: charts/all/llm-monitoring-config
+
+    openshift-ai:
+      name: openshift-ai
+      namespace: redhat-ods-operator
+      project: openshift-ai
+      path: charts/all/rhods
 
   imperative:
     # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm

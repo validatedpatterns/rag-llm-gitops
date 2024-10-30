@@ -1,0 +1,12 @@
+{{- if .Values.customnetworkpolicy.enabled }}
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-from-all-ns
+spec:
+  ingress:
+    - from:
+        - namespaceSelector: {}
+  policyTypes:
+    - Ingress
+{{- end }}

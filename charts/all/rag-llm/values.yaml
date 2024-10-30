@@ -1,11 +1,18 @@
 
+global:
+  localClusterDomain: example.com
+  hubClusterDomain: example.com
+llmui:
+  namespace: "rag-llm"
+
+
 replicaCount: 1
 
 image:
-  repository: 'quay.io/ecosystem-appeng/gradio-tgi-multi-model-rag-redis'
+  repository:  'quay.io/ecosystem-appeng/gradio-tgi-multi-model-rag'
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.1.0"
+  tag: "0.3.0"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -150,7 +157,7 @@ populateDbJob:
   ## Job image
   image:
     repository: "quay.io/ecosystem-appeng/embeddingjob"
-    tag: "0.0.3"
+    tag: "0.0.4"
     pullPolicy: IfNotPresent
 
   command: ["/usr/bin/bash", "/app/entrypoint.sh"]
@@ -166,8 +173,6 @@ populateDbJob:
   doc_git_repo: https://github.com/RHEcosystemAppEng/llm-on-openshift.git
   doc_location: examples/notebooks/langchain/rhods-doc
   doc_dir: /docs
-
-
 
 
   # By default, fullname uses '{{ .Release.Name }}-{{ .Chart.Name }}'. This
@@ -208,3 +213,14 @@ populateDbJob:
     - name: doc-volume
       emptyDir:
         sizeLimit: 5Gi
+
+secretStore:
+  name: vault-backend
+  kind: ClusterSecretStore
+
+hfmodel:
+  key: secret/data/hub/hfmodel
+
+# Create NetworkPolicy to allow traffic from all namespaces to allow monitoring. Set to false if monitoring is not needed
+customnetworkpolicy:
+  enabled: true

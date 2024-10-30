@@ -1,10 +1,11 @@
 llm_providers:
-  - name: "Hugging Face"
+  - name: "OpenShift AI (vLLM)"
     enabled: True
     models:
-      - name: mistral-community/Mistral-7B-v0.2
+      - name: {{ include "extractModelId" .Values.global.model.modelId | lower }}
         weight: 1
-        url: http://hf-text-generation-inference-server-model1:3000
+        enabled: True
+        url: https://{{ include "extractModelId" .Values.global.model.modelId | lower }}-{{ .Values.llmui.namespace }}.{{ coalesce .Values.global.localClusterDomain .Values.global.hubClusterDomain }}/v1
         params:
           - name: max_new_tokens
             value: 1024
@@ -20,7 +21,7 @@ llm_providers:
             value: False
           - name: typical_p
             value: 0.95
-default_provider: "Hugging Face"
-default_model: "mistral-community/Mistral-7B-v0.2"
+default_provider: "OpenShift AI (vLLM)"
+default_model: {{ include "extractModelId" .Values.global.model.modelId | lower }}
 # type values=(default, round_robin,  all)
 type: all
