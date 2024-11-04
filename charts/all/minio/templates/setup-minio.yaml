@@ -41,14 +41,6 @@ spec:
       storage: 50Gi
   volumeMode: Filesystem
 ---
-kind: Secret
-apiVersion: v1
-metadata:
-  name: minio-secret
-stringData:
-  MINIO_ROOT_USER: minio
-  MINIO_ROOT_PASSWORD: {{ randAlphaNum 10 | b64enc }}
----
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -213,26 +205,32 @@ spec:
         - args:
             - -ec
             - |-
-              oc get secret minio-secret
               env | grep MINIO
+              pip install minio;
               cat << 'EOF' | python3
-              import boto3, os
-
-              s3 = boto3.client("s3",
-                                endpoint_url="http://minio-service:9000",
-                                aws_access_key_id=os.getenv("MINIO_ROOT_USER"),
-                                aws_secret_access_key=os.getenv("MINIO_ROOT_PASSWORD"))
+              from minio import Minio
+              import os
+              client = Minio(
+                  "minio-service:9000",
+                  access_key=os.getenv("MINIO_ROOT_USER"),
+                  secret_key=os.getenv("MINIO_ROOT_PASSWORD"),
+                  secure=False
+              )
               bucket = 'models'
+              
               print('creating models bucket')
-              if bucket not in [bu["Name"] for bu in s3.list_buckets()["Buckets"]]:
-                s3.create_bucket(Bucket=bucket)
+              if client.bucket_exists(bucket):
+                print("bucket 'models' exists")
+              else:
+                client.make_bucket(bucket)
+                print("bucket 'models' created successfully")
               EOF
           command:
             - /bin/bash
           envFrom:
             - secretRef:
                 name: minio-secret
-          image: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/s2i-generic-data-science-notebook:2024.1
+          image: registry.access.redhat.com/ubi8/python-38
           imagePullPolicy: IfNotPresent
           name: create-buckets
       initContainers:
@@ -242,22 +240,16 @@ spec:
               echo -n 'Waiting for minio root user secret'
               while ! oc get secret minio-secret 2>/dev/null | grep -qF minio-secret; do
               echo -n .
-              sleep 15
+              sleep 5
               done; echo
 
               echo -n 'Waiting for minio deployment'
               while ! oc get deployment minio 2>/dev/null | grep -qF minio; do
                 echo -n .
-                sleep 15
+                sleep 5
               done; echo
               oc wait --for=condition=available --timeout=60s deployment/minio
               sleep 10
-              
-              echo -n 'Waiting for openshift ai initialize'
-              while ! oc describe sub rhods-operator -n redhat-ods-operator 2>/dev/null | grep -qF rhods-operator; do
-                echo -n .
-                sleep 15
-              done; echo
           command:
             - /bin/bash
           image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
@@ -291,7 +283,7 @@ spec:
         - args:
             - -ec
             - |-
-              pip install huggingface_hub;
+              pip install huggingface_hub boto3;
               cat << 'EOF' | python3
               import boto3, os, botocore, subprocess
               from huggingface_hub import snapshot_download
@@ -352,34 +344,14 @@ spec:
                       print(obj.key)
 
               if hf_token is not None and hf_token.strip() != "None":
-                  # If 'hftoken' is not None and not empty, execute this code
-                  print("hftoken is set.")
-                  login(token=hf_token)
-                  mistral_models_path = Path.home().joinpath(model_id)
-                  mistral_models_path.mkdir(parents=True, exist_ok=True)
-                  snapshot_download(repo_id="mistralai/" + model_id, allow_patterns=["config.json", "consolidated.safetensors", "generation_config.json",  "model*", "special_tokens_map.json", "tokenizer*", "params.json"], local_dir=mistral_models_path)
-
-              else:
-                  # If 'hftoken' is None or an empty string, execute this code
-                  print("hftoken is not set or is empty.")
-                  print("Performing default action due to missing hftoken.")
-                  try:
-                      # Step 1: Install Git LFS
-                      run_command("git lfs install")
-
-                      # Step 2: Clone the specified repository from Hugging Face
-                      run_command("git clone https://huggingface.co/mistral-community/" + model_id)
-
-                      # Step 3: Remove the .git directory to save space
-                      run_command("rm -rf " + model_id + "/.git")
-
-                      print("Commands executed successfully.")
-
-                  except subprocess.CalledProcessError as e:
-                      print(f"An error occurred while running the command: {e}")
+                # If 'hftoken' is not None and not empty, execute this code
+                print("hftoken is set.")
+                login(token=hf_token)
+              mistral_models_path = Path.home().joinpath(model_id)
+              mistral_models_path.mkdir(parents=True, exist_ok=True)
+              snapshot_download(repo_id=modelid, local_dir=mistral_models_path)
 
               list_objects("models")
-
               print(model_id)
               num_files = upload_directory_to_s3(model_id, "llm-models/" + model_id)
 
@@ -396,7 +368,7 @@ spec:
                 name: minio-secret
             - secretRef:
                 name: huggingface-secret
-          image: image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/s2i-generic-data-science-notebook:2024.1
+          image: registry.access.redhat.com/ubi8/python-38
           imagePullPolicy: IfNotPresent
           name: download-model
       initContainers:
@@ -406,25 +378,15 @@ spec:
               echo -n 'Waiting for minio root user secret'
               while ! oc get secret minio-secret 2>/dev/null | grep -qF minio-secret; do
               echo -n .
-              sleep 15
+              sleep 5
               done; echo
 
               echo -n 'Waiting for minio deployment'
               while ! oc get deployment minio 2>/dev/null | grep -qF minio; do
                 echo -n .
-                sleep 15
+                sleep 5
               done; echo
               oc wait --for=condition=available --timeout=600s deployment/minio
-              sleep 10
-              
-              echo -n 'Waiting for openshift ai initialize'
-              while ! oc describe sub rhods-operator -n redhat-ods-operator 2>/dev/null | grep -qF rhods-operator; do
-                echo -n .
-                sleep 15
-              done; echo
-
-              oc wait --for=condition=CatalogSourcesUnhealthy=False subscription/rhods-operator --timeout=600s -n redhat-ods-operator
-              oc wait --for=jsonpath='{.status.phase}'=Ready --timeout=600s -n redhat-ods-operator dscinitialization/default-dsci
               sleep 10
           command:
             - /bin/bash
