@@ -158,7 +158,12 @@ spec:
             - -ec
             - |-
               oc wait --for=condition=complete job/load-model-set -n rag-llm --timeout=10m
-              sleep 10
+              
+              echo -n 'Waiting for openshift ai initialize'
+              while ! oc describe sub rhods-operator -n redhat-ods-operator 2>/dev/null | grep -qF rhods-operator; do
+                echo -n .
+                sleep 15
+              done; echo
           command:
             - /bin/bash
           image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
