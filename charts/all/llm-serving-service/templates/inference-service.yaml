@@ -1,0 +1,152 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-vllm
+spec:
+  selector: {}
+  template:
+    spec:
+      containers:
+      - args:
+        - -ec
+        - |-
+          cat << EOF | oc apply -f-
+          apiVersion: serving.kserve.io/v1alpha1
+          kind: ServingRuntime
+          metadata:
+            annotations:
+              opendatahub.io/accelerator-name: nvidia-gpu
+              opendatahub.io/apiProtocol: REST
+              opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+              openshift.io/display-name: mistral-7b-instruct
+            name: mistral-7b-instruct
+            namespace: rag-llm
+            labels:
+              opendatahub.io/dashboard: 'true'
+          spec:
+            annotations:
+              prometheus.io/path: /metrics
+              prometheus.io/port: '8080'
+            containers:
+              - args:
+                  - '--port=8080'
+                  - '--model=\$(MODEL_ID)'
+                  - '--download-dir=/cache'
+                  - '--distributed-executor-backend=mp'
+                  - '--max-model-len=4096'
+                  - '--dtype=half'
+                  - '--gpu-memory-utilization'
+                  - '0.98'
+                  - '--enforce-eager'
+                command:
+                  - python
+                  - '-m'
+                  - vllm.entrypoints.openai.api_server
+                env:
+                  - name: HF_HOME
+                    value: /tmp/hf_home
+                  - name: HF_TOKEN
+                    valueFrom:
+                      secretKeyRef:
+                        name: huggingface-secret
+                        key: hftoken
+                  - name: MODEL_ID
+                    valueFrom:
+                      secretKeyRef:
+                        name: huggingface-secret
+                        key: modelId
+                  - name: HF_HUB_OFFLINE
+                    value: "0"
+                image: 'quay.io/modh/vllm@sha256:b51fde66f162f1a78e8c027320dddf214732d5345953b1599a84fe0f0168c619'
+                name: kserve-container
+                ports:
+                  - containerPort: 8080
+                    protocol: TCP
+                volumeMounts:
+                  - mountPath: /dev/shm
+                    name: shm
+                  - mountPath: /cache
+                    name: cache
+            multiModel: false
+            supportedModelFormats:
+              - autoSelect: true
+                name: vLLM
+            volumes:
+              - emptyDir:
+                  medium: Memory
+                  sizeLimit: 2Gi
+                name: shm
+              - emptyDir: {}
+                name: cache
+          EOF
+          cat << EOF | oc apply -f-
+          apiVersion: serving.kserve.io/v1beta1
+          kind: InferenceService
+          metadata:
+            annotations:
+              openshift.io/display-name: mistral-7b-instruct
+              serving.knative.openshift.io/enablePassthrough: 'true'
+              sidecar.istio.io/inject: 'true'
+              sidecar.istio.io/rewriteAppHTTPProbers: 'true'  
+            name: mistral-7b-instruct
+            namespace: rag-llm
+            labels:
+              opendatahub.io/dashboard: 'true'
+          spec:
+            predictor:
+              restartPolicy: OnFailure
+              maxReplicas: 1
+              minReplicas: 1
+              model:
+                modelFormat:
+                  name: vLLM
+                name: ''
+                resources:
+                  limits:
+                    cpu: '8'
+                    memory: 10Gi
+                    nvidia.com/gpu: '1'
+                  requests:
+                    cpu: '2'
+                    memory: 8Gi
+                    nvidia.com/gpu: '1'
+                runtime: mistral-7b-instruct
+              tolerations:
+              - effect: NoSchedule
+                key: odh-notebook
+                operator: Exists
+          EOF
+        command:
+        - /bin/bash
+        image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+        imagePullPolicy: IfNotPresent
+        name: create-vllm
+        envFrom:
+          - secretRef:
+              name: minio-secret
+          - secretRef:
+              name: huggingface-secret
+      initContainers:
+        - args:
+            - -ec
+            - |-
+              echo -n 'Waiting for openshift-ai initialize'
+              while ! oc describe sub rhods-operator -n redhat-ods-operator 2>/dev/null | grep -qF rhods-operator; do
+                echo -n .
+                sleep 15
+              done; echo
+              echo -n 'openshift-ai initialized';echo
+              echo -n 'Waiting for dscinitialization/default-dsci to initialize'
+              echo
+              oc wait --for=jsonpath='{.status.phase}'=Ready --timeout=600s -n redhat-ods-operator dscinitialization/default-dsci
+              sleep 10
+              echo -n 'dscinitialization/default-dsci initialized';echo
+          command:
+            - /bin/bash
+          image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+          imagePullPolicy: IfNotPresent
+          name: wait-for-openshift
+      restartPolicy: Never
+      serviceAccount: demo-setup
+      serviceAccountName: demo-setup

@@ -26,16 +26,18 @@ clusterGroup:
     #   namespace: open-cluster-management
     #   channel: release-2.9
     #   csv: advanced-cluster-management.v2.6.1
+    serverless:
+      name: serverless-operator
+      namespace: openshift-serverless
+      channel: stable
+    servicemesh:
+      name: servicemeshoperator
+      namespace: openshift-operators
+      channel: stable
     nfd:
       name: nfd
       namespace: openshift-nfd
       channel: stable
-    # openshift-ai:
-    #   name: rhods-operator
-    #   namespace: redhat-ods-operator
-    #   channel: fast
-    #   csv: rhods-operator.2.11.0
-    #   installplan: install-zvdt4
     nvidia:
       name: gpu-operator-certified
       namespace: nvidia-gpu-operator
@@ -46,14 +48,13 @@ clusterGroup:
       namespace: openshift-operators
       channel: stable-v1.23
       source: certified-operators
-    serverless:
-      name: serverless-operator
-      namespace: openshift-serverless
-      channel: stable
-    servicemesh:
-      name: servicemeshoperator
-      namespace: openshift-operators
-      channel: stable
+    # rhoai:
+    #   name: rhods-operator
+    #   namespace: redhat-ods-operator
+    #   channel: stable
+    #   source: redhat-operators
+    #   sourceNamespace: openshift-marketplace
+    
   projects:
     - hub
     - rag-llm

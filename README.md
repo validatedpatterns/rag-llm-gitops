@@ -7,6 +7,8 @@ seamless provisioning of all operators and applications. It deploys a Chatbot
 application that harnesses the power of Large Language Models (LLMs) combined
 with the Retrieval-Augmented Generation (RAG) framework.
 
+The pattern uses the [Red Hat OpenShift AI](https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai) to deploy and serve LLM models at scale.
+
 The application uses either the [EDB Postgres for Kubernetes operator](https://catalog.redhat.com/software/container-stacks/detail/5fb41c88abd2a6f7dbe1b37b)
 (default) or Redis to store embeddings of Red Hat products, running on Red Hat
 OpenShift to generate project proposals for specific Red Hat products.
@@ -21,17 +23,17 @@ OpenShift to generate project proposals for specific Red Hat products.
 ## Demo Description & Architecture
 
 The goal of this demo is to demonstrate a Chatbot LLM application augmented with data from Red Hat product documentation
-running on Red Hat OpenShift. It deploys an LLM application that connects to multiple LLM providers such as OpenAI, Hugging Face, and NVIDIA NIM.
-The application generates a project proposal for a Red Hat product
+running on [Red Hat OpenShift AI](https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai). It deploys an LLM application that connects to multiple LLM providers such as OpenAI, Hugging Face, and NVIDIA NIM.
+The application generates a project proposal for a Red Hat product.
 
 ### Key Features
 
+- Leveraging [Red Hat OpenShift AI](https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai) to deploy and serve LLM models powered by NVIDIA GPU accelerator.
 - LLM Application augmented with content from Red Hat product documentation.
-- Multiple LLM providers (OpenAI, Hugging Face, NVIDIA)
-- Vector Database, such as EDB Postgres for Kubernetes or Redis, to store embeddings of RedHat product documentation.
-- Monitoring dashboard to provide key metrics such as ratings
-- GitOps setup to deploy e2e demo (frontend / vector database / served models)
-
+- Multiple LLM providers (OpenAI, Hugging Face, NVIDIA).
+- Vector Database, such as EDB Postgres for Kubernetes or Redis, to store embeddings of Red Hat product documentation.
+- Monitoring dashboard to provide key metrics such as ratings.
+- GitOps setup to deploy e2e demo (frontend / vector database / served models).
 
 ![Overview](https://gitlab.com/osspa/portfolio-architecture-examples/-/raw/main/images/intro-marketectures/rag-demo-vp-marketing-slide.png)
 
@@ -65,10 +67,9 @@ _Figure 4. Schematic diagram for Ingestion of data for RAG._
 _Figure 5. Schematic diagram for RAG demo augmented query._
 
 
-In Figure 5, we can see RAG augmented query. Mistral-7B model is used for for language processing, LangChain to
+In Figure 5, we can see RAG augmented query. Community version of [Mistral-7B-Instruct](https://huggingface.co/mistral-community/Mistral-7B-Instruct-v0.3) model is used for language processing, LangChain to
 integrate different tools of the LLM-based application together and to process the PDF
-files and web pages, vector database provider such as EDB Postgres for Kubernetes or Redis, is used to store vectors, HuggingFace TGI
-is used to serve the Mistral-7B model, Gradio is used for user interface and object storage to store language model and other datasets.
+files and web pages, vector database provider such as EDB Postgres for Kubernetes or Redis, is used to store vectors, and [Red Hat OpenShift AI](https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai) to serve the [Mistral-7B-Instruct](https://huggingface.co/mistral-community/Mistral-7B-Instruct-v0.3) model, Gradio is used for user interface and object storage to store language model and other datasets.
 Solution components are deployed as microservices in the Red Hat OpenShift cluster.
 
 
@@ -78,14 +79,12 @@ View and download all of the diagrams above in our open source tooling site.
 [Open Diagrams](https://www.redhat.com/architect/portfolio/tool/index.html?#gitlab.com/osspa/portfolio-architecture-examples/-/raw/main/diagrams/rag-demo-vp.drawio)
 
 
-
-
 ![Diagram](images/diagram.png)
 _Figure 6. Proposed demo architecture with OpenShift AI_
 
 ### Components deployed
 
-- **Hugging Face Text Generation Inference Server:** The pattern deploys a Hugging Face TGIS server. The server deploys `mistral-community/Mistral-7B-v0.2` model. The server will require a GPU node.
+- **vLLM Text Generation Inference Server:** The pattern deploys a vLLM Inference Server. The server deploys and serves `mistral-community/Mistral-7B-Instruct-v0.3` model. The server will require a GPU node.
 - **EDB Postgres for Kubernetes / Redis Server:** A Vector Database server is deployed to store vector embeddings created from Red Hat product documentation.
 - **Populate VectorDb Job:** The job creates the embeddings and populates the vector database.
 - **LLM Application:** This is a Chatbot application that can generate a project proposal by augmenting the LLM with the Red Hat product documentation stored in vector db.
@@ -94,17 +93,51 @@ _Figure 6. Proposed demo architecture with OpenShift AI_
 
 ## Deploying the demo
 
+To run the demo, ensure the Podman is running on your machine.Fork the [rag-llm-gitops](https://github.com/validatedpatterns/rag-llm-gitops) repo into your organization
+
+### Login to OpenShift cluster
+
+Replace the token and the api server url in the command below to login to the OpenShift cluster.
+
+```sh
+oc login --token=<token> --server=<api_server_url> # login to Openshift cluster
+```
+
 ### Cloning repository
 
 ```sh
 git clone https://github.com/<<your-username>>/rag-llm-gitops.git
 cd rag-llm-gitops
-oc login --token=<> --server=<> # login to Openshift cluster
-podman machine start
+```
+
+### Configuring model
+
+This pattern deploys community version of [Mistral-7B-Instruct](https://huggingface.co/mistral-community/Mistral-7B-Instruct-v0.3) out of box. Run the following command to configure vault with the model Id.
+
+```sh
 # Copy values-secret.yaml.template to ~/values-secret-rag-llm-gitops.yaml.
 # You should never check-in these files
 # Add secrets to the values-secret.yaml that needs to be added to the vault.
 cp values-secret.yaml.template ~/values-secret-rag-llm-gitops.yaml
+```
+
+To deploy a non-community [Mistral-7b-Instruct](https://huggingface.co/mistralai/) model, grab the [Hugging Face token](https://huggingface.co/settings/tokens) and accept the terms and conditions on the model page. Edit ~/values-secret-rag-llm-gitops.yaml to replace the `model Id` and the `Hugging Face` token.
+
+```sh
+secrets:
+  - name: hfmodel
+    fields:
+    - name: hftoken
+      value: null
+    - name: modelId
+      value: "mistral-community/Mistral-7B-Instruct-v0.3"
+  - name: minio
+    fields:
+    - name: MINIO_ROOT_USER
+      value: minio
+    - name: MINIO_ROOT_PASSWORD
+      value: null
+      onMissingValue: generate
 ```
 
 ### Provision GPU MachineSet
@@ -138,7 +171,7 @@ global:
 # Possible value for db.type = [REDIS, EDB]
   db:
     index: docs
-    type: EDB  <--- Default is EDB, Change the db type to REDIS for Redis deployment
+    type: EDB  # <--- Default is EDB, Change the db type to REDIS for Redis deployment
 main:
   clusterGroupName: hub
   multiSourceConfig:
