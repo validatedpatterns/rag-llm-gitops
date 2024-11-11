@@ -2,7 +2,7 @@ llm_providers:
   - name: "OpenShift AI (vLLM)"
     enabled: True
     models:
-      - name: {{ .Values.global.model.modelId }}
+      - name: mistral-7b-instruct
         weight: 1
         enabled: True
         url: https://mistral-7b-instruct-{{ .Values.llmui.namespace }}.{{ coalesce .Values.global.localClusterDomain .Values.global.hubClusterDomain }}/v1
