@@ -34,6 +34,7 @@ spec:
                   - '--model=\$(MODEL_ID)'
                   - '--download-dir=/cache'
                   - '--distributed-executor-backend=mp'
+                  - '--served-model-name=mistral-7b-instruct'
                   - '--max-model-len=4096'
                   - '--dtype=half'
                   - '--gpu-memory-utilization'
