@@ -23,6 +23,7 @@
 
     - name: "[create-gpu-machine-set] Gather information about all availability zones"
       amazon.aws.aws_az_info:
+        region: "{{ cloudRegion }}"
       register: awszoneinfo
 
     - name: "[create-gpu-machine-set] Debug AWS Zone Info"
