@@ -1,28 +1,28 @@
-# apiVersion: datasciencecluster.opendatahub.io/v1
-# kind: DataScienceCluster
-# metadata:
-#   name: default-dsc
-# spec:
-#   components:
-#     dashboard:
-#       managementState: Managed
-#     workbenches:
-#       managementState: Managed
-#     datasciencepipelines:
-#       managementState: Managed
-#     kueue:
-#       managementState: Removed
-#     codeflare:
-#       managementState: Removed
-#     ray:
-#       managementState: Removed
-#     modelmeshserving:
-#       managementState: Managed
-#     kserve:
-#       managementState: Managed
-#       serving:
-#         ingressGateway:
-#           certificate:
-#             type: SelfSigned
-#         managementState: Managed
-#         name: knative-serving
+apiVersion: datasciencecluster.opendatahub.io/v1
+kind: DataScienceCluster
+metadata:
+  name: default-dsc
+spec:
+  components:
+    dashboard:
+      managementState: Managed
+    workbenches:
+      managementState: Managed
+    datasciencepipelines:
+      managementState: Managed
+    kueue:
+      managementState: Removed
+    codeflare:
+      managementState: Removed
+    ray:
+      managementState: Removed
+    modelmeshserving:
+      managementState: Managed
+    kserve:
+      managementState: Managed
+      serving:
+        ingressGateway:
+          certificate:
+            type: SelfSigned
+        managementState: Managed
+        name: knative-serving

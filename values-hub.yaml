@@ -30,10 +30,14 @@ clusterGroup:
       name: serverless-operator
       namespace: openshift-serverless
       channel: stable
+      annotations:
+        argocd.argoproj.io/sync-wave: "-50"
     servicemesh:
       name: servicemeshoperator
       namespace: openshift-operators
       channel: stable
+      annotations:
+        argocd.argoproj.io/sync-wave: "-50"
     nfd:
       name: nfd
       namespace: openshift-nfd
@@ -48,12 +52,12 @@ clusterGroup:
       namespace: openshift-operators
       channel: stable-v1.23
       source: certified-operators
-    # rhoai:
-    #   name: rhods-operator
-    #   namespace: redhat-ods-operator
-    #   channel: stable
-    #   source: redhat-operators
-    #   sourceNamespace: openshift-marketplace
+    rhoai:
+      name: rhods-operator
+      namespace: redhat-ods-operator
+      channel: stable
+      source: redhat-operators
+      sourceNamespace: openshift-marketplace
     
   projects:
     - hub
