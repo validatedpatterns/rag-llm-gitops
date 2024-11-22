@@ -15,7 +15,7 @@
 
     - name: "[create-gpu-machine-set] Get Platform Name"
       ansible.builtin.set_fact:
-        cloudProvider: "{{ infraInfo.resources[0].status.platform | lower}}"
+        cloudProvider: "{{ infraInfo.resources[0].status.platform | lower }}"
 
     - name: "[create-gpu-machine-set] Set fact Region"
       ansible.builtin.set_fact:
@@ -39,8 +39,8 @@
 
     - name: "[create-gpu-machine-set] Get the availability zone from the first worker MachineSets"
       ansible.builtin.set_fact:
-        cloudAvailabilityZone: "{{ item.spec.template.spec.providerSpec.value.placement.availabilityZone}}"
-      with_items: 
+        cloudAvailabilityZone: "{{ item.spec.template.spec.providerSpec.value.placement.availabilityZone }}"
+      with_items:
         - "{{ machineset.resources[0] }}"
 
     - name: "[create-gpu-machine-set] Search for worker MachineSets"
