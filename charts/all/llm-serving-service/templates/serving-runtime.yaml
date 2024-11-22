@@ -1,0 +1,68 @@
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  annotations:
+    opendatahub.io/accelerator-name: nvidia-gpu 
+    opendatahub.io/apiProtocol: REST
+    opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+    openshift.io/display-name: mistral-7b-instruct
+  name: mistral-7b-instruct
+  namespace: rag-llm
+  labels:
+    opendatahub.io/dashboard: 'true'
+spec:
+  annotations:
+    prometheus.io/path: /metrics
+    prometheus.io/port: '8080'
+  containers:
+    - args:
+        - '--port=8080'
+        - '--model=$(MODEL_ID)'
+        - '--download-dir=/cache'
+        - '--distributed-executor-backend=mp'
+        - '--served-model-name=mistral-7b-instruct'
+        - '--max-model-len=4096'
+        - '--dtype=half'
+        - '--gpu-memory-utilization'
+        - '0.98'
+        - '--enforce-eager'
+      command:
+        - python
+        - '-m'
+        - vllm.entrypoints.openai.api_server
+      env:
+        - name: HF_HOME
+          value: /tmp/hf_home
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: huggingface-secret
+              key: hftoken
+        - name: MODEL_ID
+          valueFrom:
+            secretKeyRef:
+              name: huggingface-secret
+              key: modelId
+        - name: HF_HUB_OFFLINE
+          value: "0"
+      image: 'quay.io/modh/vllm@sha256:b51fde66f162f1a78e8c027320dddf214732d5345953b1599a84fe0f0168c619'
+      name: kserve-container
+      ports:
+        - containerPort: 8080
+          protocol: TCP
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: shm
+        - mountPath: /cache
+          name: cache
+  multiModel: false
+  supportedModelFormats:
+    - autoSelect: true
+      name: vLLM
+  volumes:
+    - emptyDir:
+        medium: Memory
+        sizeLimit: 2Gi
+      name: shm
+    - emptyDir: {}
+      name: cache
