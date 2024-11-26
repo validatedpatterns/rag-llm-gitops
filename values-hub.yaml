@@ -42,22 +42,30 @@ clusterGroup:
       name: nfd
       namespace: openshift-nfd
       channel: stable
+      annotations:
+        argocd.argoproj.io/sync-wave: "-40"
     nvidia:
       name: gpu-operator-certified
       namespace: nvidia-gpu-operator
       channel: v24.6
       source: certified-operators
+      annotations:
+        argocd.argoproj.io/sync-wave: "-40"
     edb:
       name: cloud-native-postgresql
       namespace: openshift-operators
       channel: stable-v1.23
       source: certified-operators
+      annotations:
+        argocd.argoproj.io/sync-wave: "-40"
     rhoai:
       name: rhods-operator
       namespace: redhat-ods-operator
       channel: stable
       source: redhat-operators
       sourceNamespace: openshift-marketplace
+      annotations:
+        argocd.argoproj.io/sync-wave: "-30"
     
   projects:
     - hub

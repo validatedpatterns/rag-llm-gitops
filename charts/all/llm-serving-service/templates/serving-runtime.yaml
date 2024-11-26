@@ -6,6 +6,7 @@ metadata:
     opendatahub.io/apiProtocol: REST
     opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
     openshift.io/display-name: mistral-7b-instruct
+    argocd.argoproj.io/sync-wave: "50"
   name: mistral-7b-instruct
   namespace: rag-llm
   labels:
