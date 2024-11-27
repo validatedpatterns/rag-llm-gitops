@@ -6,6 +6,7 @@ metadata:
     serving.knative.openshift.io/enablePassthrough: 'true'
     sidecar.istio.io/inject: 'true'
     sidecar.istio.io/rewriteAppHTTPProbers: 'true'  
+    argocd.argoproj.io/sync-wave: "60"
   name: mistral-7b-instruct
   namespace: rag-llm
   labels:
