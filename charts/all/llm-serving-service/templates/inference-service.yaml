@@ -13,7 +13,7 @@ metadata:
     opendatahub.io/dashboard: 'true'
 spec:
   predictor:
-    restartPolicy: OnFailure
+    restartPolicy: Always
     maxReplicas: 1
     minReplicas: 1
     model:
