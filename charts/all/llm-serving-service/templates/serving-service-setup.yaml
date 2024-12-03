@@ -1,4 +1,21 @@
 ---
+<<<<<<< HEAD
+=======
+apiVersion: dashboard.opendatahub.io/v1
+kind: AcceleratorProfile
+metadata:
+  name: nvidia-gpu
+  namespace: redhat-ods-applications
+spec:
+  displayName: NVIDIA GPU
+  enabled: true
+  identifier: nvidia.com/gpu
+  tolerations:
+  - effect: NoSchedule
+    key: odh-notebook
+    operator: Exists
+---
+>>>>>>> 37d2514 (Reverting back to using jobs for fixing race condition. The issue has been fixed in rhods 2.16)
 apiVersion: batch/v1
 kind: Job
 metadata:
