@@ -61,7 +61,7 @@ clusterGroup:
     rhoai:
       name: rhods-operator
       namespace: redhat-ods-operator
-      channel: stable
+      channel: fast
       source: redhat-operators
       sourceNamespace: openshift-marketplace
       annotations:
