@@ -1,36 +1,36 @@
-apiVersion: serving.kserve.io/v1beta1
-kind: InferenceService
-metadata:
-  annotations:
-    openshift.io/display-name: mistral-7b-instruct
-    serving.knative.openshift.io/enablePassthrough: 'true'
-    sidecar.istio.io/inject: 'true'
-    sidecar.istio.io/rewriteAppHTTPProbers: 'true'  
-    argocd.argoproj.io/sync-wave: "60"
-  name: mistral-7b-instruct
-  namespace: rag-llm
-  labels:
-    opendatahub.io/dashboard: 'true'
-spec:
-  predictor:
-    restartPolicy: OnFailure
-    maxReplicas: 1
-    minReplicas: 1
-    model:
-      modelFormat:
-        name: vLLM
-      name: ''
-      resources:
-        limits:
-          cpu: '8'
-          memory: 10Gi
-          nvidia.com/gpu: '1'
-        requests:
-          cpu: '2'
-          memory: 8Gi
-          nvidia.com/gpu: '1'
-      runtime: mistral-7b-instruct
-    tolerations:
-    - effect: NoSchedule
-      key: odh-notebook
-      operator: Exists
+# apiVersion: serving.kserve.io/v1beta1
+# kind: InferenceService
+# metadata:
+#   annotations:
+#     openshift.io/display-name: mistral-7b-instruct
+#     serving.knative.openshift.io/enablePassthrough: 'true'
+#     sidecar.istio.io/inject: 'true'
+#     sidecar.istio.io/rewriteAppHTTPProbers: 'true'  
+#     argocd.argoproj.io/sync-wave: "60"
+#   name: mistral-7b-instruct
+#   namespace: rag-llm
+#   labels:
+#     opendatahub.io/dashboard: 'true'
+# spec:
+#   predictor:
+#     restartPolicy: OnFailure
+#     maxReplicas: 1
+#     minReplicas: 1
+#     model:
+#       modelFormat:
+#         name: vLLM
+#       name: ''
+#       resources:
+#         limits:
+#           cpu: '8'
+#           memory: 10Gi
+#           nvidia.com/gpu: '1'
+#         requests:
+#           cpu: '2'
+#           memory: 8Gi
+#           nvidia.com/gpu: '1'
+#       runtime: mistral-7b-instruct
+#     tolerations:
+#     - effect: NoSchedule
+#       key: odh-notebook
+#       operator: Exists
