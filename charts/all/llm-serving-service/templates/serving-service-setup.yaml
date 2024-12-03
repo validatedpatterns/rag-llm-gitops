@@ -1,18 +1,4 @@
 ---
-apiVersion: dashboard.opendatahub.io/v1
-kind: AcceleratorProfile
-metadata:
-  name: nvidia-gpu
-  namespace: redhat-ods-applications
-spec:
-  displayName: NVIDIA GPU
-  enabled: true
-  identifier: nvidia.com/gpu
-  tolerations:
-  - effect: NoSchedule
-    key: odh-notebook
-    operator: Exists
----
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -25,29 +11,6 @@ spec:
       - args:
         - -ec
         - |-
-          export MINIO_SECRET=$(oc get secret minio-secret -o jsonpath='{.data.MINIO_ROOT_PASSWORD}' | base64 --decode)
-          export MODEL_NAME=$(echo "${modelId##*/}" | sed 's/-[^-]*$//' | tr '[:upper:]' '[:lower:]')
-          export MODEL_ID=$(echo "${modelId}" | awk -F'/' '{print $NF}')
-          cat << EOF | oc apply -f-
-          kind: Secret
-          apiVersion: v1
-          metadata:
-            name: aws-connection-rag-llm-bucket
-            namespace: rag-llm
-            labels:
-              opendatahub.io/dashboard: 'true'
-              opendatahub.io/managed: 'true'
-            annotations:
-              opendatahub.io/connection-type: s3
-              openshift.io/display-name: rag-llm-bucket
-          stringData:
-            AWS_ACCESS_KEY_ID: minio
-            AWS_SECRET_ACCESS_KEY: $MINIO_SECRET
-            AWS_DEFAULT_REGION: us-east-1
-            AWS_S3_BUCKET: models
-            AWS_S3_ENDPOINT: http://minio-service:9000
-          type: Opaque
-          EOF
           cat << EOF | oc apply -f-
           apiVersion: serving.kserve.io/v1alpha1
           kind: ServingRuntime
@@ -56,10 +19,8 @@ spec:
               opendatahub.io/accelerator-name: nvidia-gpu
               opendatahub.io/apiProtocol: REST
               opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
-              opendatahub.io/template-display-name: vLLM ServingRuntime for KServe
-              opendatahub.io/template-name: vllm-runtime
-              openshift.io/display-name: $MODEL_NAME
-            name: $MODEL_NAME
+              openshift.io/display-name: mistral-7b-instruct
+            name: mistral-7b-instruct
             namespace: rag-llm
             labels:
               opendatahub.io/dashboard: 'true'
@@ -70,9 +31,10 @@ spec:
             containers:
               - args:
                   - '--port=8080'
-                  - '--model=/mnt/models'
-                  - '--served-model-name={{`{{.Name}}`}}'
+                  - '--model=\$(MODEL_ID)'
+                  - '--download-dir=/cache'
                   - '--distributed-executor-backend=mp'
+                  - '--served-model-name=mistral-7b-instruct'
                   - '--max-model-len=4096'
                   - '--dtype=half'
                   - '--gpu-memory-utilization'
@@ -85,6 +47,18 @@ spec:
                 env:
                   - name: HF_HOME
                     value: /tmp/hf_home
+                  - name: HF_TOKEN
+                    valueFrom:
+                      secretKeyRef:
+                        name: huggingface-secret
+                        key: hftoken
+                  - name: MODEL_ID
+                    valueFrom:
+                      secretKeyRef:
+                        name: huggingface-secret
+                        key: modelId
+                  - name: HF_HUB_OFFLINE
+                    value: "0"
                 image: 'quay.io/modh/vllm@sha256:b51fde66f162f1a78e8c027320dddf214732d5345953b1599a84fe0f0168c619'
                 name: kserve-container
                 ports:
@@ -93,6 +67,8 @@ spec:
                 volumeMounts:
                   - mountPath: /dev/shm
                     name: shm
+                  - mountPath: /cache
+                    name: cache
             multiModel: false
             supportedModelFormats:
               - autoSelect: true
@@ -102,17 +78,19 @@ spec:
                   medium: Memory
                   sizeLimit: 2Gi
                 name: shm
+              - emptyDir: {}
+                name: cache
           EOF
           cat << EOF | oc apply -f-
           apiVersion: serving.kserve.io/v1beta1
           kind: InferenceService
           metadata:
             annotations:
-              openshift.io/display-name: $MODEL_NAME
+              openshift.io/display-name: mistral-7b-instruct
               serving.knative.openshift.io/enablePassthrough: 'true'
               sidecar.istio.io/inject: 'true'
               sidecar.istio.io/rewriteAppHTTPProbers: 'true'  
-            name: $MODEL_NAME
+            name: mistral-7b-instruct
             namespace: rag-llm
             labels:
               opendatahub.io/dashboard: 'true'
@@ -134,10 +112,7 @@ spec:
                     cpu: '2'
                     memory: 8Gi
                     nvidia.com/gpu: '1'
-                runtime: $MODEL_NAME
-                storage:
-                  key: aws-connection-rag-llm-bucket
-                  path: llm-models/$MODEL_ID
+                runtime: mistral-7b-instruct
               tolerations:
               - effect: NoSchedule
                 key: odh-notebook
@@ -157,8 +132,17 @@ spec:
         - args:
             - -ec
             - |-
-              oc wait --for=condition=complete job/load-model-set -n rag-llm --timeout=10m
+              echo -n 'Waiting for openshift-ai initialize'
+              while ! oc describe sub rhods-operator -n redhat-ods-operator 2>/dev/null | grep -qF rhods-operator; do
+                echo -n .
+                sleep 15
+              done; echo
+              echo -n 'openshift-ai initialized';echo
+              echo -n 'Waiting for dscinitialization/default-dsci to initialize'
+              echo
+              oc wait --for=jsonpath='{.status.phase}'=Ready --timeout=600s -n redhat-ods-operator dscinitialization/default-dsci
               sleep 10
+              echo -n 'dscinitialization/default-dsci initialized';echo
           command:
             - /bin/bash
           image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
