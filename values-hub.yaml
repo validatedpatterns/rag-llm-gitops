@@ -21,52 +21,28 @@ clusterGroup:
     # Don't install RHOAI via validated patterns
     # RHOAI must be installed after service mesh and other dependencies are installed or it will break. 
     # The RHOAI Application will install the operator after a validation check has passed
-    # acm:
-    #   name: advanced-cluster-management
-    #   namespace: open-cluster-management
-    #   channel: release-2.9
-    #   csv: advanced-cluster-management.v2.6.1
-    serverless:
-      name: serverless-operator
-      namespace: openshift-serverless
-      channel: stable
-      annotations:
-        argocd.argoproj.io/sync-wave: "-50"
-    servicemesh:
-      name: servicemeshoperator
-      namespace: openshift-operators
-      channel: stable
-      annotations:
-        argocd.argoproj.io/sync-wave: "-50"
     nfd:
       name: nfd
       namespace: openshift-nfd
       channel: stable
-      annotations:
-        argocd.argoproj.io/sync-wave: "-40"
     nvidia:
       name: gpu-operator-certified
       namespace: nvidia-gpu-operator
       channel: v24.6
       source: certified-operators
-      annotations:
-        argocd.argoproj.io/sync-wave: "-40"
     edb:
       name: cloud-native-postgresql
       namespace: openshift-operators
       channel: stable-v1.23
       source: certified-operators
-      annotations:
-        argocd.argoproj.io/sync-wave: "-40"
-    rhoai:
-      name: rhods-operator
-      namespace: redhat-ods-operator
-      channel: fast
-      source: redhat-operators
-      sourceNamespace: openshift-marketplace
-      annotations:
-        argocd.argoproj.io/sync-wave: "-30"
-    
+    serverless:
+      name: serverless-operator
+      namespace: openshift-serverless
+      channel: stable
+    servicemesh:
+      name: servicemeshoperator
+      namespace: openshift-operators
+      channel: stable
   projects:
     - hub
     - rag-llm
@@ -94,16 +70,6 @@ clusterGroup:
   #   - '/overrides/values-{{ $.Values.global.hubClusterDomain }}.yaml'
   #   - '/overrides/values-{{ $.Values.global.localClusterDomain }}.yaml'
   applications:
-    # acm:
-    #   name: acm
-    #   namespace: open-cluster-management
-    #   project: hub
-    #   path: common/acm
-    #   ignoreDifferences:
-    #     - group: internal.open-cluster-management.io
-    #       kind: ManagedClusterInfo
-    #       jsonPointers:
-    #         - /spec/loggingCA
     vault:
       name: vault
       namespace: vault
@@ -114,11 +80,6 @@ clusterGroup:
       namespace: golang-external-secrets
       project: hub
       path: common/golang-external-secrets
-    # tgis-server:
-    #   name: tgis-server
-    #   namespace: rag-llm
-    #   project: rag-llm
-    #   path: charts/all/tgis-server
     minio:
       name: minio
       namespace: rag-llm
@@ -133,11 +94,6 @@ clusterGroup:
         automated: {}
         retry:
           limit: 50
-    # openshift-ai:
-    #   name: openshift-ai
-    #   project: openshift-ai
-    #   path: kustomization/openshift-ai/aggregate/overlays/fast
-    #   kustomize: true
     rag-llm:
       name: rag-llm
       namespace: rag-llm
@@ -203,78 +159,3 @@ clusterGroup:
       helmOverrides:
         - name: clusterGroup.isHubCluster
           value: false
-          # Before enabling cluster provisioning, ensure AWS and/or Azure
-          #   credentials and OCP pull secrets are defined in Vault.
-          #   See values-secret.yaml.template
-          #
-          #clusterPools:
-          #  exampleAWSPool:
-          #    name: aws-ap
-          #    openshiftVersion: 4.10.18
-          #    baseDomain: blueprints.rhecoeng.com
-          #    platform:
-          #      aws:
-          #        region: ap-southeast-2
-          #    clusters:
-          #    - One
-          #
-          #  exampleAzurePool:
-          #    name: azure-us
-          #    openshiftVersion: 4.10.18
-          #    baseDomain: blueprints.rhecoeng.com
-          #    platform:
-          #      azure:
-          #        baseDomainResourceGroupName: dojo-dns-zones
-          #        region: eastus
-          #    clusters:
-          #    - Two
-          #    - Three
-#  To have apps in multiple flavors, use namespaces and use helm overrides as appropriate
-#
-#    pipelines:
-#      name: pipelines
-#      namespace: production
-#      project: datacenter
-#      path: applications/pipeline
-#      repoURL: https://github.com/you/applications.git
-#      targetRevision: stable
-#      overrides:
-#      - name: myparam
-#        value: myparam
-#
-#    pipelines_staging:
-#    - name: pipelines
-#      namespace: staging
-#      project: datacenter
-#      path: applications/pipeline
-#      repoURL: https://github.com/you/applications.git
-#      targetRevision: main
-#
-#   Additional applications
-#   Be sure to include additional resources your apps will require
-#   +X machines
-#   +Y RAM
-#   +Z CPU
-#    vendor-app:
-#      name: vendor-app
-#      namespace: default
-#      project: vendor
-#      path: path/to/myapp
-#      repoURL: https://github.com/vendor/applications.git
-#      targetRevision: main
-
-#  managedSites:
-#    factory:
-#      name: factory
-#      # repoURL: https://github.com/dagger-refuse-cool/manuela-factory.git
-#      targetRevision: main
-#      path: applications/factory
-#      helmOverrides:
-#      - name: site.isHubCluster
-#        value: false
-#      clusterSelector:
-#        matchExpressions:
-#        - key: vendor
-#          operator: In
-#          values:
-#            - OpenShift

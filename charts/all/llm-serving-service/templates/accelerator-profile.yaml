@@ -1,4 +1,3 @@
----
 apiVersion: dashboard.opendatahub.io/v1
 kind: AcceleratorProfile
 metadata:
