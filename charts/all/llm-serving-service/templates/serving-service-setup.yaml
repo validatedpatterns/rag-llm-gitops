@@ -1,4 +1,3 @@
----
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -46,7 +45,7 @@ spec:
                   - vllm.entrypoints.openai.api_server
                 env:
                   - name: HF_HOME
-                    value: /tmp/hf_home
+                    value: /cache
                   - name: HF_TOKEN
                     valueFrom:
                       secretKeyRef:
@@ -74,12 +73,13 @@ spec:
               - autoSelect: true
                 name: vLLM
             volumes:
-              - emptyDir:
+              - name: shm
+                emptyDir:
                   medium: Memory
                   sizeLimit: 2Gi
-                name: shm
-              - emptyDir: {}
-                name: cache
+              - name: cache
+                persistentVolumeClaim:
+                  claimName: model-pvc
           EOF
           cat << EOF | oc apply -f-
           apiVersion: serving.kserve.io/v1beta1
@@ -140,9 +140,10 @@ spec:
               echo -n 'openshift-ai initialized';echo
               echo -n 'Waiting for dscinitialization/default-dsci to initialize'
               echo
-              oc wait --for=jsonpath='{.status.phase}'=Ready --timeout=600s -n redhat-ods-operator dscinitialization/default-dsci
+              oc wait --for=jsonpath='{.status.phase}'=Ready --timeout=900s -n redhat-ods-operator dscinitialization/default-dsci
               sleep 10
               echo -n 'dscinitialization/default-dsci initialized';echo
+              sleep 120
           command:
             - /bin/bash
           image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
