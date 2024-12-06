@@ -30,8 +30,7 @@ spec:
             containers:
               - args:
                   - '--port=8080'
-                  - '--model=\$(MODEL_ID)'
-                  - '--download-dir=/cache'
+                  - '--model=/cache/models'
                   - '--distributed-executor-backend=mp'
                   - '--served-model-name=mistral-7b-instruct'
                   - '--max-model-len=4096'
@@ -66,8 +65,8 @@ spec:
                 volumeMounts:
                   - mountPath: /dev/shm
                     name: shm
-                  - mountPath: /cache
-                    name: cache
+                  - mountPath: /cache/models
+                    name: models
             multiModel: false
             supportedModelFormats:
               - autoSelect: true
@@ -77,7 +76,7 @@ spec:
                 emptyDir:
                   medium: Memory
                   sizeLimit: 2Gi
-              - name: cache
+              - name: models
                 persistentVolumeClaim:
                   claimName: model-pvc
           EOF
@@ -125,10 +124,49 @@ spec:
         name: create-vllm
         envFrom:
           - secretRef:
-              name: minio-secret
-          - secretRef:
               name: huggingface-secret
       initContainers:
+        - args:
+            - -ec
+            - |-
+              pip install huggingface_hub;
+              export HF_HOME=/tmp/cache/
+              cat << 'EOF' | python3
+              from huggingface_hub import snapshot_download
+              from pathlib import Path
+              from huggingface_hub import login
+              import subprocess, os
+
+              # Get the environment variable 'hftoken'
+              hf_token = os.getenv('hftoken')
+              # Get model id
+              modelid = os.getenv('modelId')
+              model_id = modelid.split('/')[-1]
+
+              def run_command(command):
+                  """Run a shell command and check for errors."""
+                  result = subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
+                  print(result.stdout)
+                  if result.stderr:
+                      print(result.stderr)
+
+              if hf_token is not None and hf_token.strip() != "None":
+                print("hftoken is set.")
+                login(token=hf_token)
+              mistral_models_path = "/cache/models"
+              snapshot_download(repo_id=modelid, local_dir=mistral_models_path)
+              EOF
+          command:
+            - /bin/bash
+          envFrom:
+            - secretRef:
+                name: huggingface-secret
+          image: registry.access.redhat.com/ubi9/python-39
+          imagePullPolicy: IfNotPresent
+          name: download-model
+          volumeMounts:
+            - mountPath: /cache/models
+              name: models
         - args:
             - -ec
             - |-
@@ -143,12 +181,16 @@ spec:
               oc wait --for=jsonpath='{.status.phase}'=Ready --timeout=900s -n redhat-ods-operator dscinitialization/default-dsci
               sleep 10
               echo -n 'dscinitialization/default-dsci initialized';echo
-              sleep 120
+              sleep 30
           command:
             - /bin/bash
           image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
           imagePullPolicy: IfNotPresent
           name: wait-for-openshift
-      restartPolicy: Never
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: model-pvc
+      restartPolicy: OnFailure
       serviceAccount: demo-setup
       serviceAccountName: demo-setup
