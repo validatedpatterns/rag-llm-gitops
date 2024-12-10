@@ -43,6 +43,12 @@ clusterGroup:
       name: servicemeshoperator
       namespace: openshift-operators
       channel: stable
+    rhoai:
+      name: rhods-operator
+      namespace: redhat-ods-operator
+      channel: stable-2.16
+      source: redhat-operators
+      sourceNamespace: openshift-marketplace
   projects:
     - hub
     - rag-llm
