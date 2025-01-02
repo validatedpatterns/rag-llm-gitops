@@ -25,15 +25,6 @@
       ansible.builtin.set_fact:
         cloudRegion: "{{ infraInfo.resources[0].status.platformStatus[cloudProvider].region }}"
 
-    - name: "[create-gpu-machine-set] Gather information about all availability zones"
-      amazon.aws.aws_az_info:
-        region: "{{ cloudRegion }}"
-      register: awszoneinfo
-
-    - name: "[create-gpu-machine-set] Debug AWS Zone Info"
-      ansible.builtin.debug:
-        var: awszoneinfo.availability_zones[0].zone_name
-
     - name: "[create-gpu-machine-set] Search for MachineSets"
       kubernetes.core.k8s_info:
         api: machine.openshift.io/v1beta1
