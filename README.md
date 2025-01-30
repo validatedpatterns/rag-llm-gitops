@@ -67,9 +67,9 @@ _Figure 4. Schematic diagram for Ingestion of data for RAG._
 _Figure 5. Schematic diagram for RAG demo augmented query._
 
 
-In Figure 5, we can see RAG augmented query. Community version of [Mistral-7B-Instruct](https://huggingface.co/mistral-community/Mistral-7B-Instruct-v0.3) model is used for language processing, LangChain to
+In Figure 5, we can see RAG augmented query. [IBM Granite 3.1-8B-Instruct](https://huggingface.co/ibm-granite/granite-3.1-8b-instruct) model is used for language processing, LangChain to
 integrate different tools of the LLM-based application together and to process the PDF
-files and web pages, vector database provider such as EDB Postgres for Kubernetes or Redis, is used to store vectors, and [Red Hat OpenShift AI](https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai) to serve the [Mistral-7B-Instruct](https://huggingface.co/mistral-community/Mistral-7B-Instruct-v0.3) model, Gradio is used for user interface and object storage to store language model and other datasets.
+files and web pages, vector database provider such as EDB Postgres for Kubernetes or Redis, is used to store vectors, and [Red Hat OpenShift AI](https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai) to serve the [IBM Granite 3.1-8B-Instruct](https://huggingface.co/ibm-granite/granite-3.1-8b-instruct) model, Gradio is used for user interface and object storage to store language model and other datasets.
 Solution components are deployed as microservices in the Red Hat OpenShift cluster.
 
 
@@ -84,7 +84,7 @@ _Figure 6. Proposed demo architecture with OpenShift AI_
 
 ### Components deployed
 
-- **vLLM Text Generation Inference Server:** The pattern deploys a vLLM Inference Server. The server deploys and serves `mistral-community/Mistral-7B-Instruct-v0.3` model. The server will require a GPU node.
+- **vLLM Text Generation Inference Server:** The pattern deploys a vLLM Inference Server. The server deploys and serves `ibm-granite/granite-3.1-8b-instruct` model. The server will require a GPU node.
 - **EDB Postgres for Kubernetes / Redis Server:** A Vector Database server is deployed to store vector embeddings created from Red Hat product documentation.
 - **Populate VectorDb Job:** The job creates the embeddings and populates the vector database.
 - **LLM Application:** This is a Chatbot application that can generate a project proposal by augmenting the LLM with the Red Hat product documentation stored in vector db.
@@ -112,7 +112,7 @@ cd rag-llm-gitops
 
 ### Configuring model
 
-This pattern deploys community version of [Mistral-7B-Instruct](https://huggingface.co/mistral-community/Mistral-7B-Instruct-v0.3) out of box. Run the following command to configure vault with the model Id.
+This pattern deploys [IBM Granite 3.1-8B-Instruct](https://huggingface.co/ibm-granite/granite-3.1-8b-instruct) out of box. Run the following command to configure vault with the model Id.
 
 ```sh
 # Copy values-secret.yaml.template to ~/values-secret-rag-llm-gitops.yaml.
@@ -121,7 +121,7 @@ This pattern deploys community version of [Mistral-7B-Instruct](https://huggingf
 cp values-secret.yaml.template ~/values-secret-rag-llm-gitops.yaml
 ```
 
-To deploy a non-community [Mistral-7b-Instruct](https://huggingface.co/mistralai/) model, grab the [Hugging Face token](https://huggingface.co/settings/tokens) and accept the terms and conditions on the model page. Edit ~/values-secret-rag-llm-gitops.yaml to replace the `model Id` and the `Hugging Face` token.
+To deploy a model that can requires an Hugging Face token, grab the [Hugging Face token](https://huggingface.co/settings/tokens) and accept the terms and conditions on the model page. Edit ~/values-secret-rag-llm-gitops.yaml to replace the `model Id` and the `Hugging Face` token.
 
 ```sh
 secrets:
@@ -130,7 +130,7 @@ secrets:
     - name: hftoken
       value: null
     - name: modelId
-      value: "mistral-community/Mistral-7B-Instruct-v0.3"
+      value: "ibm-granite/granite-3.1-8b-instruct"
   - name: minio
     fields:
     - name: MINIO_ROOT_USER

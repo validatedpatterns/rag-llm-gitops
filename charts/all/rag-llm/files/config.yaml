@@ -2,10 +2,10 @@ llm_providers:
   - name: "OpenShift AI (vLLM)"
     enabled: True
     models:
-      - name: mistral-7b-instruct
+      - name: ibm-granite-instruct
         weight: 1
         enabled: True
-        url: https://mistral-7b-instruct-{{ .Values.llmui.namespace }}.{{ coalesce .Values.global.localClusterDomain .Values.global.hubClusterDomain }}/v1
+        url: https://ibm-granite-instruct-{{ .Values.llmui.namespace }}.{{ coalesce .Values.global.localClusterDomain .Values.global.hubClusterDomain }}/v1
         params:
           - name: max_new_tokens
             value: 1024

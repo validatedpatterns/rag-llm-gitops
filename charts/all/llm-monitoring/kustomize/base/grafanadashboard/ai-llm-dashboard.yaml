@@ -174,8 +174,8 @@ spec:
           "scopedVars": {
             "ModelID": {
               "selected": false,
-              "text": "mistralai/Mistral-7B-Instruct-v0.1",
-              "value": "mistralai/Mistral-7B-Instruct-v0.1"
+              "text": "ibm-granite/granite-3.1-8b-instruct",
+              "value": "ibm-granite/granite-3.1-8b-instruct"
             }
           },
           "targets": [
@@ -326,8 +326,8 @@ spec:
           "scopedVars": {
             "ModelID": {
               "selected": false,
-              "text": "mistralai/Mistral-7B-Instruct-v0.1",
-              "value": "mistralai/Mistral-7B-Instruct-v0.1"
+              "text": "ibm-granite/granite-3.1-8b-instruct",
+              "value": "ibm-granite/granite-3.1-8b-instruct"
             }
           },
           "targets": [
@@ -462,8 +462,8 @@ spec:
           "scopedVars": {
             "ModelID": {
               "selected": false,
-              "text": "mistralai/Mistral-7B-Instruct-v0.1",
-              "value": "mistralai/Mistral-7B-Instruct-v0.1"
+              "text": "ibm-granite/granite-3.1-8b-instruct",
+              "value": "ibm-granite/granite-3.1-8b-instruct"
             }
           },
           "targets": [
