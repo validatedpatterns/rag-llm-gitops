@@ -16,7 +16,7 @@ OpenShift to generate project proposals for specific Red Hat products.
 ## Pre-requisites
 
 - Podman
-- Red Hat Openshift cluster running in AWS. Supported regions are us-west-2 and us-east-1.
+- Red Hat Openshift cluster running in AWS. Supported regions are : us-east-1 us-east-2 us-west-1 us-west-2 ca-central-1 sa-east-1 eu-west-1 eu-west-2 eu-west-3 eu-central-1 eu-north-1 ap-northeast-1 ap-northeast-2 ap-northeast-3 ap-southeast-1 ap-southeast-2 ap-south-1.
 - GPU Node to run Hugging Face Text Generation Inference server on Red Hat OpenShift cluster.
 - Create a fork of the [rag-llm-gitops](https://github.com/validatedpatterns/rag-llm-gitops.git) git repository.
 
