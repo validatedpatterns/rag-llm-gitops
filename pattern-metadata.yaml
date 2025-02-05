@@ -1,5 +1,5 @@
 # This goal of this metadata is mainly used as a source of truth for
-# documentation and qe
+# documentation and qe.
 metadata_version: "1.0"
 name: rag-llm-gitops
 pattern_version: "1.0"
