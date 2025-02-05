@@ -3,7 +3,7 @@
 metadata_version: "1.0"
 name: rag-llm-gitops
 pattern_version: "1.0"
-display_name: RAG LLM Gitops
+display_name: AI Generation with LLM and RAG
 repo_url: https://github.com/validatedpatterns/rag-llm-gitops
 docs_repo_url: https://github.com/validatedpatterns/docs
 issues_url: https://github.com/validatedpatterns/rag-llm-gitops/issues
@@ -34,7 +34,8 @@ extra_features:
 external_requirements:
   # This gets added as a note in the cluster sizing doc page
   cluster_sizing_note: >
-    This pattern will require nodes with GPUs which are only supported in certain regions.
-    You can create them before deploying the pattern via the special `make
-    create-gpu-machineset` command, after the initial cluster has been created.
+    This pattern will require nodes with GPUs which are only supported in
+    certain regions. You can create them before deploying the pattern via the
+    special `make create-gpu-machineset` command, after the initial cluster has
+    been created.
 # external quay, s3 bucket, agof tokens to access paywalled material, manifests, rag-llm hw (only selected regions)
