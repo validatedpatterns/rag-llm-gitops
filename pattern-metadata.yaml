@@ -1,0 +1,40 @@
+# This goal of this metadata is mainly used as a source of truth for
+# documentation and qe
+metadata_version: "1.0"
+name: rag-llm-gitops
+pattern_version: "1.0"
+display_name: RAG LLM Gitops
+repo_url: https://github.com/validatedpatterns/rag-llm-gitops
+docs_repo_url: https://github.com/validatedpatterns/docs
+issues_url: https://github.com/validatedpatterns/rag-llm-gitops/issues
+docs_url: https://validatedpatterns.io/patterns/rag-llm-gitops/
+ci_url: https://validatedpatterns.io/ci/?pattern=ragllm
+# can be sandbox, tested or maintained
+tier: tested
+owners: day0hero, sauagarwa
+requirements:
+  hub: # Main cluster
+    compute:
+      platform:
+        aws:
+          replicas: 3
+          type: m5.2xlarge
+    controlPlane:
+      platform:
+        aws:
+          replicas: 1
+          type: m5.2xlarge
+
+# Loosely defined extra features like hypershift support, non-openshift
+# kubernetes support, spoke support
+extra_features:
+  hypershift_support: false
+  spoke_support: false
+
+external_requirements:
+  # This gets added as a note in the cluster sizing doc page
+  cluster_sizing_note: >
+    This pattern will require nodes with GPUs which are only supported in certain regions.
+    You can create them before deploying the pattern via the special `make
+    create-gpu-machineset` command, after the initial cluster has been created.
+# external quay, s3 bucket, agof tokens to access paywalled material, manifests, rag-llm hw (only selected regions)
