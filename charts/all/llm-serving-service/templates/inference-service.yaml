@@ -2,11 +2,11 @@ apiVersion: serving.kserve.io/v1beta1
 kind: InferenceService
 metadata:
   annotations:
-    openshift.io/display-name: mistral-7b-instruct
+    openshift.io/display-name: ibm-granite-instruct
     serving.knative.openshift.io/enablePassthrough: 'true'
     sidecar.istio.io/inject: 'true'
     sidecar.istio.io/rewriteAppHTTPProbers: 'true'
-  name: mistral-7b-instruct
+  name: ibm-granite-instruct
   namespace: rag-llm
   labels:
     opendatahub.io/dashboard: 'true'
@@ -27,7 +27,7 @@ spec:
           cpu: '2'
           memory: 8Gi
           nvidia.com/gpu: '1'
-      runtime: mistral-7b-instruct
+      runtime: ibm-granite-instruct
     restartPolicy: OnFailure
     tolerations:
       - effect: NoSchedule
