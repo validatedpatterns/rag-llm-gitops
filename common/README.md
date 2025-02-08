@@ -2,6 +2,11 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+## Note
+
+This is the `v1` branch of common and it contains all the VP helm charts. Please use this branch if your pattern
+has not migrated to the multisource approach.
+
 ## Start Here
 
 This repository is never used as standalone. It is usually imported in each pattern as a subtree.

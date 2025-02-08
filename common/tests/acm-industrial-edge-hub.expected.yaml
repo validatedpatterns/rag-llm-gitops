@@ -420,6 +420,8 @@ spec:
                       parameters:
                       - name: global.repoURL
                         value: https://github.com/pattern-clone/mypattern
+                      - name: global.originURL
+                        value: 
                       - name: global.targetRevision
                         value: main
                       - name: global.namespace
@@ -509,7 +511,7 @@ spec:
                   labels:
                     operators.coreos.com/openshift-gitops-operator.openshift-operators: ''
                 spec:
-                  channel: gitops-1.12
+                  channel: gitops-1.13
                   installPlanApproval: Automatic
                   name: openshift-gitops-operator
                   source: redhat-operators

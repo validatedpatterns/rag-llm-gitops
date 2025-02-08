@@ -165,7 +165,7 @@ metadata:
     cloud: aws
     region: 'ap-southeast-2'
     vendor: OpenShift
-    cluster.open-cluster-management.io/clusterset: aws-ap
+    cluster.open-cluster-management.io/clusterset: acm-provision-edge
 spec:
   size: 3
   runningCount: 0
@@ -195,7 +195,7 @@ metadata:
     cloud: azure
     region: 'eastus'
     vendor: OpenShift
-    cluster.open-cluster-management.io/clusterset: azure-us
+    cluster.open-cluster-management.io/clusterset: acm-provision-edge
 spec:
   size: 2
   runningCount: 2
@@ -1371,6 +1371,8 @@ spec:
                       parameters:
                       - name: global.repoURL
                         value: https://github.com/pattern-clone/mypattern
+                      - name: global.originURL
+                        value: 
                       - name: global.targetRevision
                         value: main
                       - name: global.namespace
@@ -1477,6 +1479,8 @@ spec:
                       parameters:
                       - name: global.repoURL
                         value: https://github.com/pattern-clone/mypattern
+                      - name: global.originURL
+                        value: 
                       - name: global.targetRevision
                         value: main
                       - name: global.namespace
@@ -1583,6 +1587,8 @@ spec:
                       parameters:
                       - name: global.repoURL
                         value: https://github.com/pattern-clone/mypattern
+                      - name: global.originURL
+                        value: 
                       - name: global.targetRevision
                         value: main
                       - name: global.namespace
@@ -1670,7 +1676,7 @@ spec:
                   labels:
                     operators.coreos.com/openshift-gitops-operator.openshift-operators: ''
                 spec:
-                  channel: gitops-1.12
+                  channel: gitops-1.13
                   installPlanApproval: Automatic
                   name: openshift-gitops-operator
                   source: redhat-operators
