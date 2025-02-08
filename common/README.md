@@ -4,8 +4,32 @@
 
 ## Note
 
-This is the `v1` branch of common and it contains all the VP helm charts. Please use this branch if your pattern
-has not migrated to the multisource approach.
+This is the `main` branch of common and it assumes that the pattern is fully
+multisource (meaning that any used charts from VP is actually referenced from
+either a helm chart repository or quay repository). I.e. there are no helm
+charts contained in this branch of common and there is no ansible code neither.
+
+The helm charts now live in separate repositories under the VP
+[organization](https://github.com/validatedpatterns) on GitHub. The repositories are:
+
+- clustergroup-chart
+- pattern-install-chart
+- hashicorp-vault-chart
+- golang-external-secrets-chart
+- acm-chart
+- letsencrypt-chart
+
+The ansible bits live in this [repository](https://github.com/validatedpatterns/rhvp.cluster_utils)
+
+In order to be able to use this "slimmed-down" main branch of common you *must*
+use a 0.9.* clustergroup-chart that. Add the following to your `values-global.yaml`:
+
+```yaml
+main:
+  multiSourceConfig:
+    enabled: true
+    clusterGroupChartVersion: 0.9.*
+```
 
 ## Start Here
 
@@ -19,7 +43,7 @@ do it manually by doing the following:
 
 ```sh
 git remote add -f upstream-common https://github.com/validatedpatterns/common.git
-git merge -s subtree -Xtheirs -Xsubtree=common upstream-common/ha-vault
+git merge -s subtree -Xtheirs -Xsubtree=common upstream-common/main
 ```
 
 ## Secrets
