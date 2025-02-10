@@ -13,10 +13,10 @@ def test_subscription_status_hub(openshift_dyn_client):
     # These are the operator subscriptions and their associated namespaces
     expected_subs = {
         "openshift-gitops-operator": ["openshift-operators"],
-        "prometheus":                ["llm-monitoring"],
-        "grafana-operator":          ["llm-monitoring"],
-        "nfd":                       ["openshift-nfd"],
-        "gpu-operator-certified":    ["nvidia-gpu-operator"],
+        "prometheus": ["llm-monitoring"],
+        "grafana-operator": ["llm-monitoring"],
+        "nfd": ["openshift-nfd"],
+        "gpu-operator-certified": ["nvidia-gpu-operator"],
     }
 
     err_msg = subscription.subscription_status(

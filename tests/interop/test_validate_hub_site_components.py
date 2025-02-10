@@ -5,8 +5,8 @@ import subprocess
 import pytest
 from ocp_resources.pod import Pod
 from ocp_resources.route import Route
-from openshift.dynamic.exceptions import NotFoundError
 from ocp_resources.storage_class import StorageClass
+from openshift.dynamic.exceptions import NotFoundError
 from validatedpatterns_tests.interop import application, components
 
 from . import __loggername__
@@ -44,10 +44,7 @@ def test_validate_hub_site_reachable(kube_config, openshift_dyn_client):
 @pytest.mark.check_pod_status_hub
 def test_check_pod_status(openshift_dyn_client):
     logger.info("Checking pod status")
-    projects = [
-        "nvidia-gpu-operator",
-        "rag-llm"
-    ]
+    projects = ["nvidia-gpu-operator", "rag-llm"]
     err_msg = components.check_pod_status(openshift_dyn_client, projects)
     if err_msg:
         logger.error(f"FAIL: {err_msg}")
@@ -59,9 +56,7 @@ def test_check_pod_status(openshift_dyn_client):
 @pytest.mark.check_pod_count_hub
 def test_check_pod_count_hub(openshift_dyn_client):
     logger.info("Checking pod count")
-    projects = {
-        "rag-llm": 4
-    }
+    projects = {"rag-llm": 4}
 
     failed = []
     for key in projects.keys():
@@ -74,7 +69,8 @@ def test_check_pod_count_hub(openshift_dyn_client):
             count += 1
 
         logger.info(f"Found {count} pods")
-        if count < projects[key]: failed.append(key)
+        if count < projects[key]:
+            failed.append(key)
 
     if len(failed) > 0:
         err_msg = f"Failed to find the expected pod count for: {failed}"
@@ -121,7 +117,8 @@ def test_validate_nodefeaturediscovery():
     logger.info("Check for nodefeaturediscovery instance")
 
     cmd_out = subprocess.run(
-        [oc, "get", "NodeFeatureDiscovery", "-n", namespace, name, "--no-headers"], capture_output=True
+        [oc, "get", "NodeFeatureDiscovery", "-n", namespace, name, "--no-headers"],
+        capture_output=True,
     )
     if cmd_out.stdout:
         logger.info(cmd_out.stdout.decode("utf-8"))
@@ -133,7 +130,9 @@ def test_validate_nodefeaturediscovery():
 @pytest.mark.validate_gpu_clusterpolicy
 def test_validate_gpu_clusterpolicy():
     name = "rag-llm-gpu-cluster-policy"
-    tolerations = '"tolerations":[{"effect":"NoSchedule","key":"odh-notebook","value":"true"}]'
+    tolerations = (
+        '"tolerations":[{"effect":"NoSchedule","key":"odh-notebook","value":"true"}]'
+    )
     logger.info("Check for GPU clusterpolicy")
 
     cmd_out = subprocess.run(
@@ -141,11 +140,11 @@ def test_validate_gpu_clusterpolicy():
     )
     if cmd_out.stdout:
         logger.info(cmd_out.stdout.decode("utf-8"))
-        
+
         if tolerations in cmd_out.stdout.decode("utf-8"):
             logger.info("PASS: Found GPU clusterpolicy and tolerations")
         else:
-            err_msg =f"FAIL: Expected tolerations not found"
+            err_msg = "FAIL: Expected tolerations not found"
             logger.error(f"FAIL: {err_msg}")
             assert False, err_msg
     else:

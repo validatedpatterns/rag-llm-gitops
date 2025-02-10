@@ -18,7 +18,7 @@ OpenShift to generate project proposals for specific Red Hat products.
 - Podman
 - Red Hat Openshift cluster running in AWS. Supported regions are : us-east-1 us-east-2 us-west-1 us-west-2 ca-central-1 sa-east-1 eu-west-1 eu-west-2 eu-west-3 eu-central-1 eu-north-1 ap-northeast-1 ap-northeast-2 ap-northeast-3 ap-southeast-1 ap-southeast-2 ap-south-1.
 - GPU Node to run Hugging Face Text Generation Inference server on Red Hat OpenShift cluster.
-- Create a fork of the [rag-llm-gitops](https://github.com/validatedpatterns/rag-llm-gitops.git) git repository.
+- Create a fork of the [rag-llm-gitops](https://github.com/validatedpatterns/rag-llm-gitops.git) Git repository.
 
 ## Demo Description & Architecture
 
@@ -33,17 +33,15 @@ The application generates a project proposal for a Red Hat product.
 - Multiple LLM providers (OpenAI, Hugging Face, NVIDIA).
 - Vector Database, such as EDB Postgres for Kubernetes or Redis, to store embeddings of Red Hat product documentation.
 - Monitoring dashboard to provide key metrics such as ratings.
-- GitOps setup to deploy e2e demo (frontend / vector database / served models).
+- GitOps setup to deploy end-to-end demo (frontend / vector database / served models).
 
 ![Overview](https://gitlab.com/osspa/portfolio-architecture-examples/-/raw/main/images/intro-marketectures/rag-demo-vp-marketing-slide.png)
 
 _Figure 1. Overview of the validated pattern for RAG Demo with Red Hat OpenShift_
 
-
 ![Logical](https://gitlab.com/osspa/portfolio-architecture-examples/-/raw/main/images/logical-diagrams/rag-demo-vp-ld.png)
 
 _Figure 2. Logical diagram of the RAG Demo with Red Hat OpenShift._
-
 
 #### RAG Demo Workflow
 
@@ -51,33 +49,28 @@ _Figure 2. Logical diagram of the RAG Demo with Red Hat OpenShift._
 
 _Figure 3. Schematic diagram for workflow of RAG demo with Red Hat OpenShift._
 
-
 #### RAG Data Ingestion
 
 ![ingestion](https://gitlab.com/osspa/portfolio-architecture-examples/-/raw/main/images/schematic-diagrams/rag-demo-vp-ingress-sd.png)
 
 _Figure 4. Schematic diagram for Ingestion of data for RAG._
 
-
 #### RAG Augmented Query
-
 
 ![query](https://gitlab.com/osspa/portfolio-architecture-examples/-/raw/main/images/schematic-diagrams/rag-demo-vp-query-sd.png)
 
 _Figure 5. Schematic diagram for RAG demo augmented query._
-
 
 In Figure 5, we can see RAG augmented query. [IBM Granite 3.1-8B-Instruct](https://huggingface.co/ibm-granite/granite-3.1-8b-instruct) model is used for language processing, LangChain to
 integrate different tools of the LLM-based application together and to process the PDF
 files and web pages, vector database provider such as EDB Postgres for Kubernetes or Redis, is used to store vectors, and [Red Hat OpenShift AI](https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai) to serve the [IBM Granite 3.1-8B-Instruct](https://huggingface.co/ibm-granite/granite-3.1-8b-instruct) model, Gradio is used for user interface and object storage to store language model and other datasets.
 Solution components are deployed as microservices in the Red Hat OpenShift cluster.
 
-
 #### Download diagrams
+
 View and download all of the diagrams above in our open source tooling site.
 
 [Open Diagrams](https://www.redhat.com/architect/portfolio/tool/index.html?#gitlab.com/osspa/portfolio-architecture-examples/-/raw/main/diagrams/rag-demo-vp.drawio)
-
 
 ![Diagram](images/diagram.png)
 _Figure 6. Proposed demo architecture with OpenShift AI_
@@ -93,11 +86,11 @@ _Figure 6. Proposed demo architecture with OpenShift AI_
 
 ## Deploying the demo
 
-To run the demo, ensure the Podman is running on your machine.Fork the [rag-llm-gitops](https://github.com/validatedpatterns/rag-llm-gitops) repo into your organization
+To run the demo, ensure the Podman is running on your machine.Fork the [rag-llm-gitops](https://github.com/validatedpatterns/rag-llm-gitops) repository into your organization
 
 ### Login to OpenShift cluster
 
-Replace the token and the api server url in the command below to login to the OpenShift cluster.
+Replace the token and the API server URL in the command below to login to the OpenShift cluster.
 
 ```sh
 oc login --token=<token> --server=<api_server_url> # login to Openshift cluster
@@ -112,7 +105,7 @@ cd rag-llm-gitops
 
 ### Configuring model
 
-This pattern deploys [IBM Granite 3.1-8B-Instruct](https://huggingface.co/ibm-granite/granite-3.1-8b-instruct) out of box. Run the following command to configure vault with the model Id.
+This pattern deploys [IBM Granite 3.1-8B-Instruct](https://huggingface.co/ibm-granite/granite-3.1-8b-instruct) out of box. Run the following command to configure vault with the model ID.
 
 ```sh
 # Copy values-secret.yaml.template to ~/values-secret-rag-llm-gitops.yaml.
@@ -254,10 +247,10 @@ By default, Grafana application is deployed in `llm-monitoring` namespace.To lau
 ![Routes](images/monitoring.png)
 
 ## Test Plan
+
 GOTO: [Test Plan](./TESTPLAN.md)
 
 ## Licenses
 
 EDB Postgres for Kubernetes is distributed under the EDB Limited Usage License
 Agreement, available at [enterprisedb.com/limited-use-license](https://www.enterprisedb.com/limited-use-license).
-
