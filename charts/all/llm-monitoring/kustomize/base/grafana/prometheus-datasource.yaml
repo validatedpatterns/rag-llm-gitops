@@ -14,7 +14,6 @@ spec:
     jsonData:
       timeInterval: 5s
     isDefault: true
-    version: 1
     type: prometheus
   instanceSelector:
     matchLabels:
