@@ -1,0 +1,65 @@
+- name: Generate GPU MachineSet for Azure-based clusters
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    gpu_vm_size: Standard_NC8as_T4_v3
+    gpu_replicas: 1
+    override_zone: ""
+    namespace: openshift-machine-api
+  tasks:
+    - name: Get cluster infrastructure object
+      kubernetes.core.k8s_info:
+        api_version: config.openshift.io/v1
+        kind: Infrastructure
+        name: cluster
+      register: infra_info
+
+    - name: Save cluster ID
+      set_fact:
+        cluster_id: "{{ infra_info.resources[0].status.infrastructureName }}"
+
+    - name: Gather all MachineSets
+      kubernetes.core.k8s_info:
+        api_version: machine.openshift.io/v1beta1
+        kind: MachineSet
+        namespace: "{{ namespace }}"
+      register: ms_list
+
+    - name: Pick the first *worker* MachineSet as a template
+      set_fact:
+        base_ms: "{{ item }}"
+      loop: "{{ ms_list.resources | sort(attribute='metadata.name') }}"
+      when:
+        - "'worker' in (item.metadata.labels['machine.openshift.io/cluster-api-machine-role'] | default(''))"
+      run_once: true
+
+    - name: Extract provider-specific details from the base MachineSet
+      set_fact:
+        azure_location: "{{ base_ms.spec.template.spec.providerSpec.value.location }}"
+        base_zone:      "{{ base_ms.spec.template.spec.providerSpec.value.zone }}"
+        resource_group: "{{ base_ms.spec.template.spec.providerSpec.value.resourceGroup }}"
+        network_resource_group: "{{ base_ms.spec.template.spec.providerSpec.value.networkResourceGroup }}"
+        vnet:           "{{ base_ms.spec.template.spec.providerSpec.value.vnet }}"
+        subnet:         "{{ base_ms.spec.template.spec.providerSpec.value.subnet }}"
+        image:          "{{ base_ms.spec.template.spec.providerSpec.value.image }}"
+        os_disk:        "{{ base_ms.spec.template.spec.providerSpec.value.osDisk }}"
+        user_data:      "{{ base_ms.spec.template.spec.providerSpec.value.userDataSecret }}"
+        cred_secret:    "{{ base_ms.spec.template.spec.providerSpec.value.credentialsSecret }}"
+        public_ip:      "{{ base_ms.spec.template.spec.providerSpec.value.publicIP | default(false) }}"
+
+    - name: Decide which availability zone to use
+      set_fact:
+        gpu_zone: "{{ (override_zone | trim) | default(base_zone, true) }}"
+
+    - name: Render GPU MachineSet manifest
+      template:
+        src:  templates/gpu-machineset-azure.j2
+        dest: /tmp/gpu-machineset-azure.yaml
+      vars:
+        ms_name: "nvidia-worker-{{ azure_location | replace(' ', '') }}{{ gpu_zone }}"
+
+    - name: Apply the GPU MachineSet
+      kubernetes.core.k8s:
+        state: present
+        src: /tmp/gpu-machineset-azure.yaml

@@ -1,0 +1,60 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    {{- toYaml .Values.vllmInferenceService.annotations | nindent 4 }}
+  name: {{ include "vllm-inference-service.fullname" . }}
+  labels:
+    opendatahub.io/dashboard: 'true'
+spec:
+  predictor:
+    annotations:
+      {{- toYaml .Values.vllmInferenceService.predictor.annotations | nindent 6 }}
+    maxReplicas: {{ .Values.vllmInferenceService.predictor.replicas }}
+    minReplicas: {{ .Values.vllmInferenceService.predictor.replicas }}
+    model:
+      modelFormat:
+        name: vLLM
+      name: ''
+      resources:
+        {{- toYaml .Values.vllmInferenceService.predictor.resources | nindent 8 }}
+      runtime: {{ include "vllm-inference-service.fullname" . }}
+    restartPolicy: Always
+    tolerations:
+      {{- toYaml .Values.vllmInferenceService.tolerations | nindent 6 }}
+    affinity:
+      {{- toYaml .Values.vllmInferenceService.predictor.affinity | nindent 6 }}
+    initContainers:
+      - name: download-model
+        image: registry.access.redhat.com/ubi9/python-39
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash", "-ec"]
+        args:
+          - |
+            pip install --no-cache-dir huggingface_hub
+            python - <<'PY'
+            from huggingface_hub import snapshot_download, login
+            import os
+            token = os.environ.get("HF_TOKEN")
+            model = os.environ.get("MODEL_ID")
+            login(token=token)
+            snapshot_download(
+                repo_id=model,
+                local_dir="/cache/models"
+            )
+            PY
+        env:
+          - name: HF_HOME
+            value: /cache
+          - name: HF_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: huggingface-secret
+                key: hftoken
+          - name: MODEL_ID
+            value: {{ .Values.global.model.vllm | quote }}
+        volumeMounts:
+          - name: models
+            mountPath: /cache/models
+          - name: cache
+            mountPath: /cache

@@ -1,7 +1,8 @@
+{{- if .Values.global.tgisServer.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: hf-text-generation-inference-server-model1
+  name: {{ include "tgis-server.fullname" . }}
   labels:
     {{- include "tgis-server.labels" . | nindent 4 }}
 spec:
@@ -17,4 +18,4 @@ spec:
   internalTrafficPolicy: Cluster
   selector:
     {{- include "tgis-server.selectorLabels" . | nindent 4 }}
-
+{{- end }}

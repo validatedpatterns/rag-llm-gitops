@@ -72,7 +72,7 @@
 
     - name: "[create-gpu-machine-set] Generate machineset"
       ansible.builtin.template:
-        src: templates/gpu-machine-sets.j2
+        src: templates/gpu-machineset.j2
         dest: /tmp/gpu-machineset.yaml
 
     - name: "[create-gpu-machine-set] Apply machineset to cluster {{ clusterId }}"

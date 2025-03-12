@@ -1,13 +1,12 @@
+{{- if .Values.global.tgisServer.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hf-text-generation-inference-server-model1
+  name: {{ include "tgis-server.fullname" . }}
   labels:
     {{- include "tgis-server.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
       {{- include "tgis-server.selectorLabels" . | nindent 6 }}
@@ -25,36 +24,69 @@ spec:
     spec:
       restartPolicy: Always
       schedulerName: default-scheduler
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       serviceAccountName: {{ include "tgis-server.serviceAccountName" . }}
       terminationGracePeriodSeconds: 120
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: download-model
+          image: registry.access.redhat.com/ubi9/python-39
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/bash", "-ec"]
+          args:
+            - |
+              pip install --no-cache-dir huggingface_hub
+              python - <<'PY'
+              from huggingface_hub import snapshot_download, login
+              import os
+              token = os.getenv("HF_TOKEN")
+              model = os.getenv("MODEL_ID")
+              login(token=token)
+              snapshot_download(
+                  repo_id=model,
+                  local_dir="/cache/models"
+              )
+              PY
+          env:
+            - name: HF_HOME
+              value: /cache
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: huggingface-secret
+                  key: hftoken
+            - name: MODEL_ID
+              value: {{ .Values.global.model.tgis | quote }}
+          volumeMounts:
+            - name: models
+              mountPath: /cache/models
+            - name: cache
+              mountPath: /cache
       containers:
         - name: {{ .Chart.Name }}
           env:
             - name: MODEL_ID
-              value: {{ .Values.env.MODEL_ID }}
+              value: {{ .Values.global.model.tgis }}
             - name: MAX_INPUT_LENGTH
-              value: {{ .Values.env.MAX_INPUT_LENGTH | quote }}
+              value: {{ .Values.env.maxInputLength | quote }}
             - name: MAX_TOTAL_TOKENS
-              value:  {{ .Values.env.MAX_TOTAL_TOKENS | quote }}
+              value:  {{ .Values.env.maxTotalTokens | quote }}
             - name: HUGGINGFACE_HUB_CACHE
-              value: {{ .Values.env.HUGGINGFACE_HUB_CACHE }}
+              value: /cache/models
             - name: PORT
-              value: {{ .Values.env.PORT | quote }}
+              value: {{ .Values.service.port | quote }}
             - name: HOST
-              value:  {{ .Values.env.HOST | quote }}
-            {{- with .Values.env.HF_TOKEN }}
+              value:  {{ .Values.env.host | quote }}
+            - name: HF_HOME
+              value: /cache
             - name: HF_TOKEN
-              {{- toYaml .Values.env.HF_TOKEN | nindent 14 }}
-            {{- end }}
+              valueFrom:
+                secretKeyRef:
+                  name: huggingface-secret
+                  key: hftoken
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -69,19 +101,34 @@ spec:
           startupProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           volumeMounts:
-            - name: models-cache
-              mountPath: /models-cache
+            - name: models
+              mountPath: /cache/models
             - name: shm
               mountPath: /dev/shm
+            - name: cache
+              mountPath: /cache
+            - name: triton
+              mountPath: /.triton
+            - name: out
+              mountPath: /usr/src/out
+            - name: flashinfer
+              mountPath: /.cache
           terminationMessagePolicy: File
       volumes:
-        - name: models-cache
-          persistentVolumeClaim:
-            claimName: {{ include "tgis-server.fullname" . }}
+        - name: models
+          emptyDir: {}
         - name: shm
           emptyDir:
             medium: Memory
             sizeLimit: 1Gi
+        - name: cache
+          emptyDir: {}
+        - name: triton
+          emptyDir: {}
+        - name: out
+          emptyDir: {}
+        - name: flashinfer
+          emptyDir: {}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -97,3 +144,4 @@ spec:
       {{- end }}
   strategy:
     type: Recreate
+{{- end }}

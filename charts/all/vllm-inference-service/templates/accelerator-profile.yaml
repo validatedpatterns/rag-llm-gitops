@@ -1,3 +1,4 @@
+{{- if .Values.acceleratorProfile.enabled }}
 apiVersion: dashboard.opendatahub.io/v1
 kind: AcceleratorProfile
 metadata:
@@ -8,6 +9,5 @@ spec:
   enabled: true
   identifier: nvidia.com/gpu
   tolerations:
-  - effect: NoSchedule
-    key: odh-notebook
-    operator: Exists
+    {{- toYaml .Values.vllmInferenceService.tolerations | nindent 4 }}
+{{- end }}

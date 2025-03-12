@@ -1,0 +1,44 @@
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  name: {{ ms_name }}
+  namespace: openshift-machine-api
+  labels:
+    machine.openshift.io/cluster-api-cluster: {{ cluster_id }}
+spec:
+  replicas: {{ gpu_replicas }}
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: {{ cluster_id }}
+      machine.openshift.io/cluster-api-machineset: {{ ms_name }}
+  template:
+    metadata:
+      labels:
+        machine.openshift.io/cluster-api-cluster: {{ cluster_id }}
+        machine.openshift.io/cluster-api-machine-role: worker
+        machine.openshift.io/cluster-api-machine-type: worker
+        machine.openshift.io/cluster-api-machineset: {{ ms_name }}
+    spec:
+      taints:
+        - key: odh-notebook
+          value: "true"
+          effect: NoSchedule
+      metadata:
+        labels:
+          node-role.kubernetes.io/odh-notebook: ''
+      providerSpec:
+        value:
+          apiVersion: machine.openshift.io/v1beta1
+          kind: AzureMachineProviderSpec
+          credentialsSecret: {{ cred_secret | to_json }}
+          location: {{ azure_location | to_json }}
+          zone: {{ gpu_zone | to_json }}
+          resourceGroup: {{ resource_group | to_json }}
+          networkResourceGroup: {{ network_resource_group | to_json }}
+          vnet: {{ vnet | to_json }}
+          subnet: {{ subnet | to_json }}
+          vmSize: {{ gpu_vm_size | to_json }}
+          image: {{ image | to_json }}
+          osDisk: {{ os_disk | to_json }}
+          publicIP: {{ public_ip | to_json }}
+          userDataSecret: {{ user_data | to_json }}

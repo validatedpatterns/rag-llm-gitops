@@ -1,6 +1,0 @@
-secretStore:
-  name: vault-backend
-  kind: ClusterSecretStore
-
-minio:
-  key: secret/data/hub/minio
