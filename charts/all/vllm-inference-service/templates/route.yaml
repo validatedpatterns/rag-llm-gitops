@@ -1,0 +1,21 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "vllm-inference-service.fullname" . }}
+  labels:
+    {{- include "vllm-inference-service.labels" . | nindent 4 }}
+  annotations:
+    haproxy.router.openshift.io/timeout: 5m
+    argocd.argoproj.io/sync-wave: "30"
+spec:
+  host: {{ printf "%s-predictor-%s.%s" (include "vllm-inference-service.fullname" .) .Release.Namespace .Values.global.localClusterDomain }}
+  port:
+    targetPort: http
+  tls:
+    insecureEdgeTerminationPolicy: Allow
+    termination: edge
+  to:
+    kind: Service
+    name: {{ printf "%s-predictor" (include "vllm-inference-service.fullname" .) }}
+    weight: 100
+  wildcardPolicy: None

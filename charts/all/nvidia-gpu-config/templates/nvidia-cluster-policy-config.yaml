@@ -32,8 +32,6 @@ spec:
     licensingConfig:
       configMapName: ''
       nlsEnabled: false
-    repoConfig:
-      configMapName: ''
     upgradePolicy:
       autoUpgrade: true
       drain:

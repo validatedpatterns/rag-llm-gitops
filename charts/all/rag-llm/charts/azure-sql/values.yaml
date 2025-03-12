@@ -1,0 +1,7 @@
+secretStore:
+  name: vault-backend
+  kind: ClusterSecretStore
+  key: secret/data/hub/azuresql
+
+driver: "ODBC Driver 18 for SQL Server"
+databaseName: embeddings

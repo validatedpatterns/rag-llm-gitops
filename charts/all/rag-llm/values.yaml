@@ -1,12 +1,14 @@
-
 global:
-  localClusterDomain: example.com
+  localClusterDomain: apps.example.com
   hubClusterDomain: example.com
   db:
     index: docs
     type: EDB
   model:
-    modelId: ibm-granite/granite-3.1-8b-instruct
+    vllm: ibm-granite/granite-3.3-8b-instruct
+    embedding: sentence-transformers/all-mpnet-base-v2
+    storageClass: gp3-csi
+
 llmui:
   namespace: "rag-llm"
 
@@ -14,10 +16,10 @@ llmui:
 replicaCount: 1
 
 image:
-  repository: 'quay.io/ecosystem-appeng/rag-llm-ui'
-  pullPolicy: IfNotPresent
+  repository: quay.io/dminnear/gradio-tgi-multi-model-rag
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.1"
+  tag: latest
 
 imagePullSecrets: []
 nameOverride: ""
@@ -69,7 +71,7 @@ resources:
 
 livenessProbe:
   httpGet:
-    path: /queue/status
+    path: /
     port: http
     scheme: HTTP
   timeoutSeconds: 8
@@ -79,7 +81,7 @@ livenessProbe:
 
 readinessProbe:
   httpGet:
-    path: /queue/status
+    path: /
     port: http
     scheme: HTTP
   timeoutSeconds: 5
@@ -89,7 +91,7 @@ readinessProbe:
 
 startupProbe:
   httpGet:
-    path: /queue/status
+    path: /
     port: http
     scheme: HTTP
   timeoutSeconds: 1
@@ -128,7 +130,7 @@ volumes:
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts:
   - name: providerconfig
-    mountPath: /app-root/config
+    mountPath: /opt/app-root/config
   - name: redis-schema
     mountPath: /opt/app-root/src/redis_schema.yaml
     subPath: redis_schema.yaml
@@ -161,23 +163,35 @@ route:
 populateDbJob:
   ## Job image
   image:
-    repository: "quay.io/ecosystem-appeng/embeddingjob"
-    tag: "0.0.4"
-    pullPolicy: IfNotPresent
-
-  command: ["/usr/bin/bash", "/app/entrypoint.sh"]
-  #args: ["echo 'consuming a message'; sleep 5"]
-
-  ## Define env
-  # env:
+    repository: quay.io/hybridcloudpatterns/vector-embedder
+    tag: latest
+    pullPolicy: Always
 
   ## Job configurations
   backoffLimit: 10
   restartPolicy: Never
 
-  doc_git_repo: https://github.com/RHEcosystemAppEng/llm-on-openshift.git
-  doc_location: examples/notebooks/langchain/rhods-doc
-  doc_dir: /docs
+  # Environment overrides
+  tempDir: /docs
+  logLevel: info
+  repoSources:
+    - repo: https://github.com/RHEcosystemAppEng/llm-on-openshift.git
+      globs:
+        - examples/notebooks/langchain/rhods-doc/*.pdf
+  webSources:
+    - https://ai-on-openshift.io/getting-started/openshift/
+    - https://ai-on-openshift.io/getting-started/opendatahub/
+    - https://ai-on-openshift.io/getting-started/openshift-ai/
+    - https://ai-on-openshift.io/odh-rhoai/configuration/
+    - https://ai-on-openshift.io/odh-rhoai/custom-notebooks/
+    - https://ai-on-openshift.io/odh-rhoai/nvidia-gpus/
+    - https://ai-on-openshift.io/odh-rhoai/custom-runtime-triton/
+    - https://ai-on-openshift.io/odh-rhoai/openshift-group-management/
+    - https://ai-on-openshift.io/tools-and-applications/minio/minio/
+  chunking:
+    size: 1024
+    overlap: 40
+  embeddingModel: sentence-transformers/all-mpnet-base-v2
 
 
   # By default, fullname uses '{{ .Release.Name }}-{{ .Chart.Name }}'. This
@@ -201,7 +215,7 @@ populateDbJob:
   #    memory: 500Mi
 
   securityContext:
-    runAsUser: 
+    runAsUser:
     runAsGroup:
     fsGroup:
 
@@ -210,7 +224,7 @@ populateDbJob:
       name: cache-volume
     - mountPath: /docs/
       name: doc-volume
-  
+
   volumes:
     - name: cache-volume
       emptyDir:

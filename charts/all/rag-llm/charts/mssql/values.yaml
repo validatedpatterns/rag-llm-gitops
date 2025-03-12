@@ -1,0 +1,52 @@
+global:
+  storageClass: gp3-csi
+
+secretStore:
+  name: vault-backend
+  kind: ClusterSecretStore
+  mssqlSecretKey: secret/data/hub/mssql
+
+replicas: 1
+
+image:
+  repository: mcr.microsoft.com/mssql/rhel/server
+  tag: 2025-latest
+  pullPolicy: IfNotPresent
+
+ACCEPT_EULA:
+    value: "y"
+MSSQL_PID:
+    value: "Developer"
+MSSQL_AGENT_ENABLED:
+    value: "true"
+hostname: mssqllatest
+containers:
+  ports:
+    containerPort: 1433
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroupChangePolicy: OnRootMismatch
+
+containerSecurityContext:
+  capabilities:
+    add:
+      - NET_BIND_SERVICE
+
+service:
+  type: ClusterIP
+  port: 1433
+
+pvc:
+ userdbaccessMode: ReadWriteOnce
+ userdbsize: 5Gi
+ userlogaccessMode: ReadWriteOnce
+ userlogsize: 5Gi
+ tempdbaccessMode: ReadWriteOnce
+ tempsize: 2Gi
+ mssqldataaccessMode: ReadWriteOnce
+ mssqldbsize: 2Gi
+
+driver: "ODBC Driver 18 for SQL Server"
+databaseName: embeddings

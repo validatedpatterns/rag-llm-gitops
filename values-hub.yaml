@@ -1,6 +1,7 @@
 clusterGroup:
   name: hub
   isHubCluster: true
+
   namespaces:
     - open-cluster-management
     - vault
@@ -12,7 +13,7 @@ clusterGroup:
         targetNamespaces: []
     - rag-llm:
         operatorGroup: true
-        targetNamespaces: 
+        targetNamespaces:
           - rag-llm
         labels:
           opendatahub.io/dashboard: "true"
@@ -20,71 +21,43 @@ clusterGroup:
     - openshift-serverless:
         operatorGroup: true
         targetNamespaces: []
+
   subscriptions:
-    # Don't install RHOAI via validated patterns
-    # RHOAI must be installed after service mesh and other dependencies are installed or it will break. 
-    # The RHOAI Application will install the operator after a validation check has passed
     nfd:
       name: nfd
       namespace: openshift-nfd
-      channel: stable
     nvidia:
       name: gpu-operator-certified
       namespace: nvidia-gpu-operator
-      channel: v24.6
       source: certified-operators
     edb:
       name: cloud-native-postgresql
       namespace: openshift-operators
-      channel: stable-v1.23
       source: certified-operators
     elastic:
       name: elasticsearch-eck-operator-certified
       namespace: rag-llm
-      channel: stable
       source: certified-operators
-      sourceNamespace: openshift-marketplace
     serverless:
       name: serverless-operator
       namespace: openshift-serverless
-      channel: stable
     servicemesh:
       name: servicemeshoperator
       namespace: openshift-operators
-      channel: stable
     rhoai:
       name: rhods-operator
       namespace: redhat-ods-operator
-      channel: stable-2.19
-      source: redhat-operators
-      sourceNamespace: openshift-marketplace
+
   projects:
     - hub
     - rag-llm
     - llm-monitoring
     - gpu-config
     - openshift-ai
-  # Explicitly mention the cluster-state based overrides we plan to use for this pattern.
-  # We can use self-referential variables because the chart calls the tpl function with these variables defined
+
   sharedValueFiles:
     - '/overrides/values-{{ $.Values.global.clusterPlatform }}.yaml'
-    - 'values-rag-llm-gitops.yaml'
-  # sharedValueFiles is a flexible mechanism that will add the listed valuefiles to every app defined in the
-  # applications section. We intend this to supplement and possibly even replace previous "magic" mechanisms, though
-  # we do not at present have a target date for removal.
-  #
-  # To replicate the "classic" magic include structure, the clusterGroup would need all of these
-  # sharedValueFiles, in this order:
-  #   - '/overrides/values-{{ $.Values.global.clusterPlatform }}.yaml'
-  #   - '/overrides/values-{{ $.Values.global.clusterPlatform }}-{{ $.Values.global.clusterVersion }}.yaml'
-  #   - '/overrides/values-{{ $.Values.global.clusterPlatform }}-{{ $.Values.clusterGroup.name }}.yaml'
-  #   - '/overrides/values-{{ $.Values.global.clusterVersion }}-{{ $.Values.clusterGroup.name }}.yaml"
-  #   - '/overrides/values-{{ $.Values.global.localClusterName }}.yaml'
 
-  # This kind of variable substitution will work with any of the variables the Validated Patterns operator knows
-  # about and sets, so this is also possible, for example:
-  #   - '/overrides/values-{{ $.Values.global.hubClusterDomain }}.yaml'
-  #   - '/overrides/values-{{ $.Values.global.localClusterDomain }}.yaml'
   applications:
     vault:
       name: vault
@@ -98,20 +71,16 @@ clusterGroup:
       project: hub
       chart: golang-external-secrets
       chartVersion: 0.1.*
-    minio:
-      name: minio
+    vllm-inference-service:
+      name: vllm-inference-service
       namespace: rag-llm
       project: hub
-      path: charts/all/minio
-    llm-serving-service:
-      name: llm-serving-service
-      namespace: rag-llm
-      project: hub
-      path: charts/all/llm-serving-service
+      path: charts/all/vllm-inference-service
       syncPolicy:
-        automated: {}
+        automated:
+          selfHeal: true
         retry:
-          limit: 50
+          limit: 20
     rag-llm:
       name: rag-llm
       namespace: rag-llm
@@ -123,57 +92,28 @@ clusterGroup:
       project: llm-monitoring
       kustomize: true
       path: charts/all/llm-monitoring/kustomize/overlays/dev
-
     nfd-config:
       name: nfd-config
       namespace: openshift-cfd
       project: gpu-config
       path: charts/all/nfd-config
-
     nvidia-config:
       name: nvidia-config
       namespace: nvidia-network-operator
       project: gpu-config
       path: charts/all/nvidia-gpu-config
-
     llm-ui-config:
       name: rag-llm-ui-config
       namespace: rag-llm
       project: gpu-config
       path: charts/all/rag-llm-ui-config
-
     llm-monitoring-config:
       name: grafana-ui-config
       namespace: llm-monitoring
       project: gpu-config
       path: charts/all/llm-monitoring-config
-
     openshift-ai:
       name: openshift-ai
       namespace: redhat-ods-operator
       project: openshift-ai
       path: charts/all/rhods
-
-  imperative:
-    # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm
-    # The default schedule is every 10 minutes: imperative.schedule
-    # Total timeout of all jobs is 1h: imperative.activeDeadlineSeconds
-    # imagePullPolicy is set to always: imperative.imagePullPolicy
-    # For additional overrides that apply to the jobs, please refer to
-    # https://hybrid-cloud-patterns.io/imperative-actions/#additional-job-customizations
-    jobs:
-      - name: hello-world
-        # ansible playbook to be run
-        playbook: rhvp.cluster_utils.hello_world
-        # per playbook timeout in seconds
-        timeout: 234
-        # verbosity: "-v"
-  managedClusterGroups:
-    exampleRegion:
-      name: group-one
-      acmlabels:
-        - name: clusterGroup
-          value: group-one
-      helmOverrides:
-        - name: clusterGroup.isHubCluster
-          value: false
