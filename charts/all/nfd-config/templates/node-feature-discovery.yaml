@@ -6,7 +6,7 @@ metadata:
 spec:
   operand:
     image: >-
-      registry.redhat.io/openshift4/ose-node-feature-discovery@sha256:5f92998549dccf26d07138c2f556444e8a81ac41e53a398d9c3f43bc31c20a47
+      registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9:v{{ .Values.global.clusterVersion }}
     servicePort: 12000
   workerConfig:
     configData: |
@@ -116,4 +116,3 @@ spec:
       #            vendor: ["15b3"]
       #            device: ["1014", "1017"]
       #          loadedKMod : ["vendor_kmod1", "vendor_kmod2"]
-
