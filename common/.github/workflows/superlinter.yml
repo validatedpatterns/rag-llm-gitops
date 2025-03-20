@@ -1,0 +1,44 @@
+---
+name: Super linter
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    # Name the Job
+    name: Super linter
+    # Set the agent to run on
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          # Full git history is needed to get a proper list of changed files within `super-linter`
+          fetch-depth: 0
+
+      ################################
+      # Run Linter against code base #
+      ################################
+      - name: Lint Code Base
+        uses: super-linter/super-linter/slim@v7
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # These are the validation we disable atm
+          VALIDATE_ANSIBLE: false
+          VALIDATE_BASH: false
+          VALIDATE_CHECKOV: false
+          VALIDATE_JSCPD: false
+          VALIDATE_JSON_PRETTIER: false
+          VALIDATE_MARKDOWN_PRETTIER: false
+          VALIDATE_KUBERNETES_KUBECONFORM: false
+          VALIDATE_PYTHON_PYLINT: false
+          VALIDATE_SHELL_SHFMT: false
+          VALIDATE_YAML: false
+          VALIDATE_YAML_PRETTIER: false
+          # VALIDATE_DOCKERFILE_HADOLINT: false
+          # VALIDATE_MARKDOWN: false
+          # VALIDATE_NATURAL_LANGUAGE: false
+          # VALIDATE_TEKTON: false
