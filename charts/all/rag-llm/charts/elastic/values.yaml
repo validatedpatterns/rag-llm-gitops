@@ -1,0 +1,6 @@
+# Default values for elastic.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Define Elastic Search cluster version
+elasticVersion: "8.15.0"
