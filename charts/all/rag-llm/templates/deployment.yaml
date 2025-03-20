@@ -88,6 +88,21 @@ spec:
             - name: PGVECTOR_COLLECTION_NAME
               value: {{ .Values.global.db.index }}
         {{- end }}
+        {{- if eq .Values.global.db.type "ELASTIC" }}
+            - name: DB_TYPE
+              value: "ELASTIC"
+            - name: ELASTIC_INDEX
+              value: {{ .Values.global.db.index }}
+            - name: ELASTIC_URL
+              value: "http://es-vectordb-es-http:9200"
+            - name: ELASTIC_USER
+              value: "elastic"
+            - name: ELASTIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: es-vectordb-es-elastic-user
+                  key: elastic
+          {{- end }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
