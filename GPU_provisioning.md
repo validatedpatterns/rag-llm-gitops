@@ -43,11 +43,18 @@ spec:
 
 Use `kubectl` or `oc` command line to create new machineset `oc apply -f gpu_machineset.yaml`
 
-Depending on type of EC2 instance creation of the new machines make take some time. Please note that all nodes with GPU will have labels(`node-role.kubernetes.io/odh-notebook`in our case) and taints (`odh-notebook `) that we have specified in machineset applied automatically
+Depending on type of EC2 instance creation of the new machines make take some
+time. Please note that all nodes with GPU will have
+labels(`node-role.kubernetes.io/odh-notebook` in our case) and taints
+(`odh-notebook`) that we have specified in machineset applied automatically
 
 ## Install Node Feature Operator
 
-From OperatorHub install `Node Feature Discovery Operator` , accepting defaults . Once Operator has been installed , create `NodeFeatureDiscovery`instance . Use default entries unless you something specific is needed . Node Feature Discovery Operator will add labels to nodes based on available hardware resources
+From OperatorHub install `Node Feature Discovery Operator` , accepting
+defaults. Once Operator has been installed, create
+`NodeFeatureDiscovery`instance. Use default entries unless you something
+specific is needed. Node Feature Discovery Operator will add labels to nodes
+based on available hardware resources.
 
 ![Diagram](images/node-feature-discovery.png)
 

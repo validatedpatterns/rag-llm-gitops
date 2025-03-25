@@ -1,10 +1,11 @@
-# Test Cases for E2E Demo.
+# Test Cases for End-to-End Demo
 
 - [Provisioning of GPU Node](https://github.com/validatedpatterns-sandbox/rag-llm-gitops/blob/main/GPU_provisioning.md)
 
   - MachineSet is created.
-    - Name of the machine set <clustername>-gpu-<AWSregion>. This should not be a hard requirement though. 
+    - Name of the machine set <clustername>-gpu-<AWSregion>. This should not be a hard requirement though.
     - Machine set has taint section
+
       ```yaml
       taints:
         - effect: NoSchedule
@@ -13,6 +14,7 @@
       ```
 
     - MachineSet has a label
+
       ```yaml
        metadata:
          labels:
@@ -20,6 +22,7 @@
       ```
 
     - MachineSet instance type
+
       ```yaml
        providerSpec:
          value:
@@ -40,16 +43,16 @@
     - Click on the Node Feature Discovery Operator. Under NodeFeatureDiscovery an instance should be created. Status should be Available.
       ![nfd instance](https://validatedpatterns.io/images/rag-llm-gitops/ragllm-nfd-instance.png)
 
-
   - Verify NVIDIA GPU Operator is installed.
     - NVIDIA GPU Operator is installed
-      
+
       ![nvidia operator](https://validatedpatterns.io/images/rag-llm-gitops/ragllm-nvidia-operator.png)
 
     - Click on the NVIDIA GPU Operator and click on ClusterPolicy. A gpu-cluster-policy should exist
-      ![nvidia clusterpolicies](https://validatedpatterns.io/images/rag-llm-gitops/ragllm-nvidia-clusterpolicies.png)    
+      ![nvidia clusterpolicies](https://validatedpatterns.io/images/rag-llm-gitops/ragllm-nvidia-clusterpolicies.png)
 
     - Click on the gpu-cluster-policy and click on the YAML tab. The YAML should contain the tolerations
+
       ```yaml
        tolerations:
          - effect: NoSchedule
@@ -59,13 +62,13 @@
 
 - Application provisioned correctly.
   - Click on the rag-llm namespace
-  
+
     - By Default, EDB Operator will be deployed, which will deploy PGVECTOR vector database, 6 pods should be running
       ![ragllm pgvector pods](https://validatedpatterns.io/images/rag-llm-gitops/rag-llm-pgvector.png)
 
     - If the global.db.type is set to REDIS in the values-global.yaml, four pods should be running
       ![ragllm pods](https://validatedpatterns.io/images/rag-llm-gitops/rag-llm.png)
-  
+
     - Click on Networking → Routes from the left Navigation panel. An llm-ui route should exist
       ![llm-ui route](https://validatedpatterns.io/images/rag-llm-gitops/ragllm-application_route.png)
 
@@ -88,10 +91,5 @@
       - Enter the Grafana admin credentials.
       - Ratings are displayed for each model
     - Grafana Dashboard is displayed
-      
+
       ![llm-ui grafana](https://validatedpatterns.io/images/rag-llm-gitops/ragllm-grafana.png)
-
-
-
-	
-

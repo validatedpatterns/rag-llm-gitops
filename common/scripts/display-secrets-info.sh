@@ -10,10 +10,6 @@ SCRIPT=$(get_abs_filename "$0")
 SCRIPTPATH=$(dirname "${SCRIPT}")
 COMMONPATH=$(dirname "${SCRIPTPATH}")
 PATTERNPATH=$(dirname "${COMMONPATH}")
-ANSIBLEPATH="$(dirname ${SCRIPTPATH})/ansible"
-PLAYBOOKPATH="${ANSIBLEPATH}/playbooks"
-
-export ANSIBLE_CONFIG="${ANSIBLEPATH}/ansible.cfg"
 
 if [ "$#" -ge 1 ]; then
     export VALUES_SECRET=$(get_abs_filename "${1}")
@@ -27,4 +23,6 @@ fi
 
 PATTERN_NAME=$(basename "`pwd`")
 
-ansible-playbook -e pattern_name="${PATTERN_NAME}" -e pattern_dir="${PATTERNPATH}" -e secrets_backing_store="${SECRETS_BACKING_STORE}" -e override_no_log=false "${PLAYBOOKPATH}/process_secrets/display_secrets_info.yml"
+EXTRA_PLAYBOOK_OPTS="${EXTRA_PLAYBOOK_OPTS:-}"
+
+ansible-playbook -e pattern_name="${PATTERN_NAME}" -e pattern_dir="${PATTERNPATH}" -e secrets_backing_store="${SECRETS_BACKING_STORE}" -e hide_sensitive_output=false ${EXTRA_PLAYBOOK_OPTS} "rhvp.cluster_utils.display_secrets_info"
