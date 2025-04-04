@@ -2,6 +2,12 @@
 global:
   localClusterDomain: example.com
   hubClusterDomain: example.com
+  db:
+    index: docs
+    type: EDB
+# Add for model ID
+  model:
+      modelId: ibm-granite/granite-3.1-8b-instruct
 llmui:
   namespace: "rag-llm"
 
@@ -9,10 +15,10 @@ llmui:
 replicaCount: 1
 
 image:
-  repository:  'quay.io/ecosystem-appeng/gradio-tgi-multi-model-rag'
+  repository:  'quay.io/ecosystem-appeng/rag-llm-ui'
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.3.0"
+  tag: "1.0"
 
 imagePullSecrets: []
 nameOverride: ""
