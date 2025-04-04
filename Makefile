@@ -16,7 +16,7 @@ install: operator-deploy post-install ## installs the pattern and loads the secr
 	@echo "Installed"
 
 .PHONY: create-gpu-machineset
-create-gpu-machineset:
+create-gpu-machineset: ## Creates a gpu machineset
 	ansible-playbook ansible/playbooks/create-gpu-machine-set.yaml
 
 .PHONY: post-install

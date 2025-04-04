@@ -1,5 +1,13 @@
 # Changes
 
+## Sep 24, 2024
+
+* Ansible has been moved out of the common code tree, you must use a clustergroup chart that is >= 0.9.1
+
+## Sep 6, 2024
+
+* Most charts have been removed from the tree. To get the charts you now have to point to them
+
 ## Sep 25, 2023
 
 * Upgraded ESO to v0.9.5
@@ -124,7 +132,7 @@
 ## October 3, 2022
 
 * Restore the ability to install a non-default site: `make TARGET_SITE=mysite install`
-* Revised tests (new output and filenames, requires adding new result files to git)
+* Revised tests (new output and filenames, requires adding new result files to Git)
 * ACM 2.6 required for ACM-based managed sites
 * Introduced global.clusterDomain template variable (without the `apps.` prefix)
 * Removed the ability to send specific charts to another cluster, use hosted argo sites instead

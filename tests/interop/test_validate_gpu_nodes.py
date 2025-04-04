@@ -1,14 +1,13 @@
+import logging
 import os
 import re
 import subprocess
+
 import pytest
-import logging
-import yaml
 from ocp_resources.machine_set import MachineSet
 from ocp_resources.node import Node
-from ocp_resources.pod import Pod
+
 from . import __loggername__
-from openshift.dynamic.exceptions import NotFoundError
 
 logger = logging.getLogger(__loggername__)
 
@@ -34,7 +33,7 @@ def test_validate_gpu_nodes(openshift_dyn_client):
             break
 
     err_msg = "GPU machineset not found"
-    if found == True:
+    if found:
         logger.info(
             f"PASS: Found GPU machineset: {gpu_machineset.instance.metadata.name}"
         )
@@ -129,7 +128,7 @@ def test_validate_gpu_node_role_labels_pods(openshift_dyn_client):
     # logger.info(node_count)
 
     if len(gpu_nodes) == 3:
-        logger.info(f"PASS: Found 'worker' and 'odh-notebook' GPU node-role labels")
+        logger.info("PASS: Found 'worker' and 'odh-notebook' GPU node-role labels")
     else:
         err_msg = "Could not find 'worker' and 'odh-notebook' GPU node-role label"
         logger.error(f"FAIL: {err_msg}")
@@ -171,4 +170,4 @@ def test_validate_gpu_node_role_labels_pods(openshift_dyn_client):
         logger.error(f"FAIL: {err_msg}")
         assert False, err_msg
     else:
-        logger.info(f"PASS: Found the expected pod count for GPU nodes")
+        logger.info("PASS: Found the expected pod count for GPU nodes")
