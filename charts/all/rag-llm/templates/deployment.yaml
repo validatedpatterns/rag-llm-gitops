@@ -34,6 +34,8 @@ spec:
         - name: {{ .Chart.Name }}
           terminationMessagePath: /dev/termination-log
           env:
+            - name: HUGGINGFACE_HUB_CACHE
+              value: /tmp/.cache
             - name: CONFIG_FILE
               value: /app-root/config/config.yaml
             - name: APP_TITLE
