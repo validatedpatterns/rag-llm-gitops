@@ -151,7 +151,7 @@ Alternatiely, follow the [instructions](./GPU_provisioning.md) to manually insta
 
 ### Deploy application
 
-***Note:**: This pattern supports two types of vector databases, EDB Postgres for Kubernetes and Redis. By default the pattern will deploy EDB Postgres for Kubernetes as a vector DB. To deploy Redis, change the global.db.type to REDIS in [values-global.yaml](./values-global.yaml).
+***Note:**: This pattern supports three types of vector databases, EDB Postgres for Kubernetes, Elasticsearch and Redis. By default the pattern will deploy EDB Postgres for Kubernetes as a vector DB. To deploy Redis, change the global.db.type to REDIS in [values-global.yaml](./values-global.yaml).
 
 ```yaml
 ---
@@ -161,10 +161,10 @@ global:
     useCSV: false
     syncPolicy: Automatic
     installPlanApproval: Automatic
-# Possible value for db.type = [REDIS, EDB]
+# Possible value for db.type = [REDIS, EDB, ELASTIC]
   db:
     index: docs
-    type: EDB  # <--- Default is EDB, Change the db type to REDIS for Redis deployment
+    type: EDB  # <--- Default is EDB, Change the db type to REDIS for Redis deployment or ELASTIC for Elasticsearch
 main:
   clusterGroupName: hub
   multiSourceConfig:
