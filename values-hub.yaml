@@ -11,6 +11,9 @@ clusterGroup:
         operatorGroup: true
         targetNamespaces: []
     - rag-llm:
+        operatorGroup: true
+        targetNamespaces: 
+          - rag-llm
         labels:
           opendatahub.io/dashboard: "true"
           modelmesh-enabled: 'false'
@@ -35,6 +38,12 @@ clusterGroup:
       namespace: openshift-operators
       channel: stable-v1.23
       source: certified-operators
+    elastic:
+      name: elasticsearch-eck-operator-certified
+      namespace: rag-llm
+      channel: stable
+      source: certified-operators
+      sourceNamespace: openshift-marketplace
     serverless:
       name: serverless-operator
       namespace: openshift-serverless

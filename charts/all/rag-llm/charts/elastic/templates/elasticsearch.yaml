@@ -1,0 +1,23 @@
+{{- if eq .Values.global.db.type "ELASTIC" }}
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: es-vectordb
+spec:
+  auth: {}
+  http:
+    tls:
+      selfSignedCertificate:
+        disabled: true
+  nodeSets:
+    - config:
+        node.store.allow_mmap: false
+      count: 1
+      name: default
+      podTemplate:
+        metadata:
+          creationTimestamp: null
+        spec:
+          containers: null
+  version: {{ .Values.elasticVersion }}
+{{- end }}

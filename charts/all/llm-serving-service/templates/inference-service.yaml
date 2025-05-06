@@ -12,6 +12,8 @@ metadata:
     opendatahub.io/dashboard: 'true'
 spec:
   predictor:
+    annotations:
+      serving.knative.dev/progress-deadline: 30m
     maxReplicas: 1
     minReplicas: 1
     model:
