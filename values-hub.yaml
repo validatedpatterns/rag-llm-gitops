@@ -55,7 +55,7 @@ clusterGroup:
     rhoai:
       name: rhods-operator
       namespace: redhat-ods-operator
-      channel: stable-2.16
+      channel: stable-2.19
       source: redhat-operators
       sourceNamespace: openshift-marketplace
   projects:
