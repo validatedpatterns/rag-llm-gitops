@@ -1,0 +1,24 @@
+{{- if .Values.global.tgisServer.enabled }}
+{{- if .Values.route.enabled }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "tgis-server.fullname" . }}
+  labels:
+    {{- include "tgis-server.labels" . | nindent 4 }}
+  annotations:
+    haproxy.router.openshift.io/timeout: 5m
+spec:
+  host: {{ printf "%s-%s.%s" (include "tgis-server.fullname" .) .Release.Namespace .Values.global.localClusterDomain }}
+  port:
+    targetPort: http
+  tls:
+    insecureEdgeTerminationPolicy: Allow
+    termination: edge
+  to:
+    kind: Service
+    name: {{ include "tgis-server.fullname" . }}
+    weight: 100
+  wildcardPolicy: None
+{{- end }}
+{{- end }}

@@ -1,0 +1,57 @@
+# Default values for mssql.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+secretStore:
+  name: vault-backend
+  kind: ClusterSecretStore
+  mssqlSecretKey: secret/data/hub/mssql
+
+replicas: 1
+
+image:
+  #repository: mcr.microsoft.com/mssql/server
+  registry: sqlservereap.azurecr.io
+  repository: sqlservereap.azurecr.io/mssql-sql2025-ctp1-3-release/mssql-server-rhel9
+  tag: 17.0.400.5_4
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  #tag: "2022-latest"
+
+ACCEPT_EULA:
+    value: "y"
+MSSQL_PID:
+    value: "Developer"
+MSSQL_AGENT_ENABLED:
+    value: "true"
+hostname: mssqllatest
+containers:
+  ports:
+    containerPort: 1433
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroupChangePolicy: OnRootMismatch
+
+containerSecurityContext:
+  capabilities:
+    add:
+      - NET_BIND_SERVICE
+
+service:
+  type: ClusterIP
+  port: 1433
+
+pvc:
+ StorageClass: "gp3-csi"
+ userdbaccessMode: ReadWriteOnce
+ userdbsize: 5Gi
+ userlogaccessMode: ReadWriteOnce
+ userlogsize: 5Gi
+ tempdbaccessMode: ReadWriteOnce
+ tempsize: 2Gi
+ mssqldataaccessMode: ReadWriteOnce
+ mssqldbsize: 2Gi
+
+driver: "ODBC Driver 18 for SQL Server"
+databaseName: embeddings

@@ -1,0 +1,17 @@
+global:
+  db:
+    type: AZURESQL
+  model:
+    vllm: solidrust/Mistral-7B-Instruct-v0.3-AWQ
+  tgisServer:
+    enabled: false
+
+vllmServingRuntime:
+  args:
+    - "--model=/cache/models"
+    - "--distributed-executor-backend=mp"
+    - "--max-model-len=4096"
+    - "--quantization=awq"
+    - "--gpu-memory-utilization"
+    - "0.98"
+    - "--enforce-eager"
