@@ -2,10 +2,10 @@ llm_providers:
   - name: "OpenShift AI (vLLM)"
     enabled: True
     models:
-      - name: ibm-granite-instruct
+      - name: {{ (split "/" .Values.global.model.vllm)._1 }}
         weight: 1
         enabled: True
-        url: https://ibm-granite-instruct-{{ .Values.llmui.namespace }}.{{ coalesce .Values.global.localClusterDomain .Values.global.hubClusterDomain }}/v1
+        url: {{ printf "https://vllm-inference-service-predictor-%s.%s/v1" .Release.Namespace .Values.global.localClusterDomain }}
         params:
           - name: max_new_tokens
             value: 1024
@@ -22,6 +22,6 @@ llm_providers:
           - name: typical_p
             value: 0.95
 default_provider: "OpenShift AI (vLLM)"
-default_model: {{ .Values.global.model.modelId }}
+default_model: {{ .Values.global.model.vllm }}
 # type values=(default, round_robin,  all)
 type: all

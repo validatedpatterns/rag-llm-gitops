@@ -1,0 +1,61 @@
+global:
+  model:
+    vllm: ibm-granite/granite-3.3-8b-instruct
+
+vllmInferenceService:
+  annotations:
+    openshift.io/display-name: vllm-inference
+    serving.kserve.io/deploymentMode: RawDeployment
+    argocd.argoproj.io/sync-wave: "20"
+
+  predictor:
+    annotations:
+      serving.knative.dev/progress-deadline: 30m
+    replicas: 1
+    resources:
+      limits:
+        nvidia.com/gpu: '1'
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: nvidia.com/gpu.present
+                  operator: In
+                  values: ["true"]
+
+  tolerations:
+    - effect: NoSchedule
+      key: odh-notebook
+      operator: Exists
+
+vllmServingRuntime:
+  annotations:
+    opendatahub.io/accelerator-name: nvidia-gpu
+    opendatahub.io/apiProtocol: REST
+    opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+    openshift.io/display-name: vllm-inference
+    argocd.argoproj.io/sync-wave: "20"
+
+  args:
+    - "--model=/cache/models"
+    - "--distributed-executor-backend=mp"
+    - "--max-model-len=4096"
+    - "--dtype=half"
+    - "--gpu-memory-utilization"
+    - "0.98"
+    - "--enforce-eager"
+
+  command:
+    - python
+    - '-m'
+    - vllm.entrypoints.openai.api_server
+
+  image:
+    repository: quay.io/modh/vllm
+    tag: rhoai-2.20-cuda
+
+  port: 8080
+
+acceleratorProfile:
+  enabled: true

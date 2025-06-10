@@ -1,0 +1,17 @@
+global:
+  db:
+    type: MSSQL
+  model:
+    vllm: solidrust/Mistral-7B-Instruct-v0.3-AWQ
+    embedding: sentence-transformers/distiluse-base-multilingual-cased
+  storageClass: azurefile-csi
+
+vllmServingRuntime:
+  args:
+    - "--model=/cache/models"
+    - "--distributed-executor-backend=mp"
+    - "--max-model-len=4096"
+    - "--quantization=awq"
+    - "--gpu-memory-utilization"
+    - "0.98"
+    - "--enforce-eager"

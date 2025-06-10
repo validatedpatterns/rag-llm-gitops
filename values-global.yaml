@@ -5,13 +5,22 @@ global:
     useCSV: false
     syncPolicy: Automatic
     installPlanApproval: Automatic
-# Possible value for db.type = [REDIS, EDB, ELASTIC]
+  # Possible values for RAG vector DB db.type:
+  #   REDIS    -> Redis (Local chart deploy)
+  #   EDB      -> PGVector (Local chart deploy)
+  #   ELASTIC  -> Elasticsearch (Local chart deploy)
+  #   MSSQL    -> MS SQL Server (Local chart deploy)
+  #   AZURESQL -> Azure SQL (Pre-existing in Azure)
   db:
     index: docs
     type: EDB
-# Add for model ID
+  # Models used by the inference service (should be a HuggingFace model ID)
   model:
-      modelId: ibm-granite/granite-3.1-8b-instruct
+    vllm: ibm-granite/granite-3.3-8b-instruct
+    embedding: sentence-transformers/all-mpnet-base-v2
+
+  storageClass: gp3-csi
+
 main:
   clusterGroupName: hub
   multiSourceConfig:

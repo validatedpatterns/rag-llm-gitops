@@ -3,7 +3,7 @@ kind: DataScienceCluster
 metadata:
   name: default-dsc
   annotations:
-    argocd.argoproj.io/sync-wave: "20"
+    argocd.argoproj.io/sync-wave: "10"
 spec:
   components:
     dashboard:
@@ -28,3 +28,4 @@ spec:
             type: SelfSigned
         managementState: Managed
         name: knative-serving
+      rawDeploymentServiceConfig: Headed

@@ -26,16 +26,20 @@ spec:
         imagePullPolicy: {{ .Values.populateDbJob.image.pullPolicy }}
         name: populate-vectordb
         env:
-        - name: TRANSFORMERS_CACHE
-          value: '/cache/.cache'
-        - name: SENTENCE_TRANSFORMERS_HOME
-          value: '/cache/.cache'
-        - name: DOC_GIT_REPO
-          value: {{ .Values.populateDbJob.doc_git_repo | quote }}
-        - name: DOC_LOCATION
-          value:  {{ .Values.populateDbJob.doc_location | quote }}
         - name: TEMP_DIR
-          value: {{ .Values.populateDbJob.doc_dir | quote }}
+          value: {{ .Values.populateDbJob.tempDir }}
+        - name: LOG_LEVEL
+          value: {{ .Values.populateDbJob.logLevel }}
+        - name: REPO_SOURCES
+          value: {{ .Values.populateDbJob.repoSources | toJson | quote }}
+        - name: WEB_SOURCES
+          value: {{ .Values.populateDbJob.webSources | toJson | quote }}
+        - name: CHUNK_SIZE
+          value: {{ .Values.populateDbJob.chunking.size | quote }}
+        - name: CHUNK_OVERLAP
+          value: {{ .Values.populateDbJob.chunking.overlap | quote }}
+        - name: EMBEDDING_MODEL
+          value: {{ .Values.global.model.embedding }}
       {{- if eq .Values.global.db.type "REDIS" }}
         - name: DB_TYPE
           value: "REDIS"
@@ -98,8 +102,32 @@ spec:
             secretKeyRef:
               name: es-vectordb-es-elastic-user
               key: elastic
+      {{- end }}
+      {{- if eq .Values.global.db.type "MSSQL" }}
+        - name: DB_TYPE
+          value: MSSQL
+        - name: MSSQL_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: mssql-secret
+              key: CONNECTION_STRING
+        - name: MSSQL_TABLE
+          value: {{ .Values.global.db.index }}
+      {{- end }}
+      {{- if eq .Values.global.db.type "AZURESQL" }}
+        - name: DB_TYPE
+          value: MSSQL
+        - name: MSSQL_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: azuresql-secret
+              key: CONNECTION_STRING
+        - name: MSSQL_TABLE
+          value: {{ .Values.global.db.index }}
+      {{- end }}
+        {{- if .Values.populateDbJob.command }}
+        command: {{ .Values.populateDbJob.command }}
         {{- end }}
-        command: ["/usr/bin/bash", "/app/entrypoint.sh"]
         {{- if .Values.populateDbJob.args }}
         args: {{ .Values.populateDbJob.args }}
         {{- end }}

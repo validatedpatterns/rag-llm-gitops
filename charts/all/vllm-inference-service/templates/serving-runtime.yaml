@@ -1,0 +1,56 @@
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  annotations:
+    {{- toYaml .Values.vllmServingRuntime.annotations | nindent 4 }}
+  name: {{ include "vllm-inference-service.fullname" . }}
+  labels:
+    opendatahub.io/dashboard: 'true'
+spec:
+  annotations:
+    prometheus.io/path: /metrics
+    prometheus.io/port: '8080'
+  containers:
+    - args:
+        {{- toYaml .Values.vllmServingRuntime.args | nindent 8 }}
+        - {{ printf "--served-model-name=%s" ((split "/" .Values.global.model.vllm)._1) }}
+        - {{ printf "--port=%d" (int .Values.vllmServingRuntime.port) }}
+      command:
+        {{- toYaml .Values.vllmServingRuntime.command | nindent 8 }}
+      env:
+        - name: HF_HOME
+          value: /cache
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: hftoken
+              name: huggingface-secret
+        - name: MODEL_ID
+          value: {{ .Values.global.model.vllm }}
+        - name: HF_HUB_OFFLINE
+          value: '0'
+      image: "{{ .Values.vllmServingRuntime.image.repository }}:{{ .Values.vllmServingRuntime.image.tag }}"
+      name: kserve-container
+      ports:
+        - containerPort: {{ .Values.vllmServingRuntime.port }}
+          protocol: TCP
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: shm
+        - mountPath: /cache/models
+          name: models
+        - mountPath: /cache
+          name: cache
+  multiModel: false
+  supportedModelFormats:
+    - autoSelect: true
+      name: vLLM
+  volumes:
+    - name: shm
+      emptyDir:
+        medium: Memory
+        sizeLimit: 2Gi
+    - name: models
+      emptyDir: {}
+    - name: cache
+      emptyDir: {}

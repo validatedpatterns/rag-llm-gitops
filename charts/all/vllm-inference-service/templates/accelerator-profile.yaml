@@ -1,0 +1,13 @@
+{{- if .Values.acceleratorProfile.enabled }}
+apiVersion: dashboard.opendatahub.io/v1
+kind: AcceleratorProfile
+metadata:
+  name: nvidia-gpu
+  namespace: redhat-ods-applications
+spec:
+  displayName: NVIDIA GPU
+  enabled: true
+  identifier: nvidia.com/gpu
+  tolerations:
+    {{- toYaml .Values.vllmInferenceService.tolerations | nindent 4 }}
+{{- end }}
