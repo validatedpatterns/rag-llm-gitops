@@ -4,7 +4,7 @@ global:
   model:
     vllm: solidrust/Mistral-7B-Instruct-v0.3-AWQ
     embedding: sentence-transformers/distiluse-base-multilingual-cased
-  storageClass: azurefile-csi
+  storageClass: managed-csi
 
 vllmServingRuntime:
   args:

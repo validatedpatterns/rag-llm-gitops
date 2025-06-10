@@ -46,7 +46,7 @@ pvc:
  tempdbaccessMode: ReadWriteOnce
  tempsize: 2Gi
  mssqldataaccessMode: ReadWriteOnce
- mssqldbsize: 2Gi
+ mssqldbsize: 5Gi
 
 driver: "ODBC Driver 18 for SQL Server"
 databaseName: embeddings
