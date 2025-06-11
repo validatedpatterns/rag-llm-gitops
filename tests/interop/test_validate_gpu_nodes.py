@@ -1,7 +1,6 @@
 import logging
 import os
 import re
-import subprocess
 
 import pytest
 from ocp_resources.pod import Pod
@@ -156,6 +155,6 @@ def test_validate_gpu_node_role_labels_pods(openshift_dyn_client):
     if len(nvidia_pods) == int(expected_count):
         logger.info("PASS: Found the expected nvidia pod count for GPU nodes")
     else:
-        err_msg = f"Did not find the expected nvidia pod count for GPU nodes"
+        err_msg = "Did not find the expected nvidia pod count for GPU nodes"
         logger.error(f"FAIL: {err_msg}")
         assert False, err_msg
