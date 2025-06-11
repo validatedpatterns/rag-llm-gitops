@@ -3,9 +3,9 @@ import os
 import re
 
 import pytest
-from ocp_resources.pod import Pod
 from ocp_resources.machine_set import MachineSet
 from ocp_resources.node import Node
+from ocp_resources.pod import Pod
 
 from . import __loggername__
 
