@@ -95,7 +95,7 @@ def test_validate_gpu_nodes(openshift_dyn_client):
     instance_type = (
         gpu_machineset.instance.spec.template.spec.providerSpec.value.instanceType
     )
-    if instance_type == None:
+    if instance_type is None:
         # for Azure
         instance_type = (
             gpu_machineset.instance.spec.template.spec.providerSpec.value.vmSize
@@ -103,7 +103,7 @@ def test_validate_gpu_nodes(openshift_dyn_client):
 
     logger.info(instance_type)
 
-    if instance_type == None:
+    if instance_type is None:
         logger.error(f"FAIL: {err_msg}")
         assert False, err_msg
 
