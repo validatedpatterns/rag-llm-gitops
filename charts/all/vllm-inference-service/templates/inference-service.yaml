@@ -55,6 +55,7 @@ spec:
               secretKeyRef:
                 name: huggingface-secret
                 key: hftoken
+                optional: true
           - name: MODEL_ID
             value: {{ .Values.global.model.vllm | quote }}
         volumeMounts:
