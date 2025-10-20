@@ -35,9 +35,15 @@ spec:
             python - <<'PY'
             from huggingface_hub import snapshot_download, login
             import os
-            token = os.environ.get("HF_TOKEN")
+            raw_token = os.environ.get("HF_TOKEN", "")
+            token = raw_token.strip()
             model = os.environ.get("MODEL_ID")
-            login(token=token)
+            if not token or not token.startswith("hf_"):
+                print("[HF] HF_TOKEN empty or invalid format; skipping login")
+                os.environ.pop("HF_TOKEN", None)
+            else:
+                print("[HF] HF_TOKEN present; attempting login")
+                login(token=token)
             snapshot_download(
                 repo_id=model,
                 local_dir="/cache/models"
@@ -51,6 +57,7 @@ spec:
               secretKeyRef:
                 name: huggingface-secret
                 key: hftoken
+                optional: true
           - name: MODEL_ID
             value: {{ .Values.global.model.vllm | quote }}
         volumeMounts:
