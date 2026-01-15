@@ -19,6 +19,12 @@ OpenShift to generate project proposals for specific Red Hat products.
 - Red Hat Openshift cluster running in AWS. Supported regions are : us-east-1 us-east-2 us-west-1 us-west-2 ca-central-1 sa-east-1 eu-west-1 eu-west-2 eu-west-3 eu-central-1 eu-north-1 ap-northeast-1 ap-northeast-2 ap-northeast-3 ap-southeast-1 ap-southeast-2 ap-south-1.
 - GPU Node to run Hugging Face Text Generation Inference server on Red Hat OpenShift cluster.
 - Create a fork of the [rag-llm-gitops](https://github.com/validatedpatterns/rag-llm-gitops.git) Git repository.
+- **EDB Postgres Operator Credentials** (Required for default database): The pattern uses the EDB Postgres for Kubernetes operator from the certified-operators catalog by default. This operator requires authentication to pull images from `docker.enterprisedb.com`. You will need to:
+  1. Register for a free trial account at [EDB Registration](https://www.enterprisedb.com/accounts/register)
+  2. Obtain your subscription token from [EDB Repos Downloads](https://www.enterprisedb.com/repos-downloads)
+  3. Add the token to your `values-secret.yaml` file during configuration (see below)
+  
+  For more details, see the [EDB Installation Documentation](https://www.enterprisedb.com/docs/postgres_for_kubernetes/latest/installation_upgrade/).
 
 ## Demo Description & Architecture
 
@@ -116,6 +122,8 @@ cp values-secret.yaml.template ~/values-secret-rag-llm-gitops.yaml
 
 To deploy a model that can requires an Hugging Face token, grab the [Hugging Face token](https://huggingface.co/settings/tokens) and accept the terms and conditions on the model page. Edit ~/values-secret-rag-llm-gitops.yaml to replace the `model Id` and the `Hugging Face` token.
 
+**IMPORTANT**: If you are using the default EDB Postgres database (recommended), you must add your EDB subscription token to the `values-secret.yaml` file:
+
 ```sh
 secrets:
   - name: hfmodel
@@ -124,6 +132,11 @@ secrets:
       value: null
     - name: modelId
       value: "ibm-granite/granite-3.1-8b-instruct"
+  - name: edb
+    fields:
+    - name: token
+      value: "YOUR_EDB_TOKEN_HERE"  # Replace with your EDB subscription token
+      description: EDB subscription token for pulling certified operator images
   - name: minio
     fields:
     - name: MINIO_ROOT_USER
@@ -132,6 +145,8 @@ secrets:
       value: null
       onMissingValue: generate
 ```
+
+The EDB token is automatically used during installation to create the required pull secret for the EDB Postgres operator. Without this token, the operator will fail to pull its container image and the database will not be created.
 
 ### Provision GPU MachineSet
 
