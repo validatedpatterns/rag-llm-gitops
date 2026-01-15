@@ -146,7 +146,7 @@ secrets:
       onMissingValue: generate
 ```
 
-The EDB token is automatically used during installation to create the required pull secret for the EDB Postgres operator. Without this token, the operator will fail to pull its container image and the database will not be created.
+The EDB token is synced into Vault and then used by External Secrets to create the required pull secret (`postgresql-operator-pull-secret`) in `openshift-operators`. Without this token, the EDB operator will fail to pull its container image and the database will not be created.
 
 ### Provision GPU MachineSet
 
