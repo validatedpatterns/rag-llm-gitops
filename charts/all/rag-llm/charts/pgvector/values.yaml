@@ -1,0 +1,91 @@
+# Default values for pgvector.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: docker.io/pgvector/pgvector
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: pg17
+
+imagePullSecrets: []
+
+nameOverride: "pgvector"
+fullnameOverride: "pgvector"
+
+serviceAccount:
+  create: false
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 5432
+
+env:
+  - name: POSTGRES_USER
+    valueFrom:
+      secretKeyRef:
+        key: username
+        name: vectordb-app
+  - name: POSTGRES_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        key: password
+        name: vectordb-app
+  - name: POSTGRES_PORT
+    valueFrom:
+      secretKeyRef:
+        key: port
+        name: vectordb-app
+  - name: POSTGRES_DBNAME
+    valueFrom:
+      secretKeyRef:
+        key: dbname
+        name: vectordb-app
+
+resources: {}
+
+autoscaling:
+  enabled: false
+
+volumeClaimTemplates:
+  - metadata:
+      name: pg-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 5Gi
+
+volumeMounts:
+  - mountPath: /docker-entrypoint-initdb.d
+    name: initdb-volume
+  - mountPath: /var/lib/postgresql
+    name: pg-data
+
+nodeSelector: {}
+affinity: {}
+
+# Secret configuration for pgvector
+# These values can be overridden from a parent chart or via --set flags
+# Example: helm install ... 
+# --set pgvector.secret.user=myuser -
+# --set pgvector.secret.password=mypass
+secret:
+  create: true
+  user: postgres
+  password: rag_password
+  dbname: rag_blueprint
+  host: pgvector
+  port: "5432"
+
+extraDatabases: []
+  #- name: test_db
+  #  vectordb: false
