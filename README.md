@@ -19,6 +19,12 @@ OpenShift to generate project proposals for specific Red Hat products.
 - Red Hat Openshift cluster running in AWS. Supported regions are : us-east-1 us-east-2 us-west-1 us-west-2 ca-central-1 sa-east-1 eu-west-1 eu-west-2 eu-west-3 eu-central-1 eu-north-1 ap-northeast-1 ap-northeast-2 ap-northeast-3 ap-southeast-1 ap-southeast-2 ap-south-1.
 - GPU Node to run Hugging Face Text Generation Inference server on Red Hat OpenShift cluster.
 - Create a fork of the [rag-llm-gitops](https://github.com/validatedpatterns/rag-llm-gitops.git) Git repository.
+- **EDB Postgres Operator Credentials** (Required only if you select EDB): The EDB Postgres for Kubernetes operator from the certified-operators catalog requires authentication to pull images from `docker.enterprisedb.com`. You will need to:
+  1. Register for a free trial account at [EDB Registration](https://www.enterprisedb.com/accounts/register)
+  2. Obtain your subscription token from [EDB Repos Downloads](https://www.enterprisedb.com/repos-downloads)
+  3. Add the token to your `values-secret.yaml` file during configuration (see below)
+  
+  For more details, see the [EDB Installation Documentation](https://www.enterprisedb.com/docs/postgres_for_kubernetes/latest/installation_upgrade/).
 
 ## Demo Description & Architecture
 
@@ -116,6 +122,8 @@ cp values-secret.yaml.template ~/values-secret-rag-llm-gitops.yaml
 
 To deploy a model that can requires an Hugging Face token, grab the [Hugging Face token](https://huggingface.co/settings/tokens) and accept the terms and conditions on the model page. Edit ~/values-secret-rag-llm-gitops.yaml to replace the `model Id` and the `Hugging Face` token.
 
+**IMPORTANT**: If you are using EDB Postgres for Kubernetes, you must add your EDB subscription token to the `values-secret.yaml` file:
+
 ```sh
 secrets:
   - name: hfmodel
@@ -124,6 +132,11 @@ secrets:
       value: null
     - name: modelId
       value: "ibm-granite/granite-3.1-8b-instruct"
+  - name: edb
+    fields:
+    - name: token
+      value: "YOUR_EDB_TOKEN_HERE"  # Replace with your EDB subscription token
+      description: EDB subscription token for pulling certified operator images
   - name: minio
     fields:
     - name: MINIO_ROOT_USER
@@ -132,6 +145,8 @@ secrets:
       value: null
       onMissingValue: generate
 ```
+
+The EDB token is synced into Vault and then used by External Secrets to create the required pull secret (`postgresql-operator-pull-secret`) in `openshift-operators`. Without this token, the EDB operator will fail to pull its container image and the database will not be created.
 
 ### Provision GPU MachineSet
 
@@ -151,7 +166,7 @@ Alternatiely, follow the [instructions](./GPU_provisioning.md) to manually insta
 
 ### Deploy application
 
-***Note:**: This pattern supports three types of vector databases, EDB Postgres for Kubernetes, Elasticsearch and Redis. By default the pattern will deploy EDB Postgres for Kubernetes as a vector DB. To deploy Redis, change the global.db.type to REDIS in [values-global.yaml](./values-global.yaml).
+***Note:**: This pattern supports four types of vector databases: PGVECTOR (local chart), EDB Postgres for Kubernetes, Elasticsearch, and Redis. By default the pattern will deploy PGVECTOR as a vector DB. To deploy EDB, set `global.db.type` to `EDB` in [values-global.yaml](./values-global.yaml).
 
 ```yaml
 ---
@@ -161,10 +176,10 @@ global:
     useCSV: false
     syncPolicy: Automatic
     installPlanApproval: Automatic
-# Possible value for db.type = [REDIS, EDB, ELASTIC]
+# Possible value for db.type = [REDIS, EDB, ELASTIC, PGVECTOR]
   db:
     index: docs
-    type: EDB  # <--- Default is EDB, Change the db type to REDIS for Redis deployment or ELASTIC for Elasticsearch
+    type: PGVECTOR  # <--- Default is PGVECTOR. Use EDB, REDIS, or ELASTIC as needed.
 main:
   clusterGroupName: hub
   multiSourceConfig:

@@ -7,13 +7,14 @@ global:
     installPlanApproval: Automatic
   # Possible values for RAG vector DB db.type:
   #   REDIS    -> Redis (Local chart deploy)
-  #   EDB      -> PGVector (Local chart deploy)
+  #   EDB      -> PGVector via EDB operator (Local chart deploy)
+  #   PGVECTOR -> PGVector (Local Postgres chart deploy)
   #   ELASTIC  -> Elasticsearch (Local chart deploy)
   #   MSSQL    -> MS SQL Server (Local chart deploy)
   #   AZURESQL -> Azure SQL (Pre-existing in Azure)
   db:
     index: docs
-    type: EDB
+    type: PGVECTOR
   # Models used by the inference service (should be a HuggingFace model ID)
   model:
     vllm: ibm-granite/granite-3.3-8b-instruct

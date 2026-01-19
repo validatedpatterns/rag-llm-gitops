@@ -1,0 +1,20 @@
+{{- if eq .Values.global.db.type "PGVECTOR" }}
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: pgvector-initsql
+  labels:
+    {{- include "pgvector.labels" . | nindent 4 }}
+data:
+  init-db.sh: |
+    #!/bin/bash
+    set -e
+    psql -U postgres -c "CREATE DATABASE ${POSTGRES_DBNAME};"
+    psql -U postgres -d ${POSTGRES_DBNAME} -c "CREATE EXTENSION VECTOR;"
+  {{- range .Values.extraDatabases }}
+    psql -U postgres -c "CREATE DATABASE {{ .name }};"
+    {{- if .vectordb }}
+    psql -U postgres -d {{ .name }} -c "CREATE EXTENSION VECTOR;"
+    {{- end }}
+  {{- end }}
+{{- end }}
