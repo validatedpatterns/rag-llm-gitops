@@ -14,7 +14,7 @@ global:
   #   AZURESQL -> Azure SQL (Pre-existing in Azure)
   db:
     index: docs
-    type: pgvector
+    type: EDB
   # Models used by the inference service (should be a HuggingFace model ID)
   model:
     vllm: ibm-granite/granite-3.3-8b-instruct
