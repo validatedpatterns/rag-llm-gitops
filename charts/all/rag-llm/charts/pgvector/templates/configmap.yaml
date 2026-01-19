@@ -1,4 +1,4 @@
-{{- if eq .Values.global.db.type "pgvector" }}
+{{- if eq .Values.global.db.type "PGVECTOR" }}
 kind: ConfigMap
 apiVersion: v1
 metadata:

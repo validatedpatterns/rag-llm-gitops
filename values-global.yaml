@@ -8,13 +8,13 @@ global:
   # Possible values for RAG vector DB db.type:
   #   REDIS    -> Redis (Local chart deploy)
   #   EDB      -> PGVector via EDB operator (Local chart deploy)
-  #   pgvector -> PGVector (Local Postgres chart deploy)
+  #   PGVECTOR -> PGVector (Local Postgres chart deploy)
   #   ELASTIC  -> Elasticsearch (Local chart deploy)
   #   MSSQL    -> MS SQL Server (Local chart deploy)
   #   AZURESQL -> Azure SQL (Pre-existing in Azure)
   db:
     index: docs
-    type: pgvector
+    type: PGVECTOR
   # Models used by the inference service (should be a HuggingFace model ID)
   model:
     vllm: ibm-granite/granite-3.3-8b-instruct

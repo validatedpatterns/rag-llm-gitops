@@ -56,7 +56,7 @@ spec:
             - name: REDIS_SCHEMA
               value: redis_schema.yaml
           {{- end }}
-          {{- if or (eq .Values.global.db.type "EDB") (eq .Values.global.db.type "pgvector") }}
+          {{- if or (eq .Values.global.db.type "EDB") (eq .Values.global.db.type "PGVECTOR") }}
             - name: DB_TYPE
               value: PGVECTOR
             - name: DB_USERNAME

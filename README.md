@@ -166,7 +166,7 @@ Alternatiely, follow the [instructions](./GPU_provisioning.md) to manually insta
 
 ### Deploy application
 
-***Note:**: This pattern supports four types of vector databases: PGVector (local chart), EDB Postgres for Kubernetes, Elasticsearch, and Redis. By default the pattern will deploy PGVector as a vector DB. To deploy EDB, set `global.db.type` to `EDB` in [values-global.yaml](./values-global.yaml).
+***Note:**: This pattern supports four types of vector databases: PGVECTOR (local chart), EDB Postgres for Kubernetes, Elasticsearch, and Redis. By default the pattern will deploy PGVECTOR as a vector DB. To deploy EDB, set `global.db.type` to `EDB` in [values-global.yaml](./values-global.yaml).
 
 ```yaml
 ---
@@ -176,10 +176,10 @@ global:
     useCSV: false
     syncPolicy: Automatic
     installPlanApproval: Automatic
-# Possible value for db.type = [REDIS, EDB, ELASTIC, pgvector]
+# Possible value for db.type = [REDIS, EDB, ELASTIC, PGVECTOR]
   db:
     index: docs
-    type: pgvector  # <--- Default is pgvector. Use EDB, REDIS, or ELASTIC as needed.
+    type: PGVECTOR  # <--- Default is PGVECTOR. Use EDB, REDIS, or ELASTIC as needed.
 main:
   clusterGroupName: hub
   multiSourceConfig:

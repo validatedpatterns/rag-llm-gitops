@@ -1,4 +1,4 @@
-{{- if eq .Values.global.db.type "pgvector" }}
+{{- if eq .Values.global.db.type "PGVECTOR" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
