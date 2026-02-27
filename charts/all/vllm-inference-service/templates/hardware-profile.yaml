@@ -1,0 +1,20 @@
+{{- if .Values.hardwareProfile.enabled }}
+apiVersion: infrastructure.opendatahub.io/v1
+kind: HardwareProfile
+metadata:
+  name: nvidia-gpu
+  namespace: redhat-ods-applications
+spec:
+  identifiers:
+    - displayName: NVIDIA GPU
+      defaultCount: 1
+      minCount: 1
+      maxCount: 1
+      identifier: nvidia.com/gpu
+      resourceType: Accelerator
+  scheduling:
+    type: Node
+    node:
+      tolerations:
+        {{- toYaml .Values.vllmInferenceService.tolerations | nindent 8 }}
+{{- end }}

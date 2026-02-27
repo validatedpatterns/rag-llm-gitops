@@ -14,18 +14,8 @@ spec:
       managementState: Managed
     kueue:
       managementState: Removed
-    codeflare:
-      managementState: Removed
     ray:
       managementState: Removed
-    modelmeshserving:
-      managementState: Managed
     kserve:
       managementState: Managed
-      serving:
-        ingressGateway:
-          certificate:
-            type: SelfSigned
-        managementState: Managed
-        name: knative-serving
       rawDeploymentServiceConfig: Headed

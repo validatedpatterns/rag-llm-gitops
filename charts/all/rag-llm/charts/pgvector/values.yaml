@@ -73,18 +73,10 @@ volumeMounts:
 nodeSelector: {}
 affinity: {}
 
-# Secret configuration for pgvector
-# These values can be overridden from a parent chart or via --set flags
-# Example: helm install ... 
-# --set pgvector.secret.user=myuser -
-# --set pgvector.secret.password=mypass
-secret:
-  create: true
-  user: postgres
-  password: rag_password
-  dbname: rag_blueprint
-  host: pgvector
-  port: "5432"
+secretStore:
+  name: vault-backend
+  kind: ClusterSecretStore
+  key: secret/data/hub/pgvector
 
 extraDatabases: []
   #- name: test_db
