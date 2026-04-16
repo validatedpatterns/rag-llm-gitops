@@ -3,6 +3,7 @@
 metadata_version: "1.0"
 name: rag-llm-gitops
 pattern_version: "1.0"
+description: Deploy a RAG chatbot application on OpenShift that augments LLM responses with enterprise documentation stored in a vector database, using a GitOps framework
 display_name: AI Generation with LLM and RAG
 repo_url: https://github.com/validatedpatterns/rag-llm-gitops
 docs_repo_url: https://github.com/validatedpatterns/docs
