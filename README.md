@@ -2,28 +2,34 @@
 
 ## Introduction
 
-This deployment is based on the `validated pattern framework`, using GitOps for
-seamless provisioning of all operators and applications. It deploys a Chatbot
-application that harnesses the power of Large Language Models (LLMs) combined
+This deployment uses the [**Validated Patterns**](https://validatedpatterns.io/) framework,
+taking advantage of GitOps for seamless provisioning of all operators and applications.
+It deploys a Chatbot application that harnesses the power of Large Language Models (LLMs) combined
 with the Retrieval-Augmented Generation (RAG) framework.
 
-The pattern uses the [Red Hat OpenShift AI](https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai) to deploy and serve LLM models at scale.
+The pattern uses [**Red Hat OpenShift AI**](https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai) to deploy and serve LLM models at scale.
 
-The application uses either the [EDB Postgres for Kubernetes operator](https://catalog.redhat.com/software/container-stacks/detail/5fb41c88abd2a6f7dbe1b37b)
-(default) or Redis to store embeddings of Red Hat products, running on Red Hat
-OpenShift to generate project proposals for specific Red Hat products.
+By default, this pattern uses [**pgvector**](https://github.com/pgvector/pgvector) as the RAG DB backend.
+[**EDB Postgres**](https://www.enterprisedb.com/docs/edb-postgres-ai/latest/ai-factory/vector-engine/),
+[**Redis**](https://redis.io/docs/latest/develop/get-started/vector-database/),
+[**Elasticsearch**](https://www.elastic.co/elasticsearch/vector-database), and
+[**Microsoft SQL Server**](https://learn.microsoft.com/en-us/sql/sql-server/ai/vectors?view=sql-server-ver17)
+(either a local deployment as part of the pattern or an existing SQL Server DB on Azure) are also options
+for RAG DB backends.
+
+This pattern populates your chosen RAG DB with documents relating to Red Hat OpenShift AI for the purpose
+of generating project proposals.
 
 ## Pre-requisites
 
 - Podman
 - Red Hat Openshift cluster running in AWS. Supported regions are : us-east-1 us-east-2 us-west-1 us-west-2 ca-central-1 sa-east-1 eu-west-1 eu-west-2 eu-west-3 eu-central-1 eu-north-1 ap-northeast-1 ap-northeast-2 ap-northeast-3 ap-southeast-1 ap-southeast-2 ap-south-1.
-- GPU Node to run Hugging Face Text Generation Inference server on Red Hat OpenShift cluster.
 - Create a fork of the [rag-llm-gitops](https://github.com/validatedpatterns/rag-llm-gitops.git) Git repository.
 - **EDB Postgres Operator Credentials** (Required only if you select EDB): The EDB Postgres for Kubernetes operator from the certified-operators catalog requires authentication to pull images from `docker.enterprisedb.com`. You will need to:
   1. Register for a free trial account at [EDB Registration](https://www.enterprisedb.com/accounts/register)
   2. Obtain your subscription token from [EDB Repos Downloads](https://www.enterprisedb.com/repos-downloads)
   3. Add the token to your `values-secret.yaml` file during configuration (see below)
-  
+
   For more details, see the [EDB Installation Documentation](https://www.enterprisedb.com/docs/postgres_for_kubernetes/latest/installation_upgrade/).
 
 ## Demo Description & Architecture
@@ -111,7 +117,7 @@ cd rag-llm-gitops
 
 ### Configuring model
 
-This pattern deploys [IBM Granite 3.1-8B-Instruct](https://huggingface.co/ibm-granite/granite-3.1-8b-instruct) out of box. Run the following command to configure vault with the model ID.
+This pattern deploys [IBM Granite 3.3-8B-Instruct](https://huggingface.co/ibm-granite/granite-3.3-8b-instruct) out of box. Run the following command to configure vault with the model ID.
 
 ```sh
 # Copy values-secret.yaml.template to ~/values-secret-rag-llm-gitops.yaml.
@@ -120,9 +126,12 @@ This pattern deploys [IBM Granite 3.1-8B-Instruct](https://huggingface.co/ibm-gr
 cp values-secret.yaml.template ~/values-secret-rag-llm-gitops.yaml
 ```
 
-To deploy a model that can requires an Hugging Face token, grab the [Hugging Face token](https://huggingface.co/settings/tokens) and accept the terms and conditions on the model page. Edit ~/values-secret-rag-llm-gitops.yaml to replace the `model Id` and the `Hugging Face` token.
+To deploy a model that requires a Hugging Face token, grab the [Hugging Face token](https://huggingface.co/settings/tokens) and accept the terms and conditions on the model page. Update the `hftoken` secret in
+`~/values-secret-rag-llm-gitops.yaml` and edit the value of `.global.model.vllm` in
+[`values-global.yaml`](./values-global.yaml) to your desired model.
 
-**IMPORTANT**: If you are using EDB Postgres for Kubernetes, you must add your EDB subscription token to the `values-secret.yaml` file:
+**IMPORTANT**: If you are using EDB Postgres for Kubernetes, you must add your EDB subscription token to
+`~/values-secret-rag-llm-gitops.yaml`:
 
 ```sh
 secrets:
@@ -130,43 +139,36 @@ secrets:
     fields:
     - name: hftoken
       value: null
-    - name: modelId
-      value: "ibm-granite/granite-3.1-8b-instruct"
   - name: edb
     fields:
     - name: token
       value: "YOUR_EDB_TOKEN_HERE"  # Replace with your EDB subscription token
       description: EDB subscription token for pulling certified operator images
-  - name: minio
-    fields:
-    - name: MINIO_ROOT_USER
-      value: minio
-    - name: MINIO_ROOT_PASSWORD
-      value: null
-      onMissingValue: generate
 ```
 
 The EDB token is synced into Vault and then used by External Secrets to create the required pull secret (`postgresql-operator-pull-secret`) in `openshift-operators`. Without this token, the EDB operator will fail to pull its container image and the database will not be created.
 
+If you are using PGVector or SQL Server, you can update the password in this file. Otherwise, an autogenerated
+password is used.
+
 ### Provision GPU MachineSet
 
-As a pre-requisite to deploy the application using the validated pattern, GPU nodes should be provisioned along with Node Feature Discovery Operator and NVIDIA GPU operator. To provision GPU Nodes
-
-Following command will take about 5-10 minutes.
+As a pre-requisite to deploy the application using this Validated Pattern, a GPU node needs to be provisioned.
+To provision the GPU node on AWS:
 
 ```sh
 ./pattern.sh make create-gpu-machineset
 ```
 
-Wait till the nodes are provisioned and running.
+Wait till the node is provisioned and running.
 
 ![Diagram](images/nodes.png)
 
-Alternatiely, follow the [instructions](./GPU_provisioning.md) to manually install GPU nodes, Node Feature Discovery Operator and NVIDIA GPU operator.
+Alternatiely, follow the [instructions](./GPU_provisioning.md) to manually install the GPU node.
 
 ### Deploy application
 
-***Note:**: This pattern supports four types of vector databases: PGVECTOR (local chart), EDB Postgres for Kubernetes, Elasticsearch, and Redis. By default the pattern will deploy PGVECTOR as a vector DB. To deploy EDB, set `global.db.type` to `EDB` in [values-global.yaml](./values-global.yaml).
+***Note:**: This pattern supports five types of vector databases: pgvector, EDB Postgres for Kubernetes, Elasticsearch, Redis, and SQL Server. By default the pattern will deploy pgvector as the RAG DB. To deploy EDB, set `global.db.type` to `EDB` in [values-global.yaml](./values-global.yaml).
 
 ```yaml
 ---
@@ -176,14 +178,28 @@ global:
     useCSV: false
     syncPolicy: Automatic
     installPlanApproval: Automatic
-# Possible value for db.type = [REDIS, EDB, ELASTIC, PGVECTOR]
+  # Possible values for RAG vector DB db.type:
+  #   REDIS    -> Redis (Local chart deploy)
+  #   EDB      -> PGVector via EDB operator (Local chart deploy)
+  #   PGVECTOR -> PGVector (Local Postgres chart deploy)
+  #   ELASTIC  -> Elasticsearch (Local chart deploy)
+  #   MSSQL    -> MS SQL Server (Local chart deploy)
+  #   AZURESQL -> Azure SQL (Pre-existing in Azure)
   db:
     index: docs
-    type: PGVECTOR  # <--- Default is PGVECTOR. Use EDB, REDIS, or ELASTIC as needed.
+    type: PGVECTOR
+  # Models used by the inference service (should be a HuggingFace model ID)
+  model:
+    vllm: ibm-granite/granite-3.3-8b-instruct
+    embedding: sentence-transformers/all-mpnet-base-v2
+
+  storageClass: gp3-csi
+
 main:
   clusterGroupName: hub
   multiSourceConfig:
     enabled: true
+    clusterGroupChartVersion: 0.9.*
 ```
 
 Following commands will take about 15-20 minutes
