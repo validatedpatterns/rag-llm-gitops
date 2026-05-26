@@ -41,6 +41,12 @@ spec:
           name: models
         - mountPath: /cache
           name: cache
+        - mountPath: /.cache
+          name: dotcache
+        - mountPath: /.config
+          name: dotconfig
+        - mountPath: /.triton
+          name: dottriton
   multiModel: false
   supportedModelFormats:
     - autoSelect: true
@@ -53,4 +59,10 @@ spec:
     - name: models
       emptyDir: {}
     - name: cache
+      emptyDir: {}
+    - name: dotcache
+      emptyDir: {}
+    - name: dotconfig
+      emptyDir: {}
+    - name: dottriton
       emptyDir: {}

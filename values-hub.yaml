@@ -51,6 +51,7 @@ clusterGroup:
 
   sharedValueFiles:
     - '/overrides/values-{{ $.Values.global.clusterPlatform }}.yaml'
+    - /overrides/ci.yaml
 
   applications:
     vault:

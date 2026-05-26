@@ -1,0 +1,13 @@
+global:
+  model:
+    vllm: ibm-granite/granite-4.0-h-350m
+
+vllmServingRuntime:
+  args:
+    - /cache/models
+
+  command: []
+
+  image:
+    repository: vllm/vllm-openai
+    tag: v0.21.0
