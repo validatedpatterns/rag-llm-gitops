@@ -5,7 +5,7 @@ global:
 vllmInferenceService:
   annotations:
     openshift.io/display-name: vllm-inference
-    serving.kserve.io/deploymentMode: RawDeployment
+    serving.kserve.io/deploymentMode: Standard
     argocd.argoproj.io/sync-wave: "20"
 
   predictor:
@@ -57,5 +57,5 @@ vllmServingRuntime:
 
   port: 8080
 
-acceleratorProfile:
+hardwareProfile:
   enabled: true

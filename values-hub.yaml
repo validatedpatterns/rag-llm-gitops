@@ -38,12 +38,6 @@ clusterGroup:
       name: elasticsearch-eck-operator-certified
       namespace: rag-llm
       source: certified-operators
-    serverless:
-      name: serverless-operator
-      namespace: openshift-serverless
-    servicemesh:
-      name: servicemeshoperator
-      namespace: openshift-operators
     rhoai:
       name: rhods-operator
       namespace: redhat-ods-operator
@@ -57,6 +51,7 @@ clusterGroup:
 
   sharedValueFiles:
     - '/overrides/values-{{ $.Values.global.clusterPlatform }}.yaml'
+    - /overrides/ci.yaml
 
   applications:
     vault:
