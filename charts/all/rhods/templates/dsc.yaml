@@ -10,8 +10,6 @@ spec:
       managementState: Managed
     workbenches:
       managementState: Managed
-    datasciencepipelines:
-      managementState: Managed
     kueue:
       managementState: Removed
     ray:

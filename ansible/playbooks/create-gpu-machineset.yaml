@@ -39,19 +39,6 @@
       ansible.builtin.set_fact:
         cloudRegion: "{{ infraInfo.resources[0].status.platformStatus[cloudProvider].region }}"
 
-    - name: "[create-gpu-machine-set] Search for MachineSets"
-      kubernetes.core.k8s_info:
-        api: machine.openshift.io/v1beta1
-        kind: MachineSet
-        namespace: openshift-machine-api
-      register: machineset
-
-    - name: "[create-gpu-machine-set] Get the availability zone from the first worker MachineSets"
-      ansible.builtin.set_fact:
-        cloudAvailabilityZone: "{{ item.spec.template.spec.providerSpec.value.placement.availabilityZone }}"
-      with_items:
-        - "{{ machineset.resources[0] }}"
-
     - name: "[create-gpu-machine-set] Search for worker MachineSets"
       kubernetes.core.k8s_info:
         api: machine.openshift.io/v1beta1
@@ -69,6 +56,7 @@
         securityGroups: "{{ machines.resources[0].spec.providerSpec.value.securityGroups }}"
         subnets: "{{ machines.resources[0].spec.providerSpec.value.subnet }}"
         tags: "{{ machines.resources[0].spec.providerSpec.value.tags }}"
+        cloudAvailabilityZone: "{{ machines.resources[0].spec.providerSpec.value.placement.availabilityZone }}"
 
     - name: "[create-gpu-machine-set] Generate machineset"
       ansible.builtin.template:

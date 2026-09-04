@@ -57,7 +57,7 @@
         src:  templates/gpu-machineset-azure.j2
         dest: /tmp/gpu-machineset-azure.yaml
       vars:
-        ms_name: "nvidia-worker-{{ azure_location | replace(' ', '') }}{{ gpu_zone }}"
+        ms_name: "nvidia-gpu-worker-{{ azure_location | replace(' ', '') }}{{ gpu_zone }}"
 
     - name: Apply the GPU MachineSet
       kubernetes.core.k8s:

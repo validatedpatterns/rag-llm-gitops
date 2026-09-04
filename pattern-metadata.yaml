@@ -12,7 +12,7 @@ docs_url: https://validatedpatterns.io/patterns/rag-llm-gitops/
 ci_url: https://validatedpatterns.io/ci/?pattern=ragllm
 # can be sandbox, tested or maintained
 tier: tested
-owners: day0hero, sauagarwa
+owners: dminnear-rh
 requirements:
   hub: # Main cluster
     compute:
@@ -20,11 +20,17 @@ requirements:
         aws:
           replicas: 3
           type: m5.2xlarge
+        azure:
+          replicas: 3
+          type: Standard_D8s_v4
     controlPlane:
       platform:
         aws:
-          replicas: 1
-          type: m5.2xlarge
+          replicas: 3
+          type: m5.xlarge
+        azure:
+          replicas: 3
+          type: Standard_D4s_v4
 
 # Loosely defined extra features like hypershift support, non-openshift
 # kubernetes support, spoke support

@@ -1,0 +1,122 @@
+clusterGroup:
+  name: ci
+
+  namespaces:
+    open-cluster-management:
+    vault:
+    external-secrets-operator:
+      operatorGroup: true
+      targetNamespaces: []
+    external-secrets:
+    openshift-nfd:
+    nvidia-gpu-operator:
+    redhat-ods-operator:
+      operatorGroup: true
+      targetNamespaces: []
+    rag-llm:
+      operatorGroup: true
+      targetNamespaces:
+        - rag-llm
+      labels:
+        opendatahub.io/dashboard: "true"
+        modelmesh-enabled: 'false'
+    openshift-serverless:
+      operatorGroup: true
+      targetNamespaces: []
+
+  subscriptions:
+    eso:
+      name: openshift-external-secrets-operator
+      namespace: external-secrets-operator
+      channel: stable-v1
+    nfd:
+      name: nfd
+      namespace: openshift-nfd
+    nvidia:
+      name: gpu-operator-certified
+      namespace: nvidia-gpu-operator
+      source: certified-operators
+    edb:
+      name: cloud-native-postgresql
+      namespace: openshift-operators
+      source: certified-operators
+    elastic:
+      name: elasticsearch-eck-operator-certified
+      namespace: rag-llm
+      source: certified-operators
+    rhoai:
+      name: rhods-operator
+      namespace: redhat-ods-operator
+
+  sharedValueFiles:
+    - '/variants/ci/values-{{ $.Values.global.clusterPlatform }}.yaml'
+
+  applications:
+    vault:
+      name: vault
+      namespace: vault
+      chart: hashicorp-vault
+      chartVersion: 0.1.*
+    openshift-external-secrets:
+      name: openshift-external-secrets
+      namespace: external-secrets
+      chart: openshift-external-secrets
+      chartVersion: 0.0.*
+    vllm-inference-service:
+      name: vllm-inference-service
+      namespace: rag-llm
+      path: charts/all/vllm-inference-service
+      syncPolicy:
+        automated:
+          selfHeal: true
+        retry:
+          limit: 20
+    rag-llm:
+      name: rag-llm
+      namespace: rag-llm
+      path: charts/all/rag-llm
+    llm-monitoring:
+      name: llm-monitoring
+      namespace: llm-monitoring
+      kustomize: true
+      path: charts/all/llm-monitoring/kustomize/overlays/dev
+    nfd-config:
+      name: nfd-config
+      namespace: openshift-cfd
+      path: charts/all/nfd-config
+    nvidia-config:
+      name: nvidia-config
+      namespace: nvidia-network-operator
+      path: charts/all/nvidia-gpu-config
+    llm-ui-config:
+      name: rag-llm-ui-config
+      namespace: rag-llm
+      path: charts/all/rag-llm-ui-config
+    llm-monitoring-config:
+      name: grafana-ui-config
+      namespace: llm-monitoring
+      path: charts/all/llm-monitoring-config
+    openshift-ai:
+      name: openshift-ai
+      namespace: redhat-ods-operator
+      path: charts/all/rhods
+
+global:
+  model:
+    vllm: ibm-granite/granite-4.0-h-350m
+
+vllmServingRuntime:
+  args:
+    - /cache/models
+    # Cap KV-cache reservation so there is free VRAM headroom for the Mamba
+    # Triton kernel autotuner, which allocates scratch outside vLLM's pool on
+    # the first request. Needed on 16 GB GPUs (e.g. Azure Tesla T4); the
+    # default 0.9 leaves too little free and OOMs. The model is ~0.65 GiB, so
+    # a small KV cache is plenty for CI.
+    - --gpu-memory-utilization=0.5
+
+  command: []
+
+  image:
+    repository: vllm/vllm-openai
+    tag: v0.21.0
