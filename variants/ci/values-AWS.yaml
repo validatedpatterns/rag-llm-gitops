@@ -1,0 +1,24 @@
+clusterGroup:
+  imperative:
+    jobs:
+      - name: create-gpu-machineset
+        playbook: ansible/playbooks/create-gpu-machineset.yaml
+    clusterRoleYaml:
+      - apiGroups:
+          - "*"
+        resources:
+          - machinesets
+          - persistentvolumeclaims
+          - datavolumes
+          - dataimportcrons
+          - datasources
+        verbs:
+          - "*"
+      - apiGroups:
+          - "*"
+        resources:
+          - "*"
+        verbs:
+          - get
+          - list
+          - watch

@@ -1,28 +1,34 @@
 clusterGroup:
   name: hub
-  isHubCluster: true
 
   namespaces:
-    - open-cluster-management
-    - vault
-    - golang-external-secrets
-    - openshift-nfd
-    - nvidia-gpu-operator
-    - redhat-ods-operator:
-        operatorGroup: true
-        targetNamespaces: []
-    - rag-llm:
-        operatorGroup: true
-        targetNamespaces:
-          - rag-llm
-        labels:
-          opendatahub.io/dashboard: "true"
-          modelmesh-enabled: 'false'
-    - openshift-serverless:
-        operatorGroup: true
-        targetNamespaces: []
+    open-cluster-management:
+    vault:
+    external-secrets-operator:
+      operatorGroup: true
+      targetNamespaces: []
+    external-secrets:
+    openshift-nfd:
+    nvidia-gpu-operator:
+    redhat-ods-operator:
+      operatorGroup: true
+      targetNamespaces: []
+    rag-llm:
+      operatorGroup: true
+      targetNamespaces:
+        - rag-llm
+      labels:
+        opendatahub.io/dashboard: "true"
+        modelmesh-enabled: 'false'
+    openshift-serverless:
+      operatorGroup: true
+      targetNamespaces: []
 
   subscriptions:
+    eso:
+      name: openshift-external-secrets-operator
+      namespace: external-secrets-operator
+      channel: stable-v1
     nfd:
       name: nfd
       namespace: openshift-nfd
@@ -42,13 +48,6 @@ clusterGroup:
       name: rhods-operator
       namespace: redhat-ods-operator
 
-  projects:
-    - hub
-    - rag-llm
-    - llm-monitoring
-    - gpu-config
-    - openshift-ai
-
   sharedValueFiles:
     - '/overrides/values-{{ $.Values.global.clusterPlatform }}.yaml'
 
@@ -56,19 +55,16 @@ clusterGroup:
     vault:
       name: vault
       namespace: vault
-      project: hub
       chart: hashicorp-vault
       chartVersion: 0.1.*
-    golang-external-secrets:
-      name: golang-external-secrets
-      namespace: golang-external-secrets
-      project: hub
-      chart: golang-external-secrets
-      chartVersion: 0.1.*
+    openshift-external-secrets:
+      name: openshift-external-secrets
+      namespace: external-secrets
+      chart: openshift-external-secrets
+      chartVersion: 0.0.*
     vllm-inference-service:
       name: vllm-inference-service
       namespace: rag-llm
-      project: hub
       path: charts/all/vllm-inference-service
       syncPolicy:
         automated:
@@ -78,36 +74,29 @@ clusterGroup:
     rag-llm:
       name: rag-llm
       namespace: rag-llm
-      project: rag-llm
       path: charts/all/rag-llm
     llm-monitoring:
       name: llm-monitoring
       namespace: llm-monitoring
-      project: llm-monitoring
       kustomize: true
       path: charts/all/llm-monitoring/kustomize/overlays/dev
     nfd-config:
       name: nfd-config
       namespace: openshift-cfd
-      project: gpu-config
       path: charts/all/nfd-config
     nvidia-config:
       name: nvidia-config
       namespace: nvidia-network-operator
-      project: gpu-config
       path: charts/all/nvidia-gpu-config
     llm-ui-config:
       name: rag-llm-ui-config
       namespace: rag-llm
-      project: gpu-config
       path: charts/all/rag-llm-ui-config
     llm-monitoring-config:
       name: grafana-ui-config
       namespace: llm-monitoring
-      project: gpu-config
       path: charts/all/llm-monitoring-config
     openshift-ai:
       name: openshift-ai
       namespace: redhat-ods-operator
-      project: openshift-ai
       path: charts/all/rhods

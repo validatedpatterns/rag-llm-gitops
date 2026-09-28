@@ -1,6 +1,7 @@
 ---
 global:
   pattern: rag-llm-gitops
+  singleArgoCD: true
   options:
     useCSV: false
     syncPolicy: Automatic
@@ -23,7 +24,7 @@ global:
   storageClass: gp3-csi
 
 main:
-  clusterGroupName: hub
+  variant: hub
   multiSourceConfig:
     enabled: true
     clusterGroupChartVersion: 0.9.*
