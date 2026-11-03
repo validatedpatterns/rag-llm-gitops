@@ -86,7 +86,7 @@ clusterGroup:
       path: charts/all/nfd-config
     nvidia-config:
       name: nvidia-config
-      namespace: nvidia-network-operator
+      namespace: nvidia-gpu-operator
       path: charts/all/nvidia-gpu-config
     llm-ui-config:
       name: rag-llm-ui-config

@@ -2,7 +2,6 @@ apiVersion: nvidia.com/v1
 kind: ClusterPolicy
 metadata:
   name: rag-llm-gpu-cluster-policy
-  namespace: nvidia-gpu-operator
 spec:
   vgpuDeviceManager:
     enabled: true
